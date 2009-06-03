@@ -11,25 +11,20 @@
 #include <errno.h>
 
 using namespace std;
-
-	class __declspec(dllexport) Disc
+extern "C"
+{
+	class Disc
 	{
 		public:
 			// public variables
-			bool IsOpen;
-
-			// Constructor and Destructor
-			Disc(char* IsoFileName);
-			~Disc(void);
+			
 
 			// public methods
-			void Disc::Open(char* IsoFileName);
-			const char* Disc::GetLastError();
-
+			int Disc::Open(char* IsoFileName);
+			
 
 			
 		private:
 			// private variables
-			string _isoFileName;
-			string _lastErr;
 	};
+}
