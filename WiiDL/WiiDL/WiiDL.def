@@ -1,4 +1,0 @@
-LIBRARY	"WiiDL"
-EXPORTS
-	Open
-	GetLastError

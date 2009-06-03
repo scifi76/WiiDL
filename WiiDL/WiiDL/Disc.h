@@ -12,9 +12,6 @@
 
 using namespace std;
 
-extern "C"
-{
-
 	class __declspec(dllexport) Disc
 	{
 		public:
@@ -36,4 +33,3 @@ extern "C"
 			string _isoFileName;
 			string _lastErr;
 	};
-}

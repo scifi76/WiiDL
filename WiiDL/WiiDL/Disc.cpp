@@ -1,9 +1,6 @@
 #include "Disc.h"
 
 
-extern "C"
-{
-
 	// Constructor
 	Disc::Disc(char* IsoFileName)
 	{
@@ -18,6 +15,7 @@ extern "C"
 
 	void Disc::Open(char* IsoFileName)
 	{
+		_isoFileName = "";
 		_isoFileName.assign(IsoFileName);
 
 		// try to open the iso
@@ -54,5 +52,5 @@ extern "C"
 	{
 		return _lastErr.c_str();
 	}
-}
+
 

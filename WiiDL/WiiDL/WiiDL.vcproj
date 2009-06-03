@@ -174,10 +174,6 @@
 				RelativePath=".\Disc.cpp"
 				>
 			</File>
-			<File
-				RelativePath=".\WiiDL.def"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"

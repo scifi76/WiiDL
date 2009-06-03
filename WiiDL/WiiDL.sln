@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WiiDL", "WiiDL\WiiDL.vcproj", "{A180A96B-A209-4D1D-A2CB-9BCB68485058}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WiiDLTestApp", "..\WiiDLTestApp\WiiDLTestApp.csproj", "{7FD72301-0B03-4DE8-8069-93C3F9542730}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,16 +23,6 @@ Global
 		{A180A96B-A209-4D1D-A2CB-9BCB68485058}.Release|Mixed Platforms.Build.0 = Release|Win32
 		{A180A96B-A209-4D1D-A2CB-9BCB68485058}.Release|Win32.ActiveCfg = Release|Win32
 		{A180A96B-A209-4D1D-A2CB-9BCB68485058}.Release|Win32.Build.0 = Release|Win32
-		{7FD72301-0B03-4DE8-8069-93C3F9542730}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7FD72301-0B03-4DE8-8069-93C3F9542730}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7FD72301-0B03-4DE8-8069-93C3F9542730}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{7FD72301-0B03-4DE8-8069-93C3F9542730}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{7FD72301-0B03-4DE8-8069-93C3F9542730}.Debug|Win32.ActiveCfg = Debug|Any CPU
-		{7FD72301-0B03-4DE8-8069-93C3F9542730}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7FD72301-0B03-4DE8-8069-93C3F9542730}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7FD72301-0B03-4DE8-8069-93C3F9542730}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{7FD72301-0B03-4DE8-8069-93C3F9542730}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{7FD72301-0B03-4DE8-8069-93C3F9542730}.Release|Win32.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
