@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="WiiDL"
-	ProjectGUID="{A180A96B-A209-4D1D-A2CB-9BCB68485058}"
-	RootNamespace="WiiDL"
+	Name="WiiDLBase"
+	ProjectGUID="{2F5AF25A-14E2-40F6-8203-C8EB65675649}"
+	RootNamespace="WiiDLBase"
 	TargetFrameworkVersion="196613"
 	>
 	<Platforms>
@@ -19,7 +19,7 @@
 			Name="Debug|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="2"
+			ConfigurationType="1"
 			CharacterSet="2"
 			>
 			<Tool
@@ -40,7 +40,6 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				EnableIntrinsicFunctions="false"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -58,12 +57,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				Version="0.01a"
-				LinkIncremental="2"
-				ModuleDefinitionFile=""
 				GenerateDebugInformation="true"
-				SubSystem="0"
-				ResourceOnlyDLL="true"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -131,8 +125,6 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				Version="0.01a"
-				ModuleDefinitionFile="WiiDL.def"
 				GenerateDebugInformation="true"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"

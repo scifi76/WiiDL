@@ -59,7 +59,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				LinkIncremental="0"
+				LinkIncremental="1"
 				AdditionalLibraryDirectories="X:\Development\WiiDL\WiiDLBase\Debug"
 				GenerateDebugInformation="true"
 				SubSystem="1"
