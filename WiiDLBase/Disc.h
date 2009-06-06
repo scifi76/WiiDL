@@ -16,17 +16,28 @@
 #pragma comment(lib, "WiiDLBase.lib") 
 #endif
 
+#include <fstream>
 
 class DISC_API Disc
 {
 	public:
+		// Constructor / Destructor
+		Disc(char* IsoFileName);
+		~Disc(void);
+
 		// public variables
-		
+		bool IsOpen;
+
 		// public methods
-		int Disc::Open(char* IsoFileName);
-			
+		bool Open();
+		void Close();
+		
+		
 
 			
 	private:
 		// private variables
+		char* _isoFileName;
+		std::fstream _fsIsoFile;
+		
 };

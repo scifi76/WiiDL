@@ -3,8 +3,9 @@
 	ProjectType="Visual C++"
 	Version="9.00"
 	Name="WiiDLTestApp"
-	ProjectGUID="{4C9BBB9C-E4F8-432E-BE15-8524106C3CB1}"
+	ProjectGUID="{8293FF7B-2EF8-43E5-BF04-74385CC1C932}"
 	RootNamespace="WiiDLTestApp"
+	Keyword="Win32Proj"
 	TargetFrameworkVersion="196613"
 	>
 	<Platforms>
@@ -41,10 +42,12 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="X:\Development\WiiDL\WiiDLBase"
+				AdditionalIncludeDirectories="..\WiiDLBase"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
+				UsePrecompiledHeader="2"
 				WarningLevel="3"
 				DebugInformationFormat="4"
 			/>
@@ -59,11 +62,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				LinkIncremental="0"
-				AdditionalLibraryDirectories="X:\Development\WiiDL\WiiDLBase\Debug"
+				LinkIncremental="2"
 				GenerateDebugInformation="true"
 				SubSystem="1"
-				EntryPointSymbol="Test::Main"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -90,14 +91,15 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			OutputDirectory=".\$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
-			CharacterSet="2"
+			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				CommandLine="copy ..\WiiDLBase\Release\WiiDLBase.dll .\Release\WiiDLBase.dll"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -115,8 +117,11 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
+				AdditionalIncludeDirectories="..\WiiDLBase"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
+				UsePrecompiledHeader="2"
 				WarningLevel="3"
 				DebugInformationFormat="3"
 			/>
@@ -131,10 +136,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				LinkIncremental="1"
 				GenerateDebugInformation="true"
+				SubSystem="1"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
-				EntryPointSymbol="Test::Main"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -169,7 +175,27 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\Test.cpp"
+				RelativePath=".\stdafx.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\WiiDLTestApp.cpp"
 				>
 			</File>
 		</Filter>
@@ -179,7 +205,11 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\Test.h"
+				RelativePath=".\stdafx.h"
+				>
+			</File>
+			<File
+				RelativePath=".\targetver.h"
 				>
 			</File>
 		</Filter>
@@ -189,6 +219,10 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 		</Filter>
+		<File
+			RelativePath=".\ReadMe.txt"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>
