@@ -1,4 +1,4 @@
-#define DISC_EXPORTS 
+
 #include "Disc.h"
 
 ///<summary>

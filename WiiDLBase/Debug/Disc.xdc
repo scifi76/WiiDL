@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <doc>
 <members>
-<member name="T:Disc" decl="false" source="z:\development\wiidl\wiidlbase\disc.h" line="21">
+<member name="T:Disc" decl="false" source="z:\development\wiidl\wiidlbase\disc.h" line="29">
 <summary>
 Represents a Wii disc image (ISO) and contains most of the methods for working with the image
 </summary>
