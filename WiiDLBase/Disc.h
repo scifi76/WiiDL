@@ -18,6 +18,9 @@
 
 #include <fstream>
 
+///<summary>
+/// Represents a Wii disc image (ISO) and contains most of the methods for working with the image
+///</summary>
 class DISC_API Disc
 {
 	public:
@@ -30,14 +33,17 @@ class DISC_API Disc
 
 		// public methods
 		bool Open();
-		void Close();
+		bool Close();
+		const char* GetLastError();
 		
 		
 
 			
 	private:
 		// private variables
-		char* _isoFileName;
-		std::fstream _fsIsoFile;
+		char* _isoFileName; // the name of the isofile
+		std::fstream _fsIsoFile; // a stream object for accessing the file
+		const char* _lastErr; // used to store the last error message that occured
+		long long _discOffset; // the offset within the ISO file where the disc's data starts
 		
 };
