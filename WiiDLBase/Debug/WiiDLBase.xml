@@ -29,5 +29,20 @@ Constructor. Creates a Disc object
 Represents a Wii disc image (ISO) and contains most of the methods for working with the image
 </summary>
         </member>
+        <member name="M:Utils.AppendCharToCharArray(System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst)">
+            <summary>
+Appends a char to a char array
+<returns>A char array with the new char appended to it</returns></summary>
+        </member>
+        <member name="M:Utils.GetFileExtension(System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte*)">
+            <summary>
+Returns the extension of the filename passed in
+<returns>The 3 character extension of the input file</returns></summary>
+        </member>
+        <member name="T:Utils">
+            <summary>
+Contains utility functions
+</summary>
+        </member>
     </members>
 </doc>

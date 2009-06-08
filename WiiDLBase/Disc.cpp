@@ -7,6 +7,7 @@
 ///</summary>
 Disc::Disc(char* IsoFileName)
 {
+	IsOpen = false;
 	_isoFileName = IsoFileName;
 }
 
@@ -36,8 +37,15 @@ bool Disc::Open()
 			_fsIsoFile.open(_isoFileName, std::ios::in | std::ios::out | std::ios::binary);
 			IsOpen = _fsIsoFile.is_open();
 
-			// check if this is a devkitimage (.RVM)
-			
+			//check the file opened ok
+			if (IsOpen)
+			{
+				// check if this is a devkitimage (.RVM)
+			}
+			else
+			{
+				throw std::ios::failure("Unable to open file. Check file exists");
+			}
 		}
 		catch (std::ios::failure ex)
 		{

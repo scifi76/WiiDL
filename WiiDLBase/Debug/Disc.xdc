@@ -12,18 +12,18 @@ Constructor. Creates a Disc object
 <param name="IsoFilename">The path of the Wii ISO file that the Disc object will access</param>
 </summary>
 </member>
-<member name="M:Disc.Dispose" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="13">
+<member name="M:Disc.Dispose" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="14">
 <summary>
 Destructor. Disposes of the Disc object
 </summary>
 </member>
-<member name="M:Disc.Open" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="25">
+<member name="M:Disc.Open" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="26">
 <summary>
 Opens the Wii ISO
 <returns>True if the ISO was successfully opened. Otherwise false</returns>
 </summary>
 </member>
-<member name="M:Disc.Close" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="52">
+<member name="M:Disc.Close" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="60">
 <summary>
 Closes the Wii ISO
 <returns>True if the ISO was successfully closed. Otherwise false</returns>

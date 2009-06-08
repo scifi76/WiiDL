@@ -1,0 +1,8 @@
+Z:\Development\WiiDL\WiiDLCSharpTestApp\obj\Debug\ResolveAssemblyReference.cache
+Z:\Development\WiiDL\WiiDLCSharpTestApp\obj\Debug\WiiDLCSharpTestApp.Form1.resources
+Z:\Development\WiiDL\WiiDLCSharpTestApp\obj\Debug\WiiDLCSharpTestApp.Properties.Resources.resources
+Z:\Development\WiiDL\WiiDLCSharpTestApp\obj\Debug\WiiDLCSharpTestApp.csproj.GenerateResource.Cache
+Z:\Development\WiiDL\WiiDLCSharpTestApp\bin\Debug\WiiDLCSharpTestApp.exe
+Z:\Development\WiiDL\WiiDLCSharpTestApp\bin\Debug\WiiDLCSharpTestApp.pdb
+Z:\Development\WiiDL\WiiDLCSharpTestApp\obj\Debug\WiiDLCSharpTestApp.exe
+Z:\Development\WiiDL\WiiDLCSharpTestApp\obj\Debug\WiiDLCSharpTestApp.pdb

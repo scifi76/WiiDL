@@ -8,7 +8,7 @@ int _tmain(int argc, _TCHAR* argv[])
 {
 
 	//Open("Test");
-	Disc* d = new Disc("MyIso.iso");
+	Disc* d = new Disc("C:\\Test.iso");
 	d->Open();
 	if (d->IsOpen)
 	{
