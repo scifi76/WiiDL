@@ -1,11 +1,12 @@
 
 #include "Disc.h"
+#include "Utils.h"
 
 ///<summary>
 /// Constructor. Creates a Disc object
 ///<param name="IsoFilename">The path of the Wii ISO file that the Disc object will access</param>
 ///</summary>
-Disc::Disc(char* IsoFileName)
+Disc::Disc(char * IsoFileName)
 {
 	IsOpen = false;
 	_isoFileName = IsoFileName;
@@ -34,13 +35,24 @@ bool Disc::Open()
 		try
 		{
 			// try to open the iso
-			_fsIsoFile.open(_isoFileName, std::ios::in | std::ios::out | std::ios::binary);
+			_fsIsoFile.open(_isoFileName.c_str(), std::ios::in | std::ios::out | std::ios::binary);
 			IsOpen = _fsIsoFile.is_open();
 
 			//check the file opened ok
 			if (IsOpen)
 			{
 				// check if this is a devkitimage (.RVM)
+				_isoExtension = Utils::GetFileExtension(_isoFileName);
+				if (_isoExtension == "RVM")
+				{
+					// devkit images have an additional 32k header. We need to skip it
+					_discOffset = 0x8000;
+				}
+				else
+				{
+					// no devkit image, so no offset
+					_discOffset = 0;
+				}
 			}
 			else
 			{
@@ -81,7 +93,7 @@ bool Disc::Close()
 	return !IsOpen;
 }
 
-const char* Disc::GetLastError()
+const char * Disc::GetLastError()
 {
 	// return the latest error message
 	return _lastErr;

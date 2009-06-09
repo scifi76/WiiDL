@@ -1,5 +1,6 @@
 #pragma once
-#include <string>;
+#include <string>
+using namespace std;
 ///<summary>
 /// Contains utility functions
 ///</summary>
@@ -9,6 +10,5 @@ public:
 	Utils(void);
 	~Utils(void);
 
-	static char* GetFileExtension(char* inputFileName);
-	static char* AppendCharToCharArray(const char *charArray, const char appendChar);
+	static string GetFileExtension(string inputFileName);
 };

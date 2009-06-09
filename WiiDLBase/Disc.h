@@ -33,7 +33,7 @@ class DISC_API Disc
 {
 	public:
 		// Constructor / Destructor
-		Disc(char* IsoFileName);
+		Disc(char * IsoFileName);
 		~Disc(void);
 
 		// public variables
@@ -42,13 +42,14 @@ class DISC_API Disc
 		// public methods
 		bool Open();
 		bool Close();
-		const char* GetLastError();
+		const char * GetLastError();
 		
 	private:
 		// private variables
-		char* _isoFileName; // the name of the isofile
-		std::fstream _fsIsoFile; // a stream object for accessing the file
-		const char* _lastErr; // used to store the last error message that occured
+		string _isoFileName; // the name of the isofile
+		string _isoExtension;
+		fstream _fsIsoFile; // a stream object for accessing the file
+		const char * _lastErr; // used to store the last error message that occured
 		long long _discOffset; // the offset within the ISO file where the disc's data starts
 		
 };
