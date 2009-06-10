@@ -28,21 +28,32 @@ Disc::~Disc()
 /// Opens the Wii ISO
 ///<returns>True if the ISO was successfully opened. Otherwise false</returns>
 ///</summary>
-bool Disc::Open()
+bool Disc::Open(bool readOnly)
 {
 	if (!IsOpen) // dont bother if it's already open
 	{
 		try
 		{
 			// try to open the iso
-			_fsIsoFile.open(_isoFileName.c_str(), std::ios::in | std::ios::out | std::ios::binary);
+			if (readOnly)
+			{
+				// open for read
+				_fsIsoFile.open(_isoFileName.c_str(), std::ios::in | std::ios::binary);
+			}
+			else
+			{
+				// open for read and write
+				_fsIsoFile.open(_isoFileName.c_str(), std::ios::in | std::ios::out | std::ios::binary);
+			}
+
 			IsOpen = _fsIsoFile.is_open();
 
 			//check the file opened ok
 			if (IsOpen)
 			{
 				// check if this is a devkitimage (.RVM)
-				_isoExtension = Utils::GetFileExtension(_isoFileName);
+				_isoExtension = Utils::StringToUpper(Utils::GetFileExtension(_isoFileName));
+				
 				if (_isoExtension == "RVM")
 				{
 					// devkit images have an additional 32k header. We need to skip it
@@ -53,10 +64,20 @@ bool Disc::Open()
 					// no devkit image, so no offset
 					_discOffset = 0;
 				}
+
+				// get the size of the file not including the devkit header
+				_imageSize = _fsIsoFile.tellg();
+				_fsIsoFile.seekg(0,ios::end);
+				_imageSize = _fsIsoFile.tellg();
+				_fsIsoFile.seekg(0, ios::beg);
+				_imageSize = _fsIsoFile.tellg();
+
+
+
 			}
 			else
 			{
-				throw std::ios::failure("Unable to open file. Check file exists");
+				throw std::ios::failure("Unable to open file. Check file exists and is writeable");
 			}
 		}
 		catch (std::ios::failure ex)

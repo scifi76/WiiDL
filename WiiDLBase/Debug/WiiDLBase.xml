@@ -9,7 +9,7 @@
 Closes the Wii ISO
 <returns>True if the ISO was successfully closed. Otherwise false</returns></summary>
         </member>
-        <member name="M:Disc.Open">
+        <member name="M:Disc.Open(System.Boolean)">
             <summary>
 Opens the Wii ISO
 <returns>True if the ISO was successfully opened. Otherwise false</returns></summary>

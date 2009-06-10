@@ -22,7 +22,7 @@
 
 
 #include <fstream>
-
+#include <string>
 
 using namespace std;
 
@@ -40,7 +40,7 @@ class DISC_API Disc
 		bool IsOpen;
 
 		// public methods
-		bool Open();
+		bool Open(bool readOnly);
 		bool Close();
 		const char * GetLastError();
 		
@@ -51,5 +51,6 @@ class DISC_API Disc
 		fstream _fsIsoFile; // a stream object for accessing the file
 		const char * _lastErr; // used to store the last error message that occured
 		long long _discOffset; // the offset within the ISO file where the disc's data starts
+		long long _imageSize; // the size of the disc image
 		
 };

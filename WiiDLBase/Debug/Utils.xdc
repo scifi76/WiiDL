@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <doc>
 <members>
-<member name="T:Utils" decl="false" source="z:\development\wiidl\wiidlbase\utils.h" line="4">
+<member name="T:Utils" decl="false" source="z:\development\wiidl\wiidlbase\utils.h" line="6">
 <summary>
 Contains utility functions
 </summary>

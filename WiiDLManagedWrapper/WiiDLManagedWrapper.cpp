@@ -12,7 +12,6 @@ namespace WiiDLManagedWrapper
 	{
 		char* fn = (char*)(void*)Marshal::StringToHGlobalAnsi(IsoFileName);
 		_disc = new Disc(fn);
-		_disc->Open();
 	}
 
 	ManagedDisc::~ManagedDisc()

@@ -8,8 +8,8 @@ int _tmain(int argc, _TCHAR* argv[])
 {
 
 	//Open("Test");
-	Disc* d = new Disc("C:\\Test.iso.RVM");
-	d->Open();
+	Disc* d = new Disc("C:\\Test.iso");
+	d->Open(false);
 	if (d->IsOpen)
 	{
 		printf("true");

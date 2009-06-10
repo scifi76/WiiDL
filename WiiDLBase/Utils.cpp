@@ -19,3 +19,12 @@ string Utils::GetFileExtension(string inputFileName)
 	return retVal;
 }
 
+string Utils::StringToUpper(string inputString)
+{
+	for (int i=0; i<inputString.length(); ++i)
+	{
+		inputString[i]=toupper(inputString[i]);
+	}
+	return inputString;
+}
+

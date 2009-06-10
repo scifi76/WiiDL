@@ -6,7 +6,7 @@
 Represents a Wii disc image (ISO) and contains most of the methods for working with the image
 </summary>
 </member>
-<member name="T:Utils" decl="false" source="z:\development\wiidl\wiidlbase\utils.h" line="4">
+<member name="T:Utils" decl="false" source="z:\development\wiidl\wiidlbase\utils.h" line="6">
 <summary>
 Contains utility functions
 </summary>
@@ -22,13 +22,13 @@ Constructor. Creates a Disc object
 Destructor. Disposes of the Disc object
 </summary>
 </member>
-<member name="M:Disc.Open" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="27">
+<member name="M:Disc.Open(System.Boolean)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="27">
 <summary>
 Opens the Wii ISO
 <returns>True if the ISO was successfully opened. Otherwise false</returns>
 </summary>
 </member>
-<member name="M:Disc.Close" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="72">
+<member name="M:Disc.Close" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="93">
 <summary>
 Closes the Wii ISO
 <returns>True if the ISO was successfully closed. Otherwise false</returns>
