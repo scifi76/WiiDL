@@ -78,6 +78,12 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\WiiDLManagedWrapper\WiiDLManagedWrapper.vcproj">
+      <Project>{E5029855-F751-4B38-B1B2-40254DB4CBC9}</Project>
+      <Name>WiiDLManagedWrapper</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
@@ -87,6 +93,6 @@
   </Target>
   -->
   <PropertyGroup>
-    <PreBuildEvent>copy $(SolutionDir)WiiDLBase\Debug\WiiDLBase.dll $(TargetDir)WiiDLBase.dll</PreBuildEvent>
+    <PreBuildEvent>copy $(SolutionDir)WiiDLManagedWrapper\Debug\WiiDLManagedWrapper.dll $(TargetDir)WiiDLManagedWrapper.dll</PreBuildEvent>
   </PropertyGroup>
 </Project>

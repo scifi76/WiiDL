@@ -1,7 +1,12 @@
 #pragma once
-#include "Disc.h";
 
+
+#include "Disc.h"
 using namespace System;
+using namespace System::Runtime::InteropServices;
+
+
+
 
 namespace WiiDLManagedWrapper {
 	///<summary>
@@ -11,11 +16,12 @@ namespace WiiDLManagedWrapper {
 	{
 	public:
 		// constructor / destructor
-		ManagedDisc();
+		ManagedDisc(String^ IsoFileName);
 		~ManagedDisc();
 
 	private:
 		Disc * _disc;
 
 	};
+	
 }

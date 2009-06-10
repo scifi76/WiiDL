@@ -6,3 +6,5 @@ Z:\Development\WiiDL\WiiDLCSharpTestApp\bin\Debug\WiiDLCSharpTestApp.exe
 Z:\Development\WiiDL\WiiDLCSharpTestApp\bin\Debug\WiiDLCSharpTestApp.pdb
 Z:\Development\WiiDL\WiiDLCSharpTestApp\obj\Debug\WiiDLCSharpTestApp.exe
 Z:\Development\WiiDL\WiiDLCSharpTestApp\obj\Debug\WiiDLCSharpTestApp.pdb
+Z:\Development\WiiDL\WiiDLCSharpTestApp\bin\Debug\WiiDLManagedWrapper.dll
+Z:\Development\WiiDL\WiiDLCSharpTestApp\bin\Debug\WiiDLManagedWrapper.pdb

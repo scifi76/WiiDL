@@ -4,11 +4,20 @@
 
 #include "WiiDLManagedWrapper.h"
 
+
+
 namespace WiiDLManagedWrapper 
 {
-	ManagedDisc::ManagedDisc()
+	ManagedDisc::ManagedDisc(String^ IsoFileName)
 	{
-		_disc = new Disc("C:\test.iso.RVM");
+		char* fn = (char*)(void*)Marshal::StringToHGlobalAnsi(IsoFileName);
+		_disc = new Disc(fn);
+		_disc->Open();
+	}
+
+	ManagedDisc::~ManagedDisc()
+	{
+		_disc->~Disc();
 	}
 
 }
