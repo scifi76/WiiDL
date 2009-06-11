@@ -2,6 +2,7 @@
 #include "Disc.h"
 #include "Utils.h"
 
+
 ///<summary>
 /// Constructor. Creates a Disc object
 ///<param name="IsoFilename">The path of the Wii ISO file that the Disc object will access</param>
@@ -34,23 +35,25 @@ bool Disc::Open(bool readOnly)
 	{
 		try
 		{
-			// try to open the iso
+			
+			string mode;
 			if (readOnly)
 			{
-				// open for read
-				_fsIsoFile.open(_isoFileName.c_str(), std::ios::in | std::ios::binary);
+				mode = "rb";
 			}
 			else
 			{
-				// open for read and write
-				_fsIsoFile.open(_isoFileName.c_str(), std::ios::in | std::ios::out | std::ios::binary);
+				mode = "r+b";
+				
 			}
-
-			IsOpen = _fsIsoFile.is_open();
+			// try to open the iso
+			_fIsoFile = fopen(_isoFileName.c_str(), mode.c_str());
 
 			//check the file opened ok
-			if (IsOpen)
+			if (_fIsoFile != NULL)
 			{
+				IsOpen = true;
+
 				// check if this is a devkitimage (.RVM)
 				_isoExtension = Utils::StringToUpper(Utils::GetFileExtension(_isoFileName));
 				
@@ -66,13 +69,12 @@ bool Disc::Open(bool readOnly)
 				}
 
 				// get the size of the file not including the devkit header
-				_imageSize = _fsIsoFile.tellg();
-				_fsIsoFile.seekg(0,ios::end);
-				_imageSize = _fsIsoFile.tellg();
-				_fsIsoFile.seekg(0, ios::beg);
-				_imageSize = _fsIsoFile.tellg();
-
-
+				_imageSize = fseeko64(_fIsoFile, 0L, SEEK_END);
+				#if defined (__GNUC__) && defined(__unix__)
+					// fseeko64 in unix returns 0 on success so we need to use ftell to get the file position
+					_imageSize = ftello64(_fIsoFile);
+				#endif
+				_imageSize -= _discOffset;
 
 			}
 			else
@@ -101,10 +103,10 @@ bool Disc::Close()
 	{
 		try
 		{
-			_fsIsoFile.close(); // close the ISO
-			IsOpen = _fsIsoFile.is_open();
+			fclose(_fIsoFile);
+			IsOpen = false;
 		}
-		catch (std::ios::failure ex)
+		catch (std::ios::failure ex) // i dont think this will ever catch anything now fstream class isnt being used. Wont harm to leave it here anyway
 		{
 			// failed...
 			_lastErr = ex.what();

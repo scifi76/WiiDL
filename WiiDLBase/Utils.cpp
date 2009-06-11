@@ -19,6 +19,10 @@ string Utils::GetFileExtension(string inputFileName)
 	return retVal;
 }
 
+///<summary>
+/// Converts the string in inputString to uppercase
+///<returns>An uppercase'd inputString</returns>
+///</summary>
 string Utils::StringToUpper(string inputString)
 {
 	for (int i=0; i<inputString.length(); ++i)

@@ -29,6 +29,11 @@ Constructor. Creates a Disc object
 Represents a Wii disc image (ISO) and contains most of the methods for working with the image
 </summary>
         </member>
+        <member name="M:Utils.StringToUpper(std.basic_string&lt;System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte,std.char_traits{System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte},std.allocator&lt;System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte&gt;&gt;)">
+            <summary>
+Converts the string in inputString to uppercase
+<returns>An uppercase'd inputString</returns></summary>
+        </member>
         <member name="M:Utils.GetFileExtension(std.basic_string&lt;System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte,std.char_traits{System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte},std.allocator&lt;System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte&gt;&gt;)">
             <summary>
 Returns the extension of the filename passed in
