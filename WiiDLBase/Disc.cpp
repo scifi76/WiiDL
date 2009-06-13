@@ -3,6 +3,7 @@
 #include "Utils.h"
 
 
+
 ///<summary>
 /// Constructor. Creates a Disc object
 ///<param name="IsoFilename">The path of the Wii ISO file that the Disc object will access</param>
@@ -52,11 +53,11 @@ bool Disc::Open(bool readOnly)
 			//check the file opened ok
 			if (_fIsoFile != NULL)
 			{
+				// file opened ok
 				IsOpen = true;
 
 				// check if this is a devkitimage (.RVM)
 				_isoExtension = Utils::StringToUpper(Utils::GetFileExtension(_isoFileName));
-				
 				if (_isoExtension == "RVM")
 				{
 					// devkit images have an additional 32k header. We need to skip it
@@ -68,6 +69,7 @@ bool Disc::Open(bool readOnly)
 					_discOffset = 0;
 				}
 
+
 				// get the size of the file not including the devkit header
 				_imageSize = fseeko64(_fIsoFile, 0L, SEEK_END);
 				#if defined (__GNUC__) && defined(__unix__)
@@ -76,15 +78,35 @@ bool Disc::Open(bool readOnly)
 				#endif
 				_imageSize -= _discOffset;
 
+
+				// get the image info and store it in _image
+				struct part_header *header;
+		        u8 buffer[0x440];
+				// allocate the memory
+				_image = (struct image_file *) malloc (sizeof (struct image_file));
+
+				if (!_image) // memory allocation failed
+					throw std::ios::failure("Unable to allocate memory for image file struct");
+				
+				// allocate memory for the header
+				header = (struct part_header *) (malloc (sizeof (struct part_header)));
+
+				if (!header) // memory allocation failed
+					throw std::ios::failure("Unable to allocate memory for image header struct");
+				
+
+
 			}
 			else
 			{
+				// file open failed
 				throw std::ios::failure("Unable to open file. Check file exists and is writeable");
 			}
 		}
 		catch (std::ios::failure ex)
 		{
 			// failed...
+			Close();
 			_lastErr = ex.what();
 		}
 	}
@@ -103,6 +125,7 @@ bool Disc::Close()
 	{
 		try
 		{
+			free(_image);
 			fclose(_fIsoFile);
 			IsOpen = false;
 		}

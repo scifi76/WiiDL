@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".\"
+				AdditionalIncludeDirectories=".\;.\openssl"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -183,6 +183,14 @@
 			>
 			<File
 				RelativePath=".\Disc.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Global.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Structs.h"
 				>
 			</File>
 			<File

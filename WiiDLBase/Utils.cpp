@@ -25,7 +25,7 @@ string Utils::GetFileExtension(string inputFileName)
 ///</summary>
 string Utils::StringToUpper(string inputString)
 {
-	for (int i=0; i<inputString.length(); ++i)
+	for (unsigned int i=0; i<inputString.length(); ++i)
 	{
 		inputString[i]=toupper(inputString[i]);
 	}

@@ -4,6 +4,7 @@
 
 #include <fstream>
 #include <string>
+#include "Structs.h"
 
 
 
@@ -60,5 +61,6 @@ class DISC_API Disc
 		const char * _lastErr; // used to store the last error message that occured
 		long long _discOffset; // the offset within the ISO file where the disc's data starts
 		long long _imageSize; // the size of the disc image
+		struct image_file * _image; // stores image file info. It will be populated when calling Open()
 		
 };
