@@ -52,15 +52,12 @@ class DISC_API Disc
 		bool Open(bool readOnly);
 		bool Close();
 		const char * GetLastError();
+		static int Read (unsigned char * buffer, size_t size, struct image_file * image, u64 offset, bool markUsed);
 		
 	private:
 		// private variables
 		string _isoFileName; // the name of the isofile
-		string _isoExtension;
-		FILE * _fIsoFile; // a stream object for accessing the file
 		const char * _lastErr; // used to store the last error message that occured
-		long long _discOffset; // the offset within the ISO file where the disc's data starts
-		long long _imageSize; // the size of the disc image
 		struct image_file * _image; // stores image file info. It will be populated when calling Open()
 		
 };

@@ -101,8 +101,9 @@ struct partition {
 
 struct image_file {
  
-		int fp;
-
+		FILE * File;
+		long long DiscOffset;
+		long long ImageSize;
         u8 is_wii;
 
         u32 nparts;
