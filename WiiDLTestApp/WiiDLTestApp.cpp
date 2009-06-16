@@ -14,13 +14,15 @@ int _tmain(int argc, _TCHAR* argv[])
 	{
 		printf("true");
 		d->Close();
+		d->Open(false);
+		d->Close();
 	}
 	else
 	{
 		printf("false");
 	}
 
-	
+	free(d);
 	//d.Open("fdf");
 	//Disc::Open("");
 	

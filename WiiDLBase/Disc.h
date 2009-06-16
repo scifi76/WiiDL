@@ -52,7 +52,8 @@ class DISC_API Disc
 		bool Open(bool readOnly);
 		bool Close();
 		const char * GetLastError();
-		static int Read (unsigned char * buffer, size_t size, struct image_file * image, u64 offset, bool markUsed);
+		int Read (unsigned char * buffer, size_t size, u64 offset, bool markUsed = true);
+		int MarkAsUsed(u64 nOffset, u64 nSize);
 		
 	private:
 		// private variables

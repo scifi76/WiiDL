@@ -106,6 +106,9 @@ struct image_file {
 		long long ImageSize;
         u8 is_wii;
 
+		unsigned char * pFreeTable;
+		bool readOnly;
+
         u32 nparts;
         struct partition *parts;
 
