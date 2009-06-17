@@ -19,6 +19,8 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include <cstring>
+
 typedef char s8;
 typedef short s16;
 typedef int s32;
@@ -40,3 +42,5 @@ extern u8 verbose_level;
 size_t g_strnlen (const char *s, size_t size);
 
 u32 get_dol_size (const u8 *header);
+
+

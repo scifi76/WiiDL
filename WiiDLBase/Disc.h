@@ -61,4 +61,7 @@ class DISC_API Disc
 		const char * _lastErr; // used to store the last error message that occured
 		struct image_file * _image; // stores image file info. It will be populated when calling Open()
 		
+		// private methods
+		struct part_header * ParseImageHeader(u8 * inputData);
+		
 };

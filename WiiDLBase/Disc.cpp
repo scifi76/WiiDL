@@ -2,6 +2,8 @@
 #include "Disc.h"
 #include "Utils.h"
 #include <string.h>
+#include "Global.h"
+
 
 
 
@@ -86,7 +88,7 @@ bool Disc::Open(bool readOnly)
 				imageSize -= discOffset;
 				
 				// get the image info and store it in _image
-				struct part_header *header;
+				struct part_header * header;
 		        u8 buffer[0x440];
 				// allocate the memory
 				_image = (struct image_file *) malloc (sizeof (struct image_file));
@@ -212,6 +214,8 @@ int Disc::Read (unsigned char * buffer, size_t size, u64 offset, bool markUsed)
 }
 
 
+
+
 ///<summary>
 /// Marks the clusters between nOffset and nOffset + nSize as used (eg not empty)
 ///<param name="nOffset">The starting position</param>
@@ -236,6 +240,46 @@ int Disc::MarkAsUsed(u64 nOffset, u64 nSize)
 	}
 
 	return retVal;
+}
+
+///<summary>
+/// Parses the raw header data in inputData in a part_header structure pointed to by header
+///<param name="inputData">Pointer to the data to be parsed</param>
+///<returns>Pointer to a part_header structure</returns>
+///</summary>
+struct part_header * Disc::ParseImageHeader(u8 * inputData)
+{
+	// initialise the return value pointer
+	struct part_header * header;
+	header = (struct part_header *) (malloc (sizeof (struct part_header)));
+	memset(header, 0, sizeof (struct part_header));
+
+	// populate the struct
+	header->DiscId = inputData[0];
+	header->Gamecode[0] = inputData[1];
+	header->Gamecode[1] = inputData[2];
+	header->Region = inputData[3];
+	header->Publisher[0] = inputData[4];
+	header->Publisher[1] = inputData[5];
+	header->HasMagic = (be32 (&inputData[0x18]) == 0x5d1c9ea3)||(be32(&inputData[0x1c])==0xc2339f3d);
+	header->IsGC = (be32(&inputData[0x1c])==0xc2339f3d);
+	header->IsWii = (be32 (&inputData[0x18]) == 0x5d1c9ea3);
+	strncpy(header->GameTitle, (char *) (&inputData[0x20]), 0x60);
+	header->DolOffset = be32 (&inputData[0x420]);
+	header->FstOffset = be32 (&inputData[0x424]);
+	header->FstSize = be32 (&inputData[0x428]);
+
+	if (header->IsWii)
+	{
+		header->DolOffset *= 4;
+		header->FstOffset *= 4;
+		header->FstSize *= 4;
+
+		// Now check for Korean disc
+		header->KoreanKey = (inputData[0x1f1]==1);
+	}
+
+	return header;
 }
 
 const char * Disc::GetLastError()

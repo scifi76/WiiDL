@@ -172,6 +172,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Global.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Utils.cpp"
 				>
 			</File>

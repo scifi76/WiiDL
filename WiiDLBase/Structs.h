@@ -35,22 +35,25 @@ struct tmd {
 };
 
 struct part_header {
-        char console;
-        u8 is_gc;
-        u8 is_wii;
-		bool isKorean;
-        char gamecode[2];
-        char region;
-        char publisher[2];
+        char DiscId; // 0x0: R = Revolution (Wii), S = Wii, G = Gamecube, U = Utility Disc / Gamecube,
+					 //		 D = Gamecube Demo Disc, P = Gamecube Promo Disc, 0 = Diagnostic Disc (autoboot), 
+					 //		 1 = Diagnostic Disc, 4 = Backup Disc, _ = Wii Fit Channel Installer
 
-        u8 has_magic;
-        char name[0x60];
+        u8 IsGC;  // true if magic word at 0x1c = 0xc2339f3d
+        u8 IsWii; // true if magic word at 0x18 = 0x5D1C9EA3
+		bool KoreanKey; // true if the partition ticket common key index at 0x1f1 = 1
+        char Gamecode[2]; // the 2 character game code from  0x1
+        char Region; // the disc region code from  0x3
+        char Publisher[2]; // the 2 character publisher code from 0x4
 
-        u64 dol_offset;
-        u64 dol_size;
+        u8 HasMagic; // true if offset 0x1c = 0xc2339f3d (gamecube) OR offset 0x18 = 0x5D1C9EA3 (wii)
+        char GameTitle[0x60]; // Game title from 0x20
 
-        u64 fst_offset;
-        u64 fst_size;
+        u64 DolOffset; // the DOL offset
+        u64 DolSize;  // DOL size
+
+        u64 FstOffset; // fst.bin offset
+        u64 FstSize;	// fst.bin size
 };
 
 enum partition_type {

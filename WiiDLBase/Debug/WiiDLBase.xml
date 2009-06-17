@@ -4,6 +4,11 @@
         "WiiDLBase"
     </assembly>
     <members>
+        <member name="T:part_header">
+            <summary>
+Parses the raw header data in inputData in a part_header structure pointed to by header
+<param name="inputData">Pointer to the data to be parsed</param><returns>Pointer to a part_header structure</returns></summary>
+        </member>
         <member name="M:Disc.MarkAsUsed(System.UInt64,System.UInt64)">
             <summary>
 Marks the clusters between nOffset and nOffset + nSize as used (eg not empty)
