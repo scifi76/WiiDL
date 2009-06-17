@@ -4,6 +4,15 @@
         "WiiDLBase"
     </assembly>
     <members>
+        <member name="M:Disc.LoadKey(System.Boolean)">
+            <summary>
+Loads the the correct common key for the image. The old WiiScrubber
+used to load the key from a key.bin file, however since there is no
+strong evidence that distrbuting the key is illegal, and since everyone
+has it now anyway, it is embedded in this method. Just to be on the safe
+side, the actual key is not embeded, instead XORd values are stored
+<param name="inputData">Pointer to the data to be parsed</param><returns>Pointer to a part_header structure</returns></summary>
+        </member>
         <member name="T:part_header">
             <summary>
 Parses the raw header data in inputData in a part_header structure pointed to by header

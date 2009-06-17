@@ -7,6 +7,7 @@
 
 
 
+
 ///<summary>
 /// Constructor. Creates a Disc object
 ///<param name="IsoFilename">The path of the Wii ISO file that the Disc object will access</param>
@@ -112,7 +113,21 @@ bool Disc::Open(bool readOnly)
 				if (!header) // memory allocation failed
 					throw std::ios::failure("Unable to allocate memory for image header struct");
 				
-				//ParseImageHeader
+				header = ParseImageHeader(buffer);
+
+				if (!header->HasMagic) // no magic word
+					throw std::ios::failure("Image has bad magic word");
+
+				if (header->IsWii)
+				{
+					// TODO: Check for key.bin file and use that if exists
+					LoadKey(header->KoreanKey);
+				}
+				else
+				{
+					// the old wii scrubber simply doesn't load any key for gamecube images
+				}
+
 
 
 			}
@@ -280,6 +295,84 @@ struct part_header * Disc::ParseImageHeader(u8 * inputData)
 	}
 
 	return header;
+}
+
+///<summary>
+/// Loads the the correct common key for the image. The old WiiScrubber
+/// used to load the key from a key.bin file, however since there is no
+/// strong evidence that distrbuting the key is illegal, and since everyone
+/// has it now anyway, it is embedded in this method. Just to be on the safe
+/// side, the actual key is not embeded, instead XORd values are stored
+///<param name="inputData">Pointer to the data to be parsed</param>
+///<returns>Pointer to a part_header structure</returns>
+///</summary>
+void Disc::LoadKey(bool korean)
+{
+	u8 CommonKeyXor[16];
+	u8 KorKeyXor[16];
+	u8 WiiDLKey[16];
+	u8 LoadedKey[16];
+
+	// this is a custom key used by WiiDL to XOR against the common keys
+	WiiDLKey[0] = 0x31;
+	WiiDLKey[1] = 0x62;
+	WiiDLKey[2] = 0x64;
+	WiiDLKey[3] = 0x62;
+	WiiDLKey[4] = 0x79;
+	WiiDLKey[5] = 0x66;
+	WiiDLKey[6] = 0x6A;
+	WiiDLKey[7] = 0x6D;
+	WiiDLKey[8] = 0x30;
+	WiiDLKey[9] = 0x33;
+	WiiDLKey[10] = 0x43;
+	WiiDLKey[11] = 0x61;
+	WiiDLKey[12] = 0x54;
+	WiiDLKey[13] = 0x5A;
+	WiiDLKey[14] = 0x23;
+	WiiDLKey[15] = 0x2D;
+
+	// The XOR values of the standard common key
+	CommonKeyXor[0] = 0xDA;
+	CommonKeyXor[1] = 0x86;
+	CommonKeyXor[2] = 0x4E;
+	CommonKeyXor[3] = 0x40;
+	CommonKeyXor[4] = 0x27;
+	CommonKeyXor[5] = 0xE3;
+	CommonKeyXor[6] = 0xF9;
+	CommonKeyXor[7] = 0x89;
+	CommonKeyXor[8] = 0x78;
+	CommonKeyXor[9] = 0xEA;
+	CommonKeyXor[10] = 0x86;
+	CommonKeyXor[11] = 0x24;
+	CommonKeyXor[12] = 0x27;
+	CommonKeyXor[13] = 0xDB;
+	CommonKeyXor[14] = 0x89;
+	CommonKeyXor[15] = 0xDA;
+
+	// the XOR values of the korean common key
+	KorKeyXor[0] = 0xB9;
+	KorKeyXor[1] = 0x3E;
+	KorKeyXor[2] = 0x65;
+	KorKeyXor[3] = 0xF4;
+	KorKeyXor[4] = 0xD3;
+	KorKeyXor[5] = 0x82;
+	KorKeyXor[6] = 0xB7;
+	KorKeyXor[7] = 0xA7;
+	KorKeyXor[8] = 0x6B;
+	KorKeyXor[9] = 0x18;
+	KorKeyXor[10] = 0x78;
+	KorKeyXor[11] = 0xDF;
+	KorKeyXor[12] = 0x9D;
+	KorKeyXor[13] = 0x97;
+	KorKeyXor[14] = 0x12;
+	KorKeyXor[15] = 0xA4;
+
+	for (int i = 0; i < 16; i++)
+	{
+		LoadedKey[i] = (korean ? WiiDLKey[i]^KorKeyXor[i] : WiiDLKey[i]^CommonKeyXor[i]);
+	}
+	
+	AES_set_decrypt_key (LoadedKey, 128, &_image->CommonKey);
 }
 
 const char * Disc::GetLastError()

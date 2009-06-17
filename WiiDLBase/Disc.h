@@ -5,6 +5,7 @@
 #include <fstream>
 #include <string>
 #include "Structs.h"
+#include "aes.h"
 
 
 
@@ -63,5 +64,6 @@ class DISC_API Disc
 		
 		// private methods
 		struct part_header * ParseImageHeader(u8 * inputData);
+		void LoadKey(bool korean);
 		
 };

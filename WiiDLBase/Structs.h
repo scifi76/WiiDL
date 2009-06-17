@@ -131,5 +131,5 @@ struct image_file {
 		u64	Tertiary_tbl_offset;
 		u64	Quaternary_tbl_offset;
 
-        AES_KEY key;
+        AES_KEY CommonKey;
 };
