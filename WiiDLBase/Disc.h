@@ -61,6 +61,8 @@ class DISC_API Disc
 		string _isoFileName; // the name of the isofile
 		const char * _lastErr; // used to store the last error message that occured
 		struct image_file * _image; // stores image file info. It will be populated when calling Open()
+		unsigned char * _blankSector; // contains data needed to write an empty cluster with 0xFF
+		unsigned char * _blankSector0; // as above but with 0x0
 		
 		// private methods
 		struct part_header * ParseImageHeader(u8 * inputData);

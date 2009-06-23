@@ -16,6 +16,12 @@ Disc::Disc(char * IsoFileName)
 {
 	IsOpen = false;
 	_isoFileName = IsoFileName;
+
+	_blankSector = (unsigned char *) malloc(0x8000);
+	memset(_blankSector, 0xFF, 0x8000);
+
+	_blankSector0 = (unsigned char *) malloc(0x8000);
+	memset (_blankSector0, 0, 0x8000);
 }
 
 ///<summary>
@@ -28,6 +34,12 @@ Disc::~Disc()
 	{
 		Close();
 	}
+	
+	free(_image->FreeClusterTable);
+	free(_image->ImageHeader);
+	free(_image);
+	free(_blankSector);
+	free(_blankSector0);
 }
 
 ///<summary>
@@ -101,7 +113,17 @@ bool Disc::Open(bool readOnly)
 				_image->File = fIsoFile; // add the file pointer to the image structure
 				
 				// add the read only flag to the struct
-				_image->readOnly = readOnly;
+				_image->IsReadOnly = readOnly;
+
+				// set the image size
+				_image->ImageSize = imageSize;
+
+				// allocate the FreeClusterTable
+				_image->FreeClusterTable = (unsigned char *) malloc(imageSize);
+				//set all clusters to free for now
+				memset(_image->FreeClusterTable, 0, (_image->ImageSize / (long long)(0x8000)) *2L);
+				// then set the header size to used
+				MarkAsUsed(0, 0x50000);
 
 				// read the header data
 				if (Disc::Read(buffer, 0x440, 0, false) == -1) 
@@ -114,22 +136,19 @@ bool Disc::Open(bool readOnly)
 					throw std::ios::failure("Unable to allocate memory for image header struct");
 				
 				header = ParseImageHeader(buffer);
+				_image->ImageHeader = *header;
 
-				if (!header->HasMagic) // no magic word
+				if (!_image->ImageHeader.HasMagic) // no magic word
 					throw std::ios::failure("Image has bad magic word");
 
-				if (header->IsWii)
+				if (_image->ImageHeader.IsWii)
 				{
-					// TODO: Check for key.bin file and use that if exists
-					LoadKey(header->KoreanKey);
+					LoadKey(_image->ImageHeader.IsKoreanKey);
 				}
 				else
 				{
 					// the old wii scrubber simply doesn't load any key for gamecube images
 				}
-
-
-
 			}
 			else
 			{
@@ -246,9 +265,9 @@ int Disc::MarkAsUsed(u64 nOffset, u64 nSize)
 	while((nStartValue < nEndValue)&&
 		  (nStartValue < (_image->ImageSize)))
 	{
-		if (_image->pFreeTable[nStartValue / (u64)(0x8000)] != 1)
+		if (_image->FreeClusterTable[nStartValue / (u64)(0x8000)] != 1)
 		{
-			_image->pFreeTable[nStartValue / (u64)(0x8000)] = 1;
+			_image->FreeClusterTable[nStartValue / (u64)(0x8000)] = 1;
 		}
 		nStartValue = nStartValue + ((u64)(0x8000));
 		retVal++;
@@ -291,7 +310,7 @@ struct part_header * Disc::ParseImageHeader(u8 * inputData)
 		header->FstSize *= 4;
 
 		// Now check for Korean disc
-		header->KoreanKey = (inputData[0x1f1]==1);
+		header->IsKoreanKey = (inputData[0x1f1]==1);
 	}
 
 	return header;

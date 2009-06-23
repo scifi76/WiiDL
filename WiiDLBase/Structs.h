@@ -41,7 +41,7 @@ struct part_header {
 
         u8 IsGC;  // true if magic word at 0x1c = 0xc2339f3d
         u8 IsWii; // true if magic word at 0x18 = 0x5D1C9EA3
-		bool KoreanKey; // true if the partition ticket common key index at 0x1f1 = 1
+		bool IsKoreanKey; // true if the partition ticket common key index at 0x1f1 = 1
         char Gamecode[2]; // the 2 character game code from  0x1
         char Region; // the disc region code from  0x3
         char Publisher[2]; // the 2 character publisher code from 0x4
@@ -109,11 +109,13 @@ struct image_file {
 		long long ImageSize;
         u8 is_wii;
 
-		unsigned char * pFreeTable;
-		bool readOnly;
+		unsigned char * FreeClusterTable;
+		bool IsReadOnly;
+
+		struct part_header ImageHeader;
 
         u32 nparts;
-        struct partition *parts;
+        struct partition * parts;
 
 		//TODO: Enable this for cross platform
         //struct _stat st; 

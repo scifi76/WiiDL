@@ -17,25 +17,25 @@ Constructor. Creates a Disc object
 <param name="IsoFilename">The path of the Wii ISO file that the Disc object will access</param>
 </summary>
 </member>
-<member name="M:Disc.Dispose" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="21">
+<member name="M:Disc.Dispose" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="27">
 <summary>
 Destructor. Disposes of the Disc object
 </summary>
 </member>
-<member name="M:Disc.Open(System.Boolean)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="33">
+<member name="M:Disc.Open(System.Boolean)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="44">
 <summary>
 Opens the Wii ISO
 <param name="readOnly">Whether or not the ISO should be opened in read only mode. Opening in read only mode will prevent the image file from being locked to other applications but any write actions to the image will fail</param>
 <returns>True if the ISO was successfully opened. Otherwise false</returns>
 </summary>
 </member>
-<member name="M:Disc.Close" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="152">
+<member name="M:Disc.Close" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="173">
 <summary>
 Closes the Wii ISO
 <returns>True if the ISO was successfully closed. Otherwise false</returns>
 </summary>
 </member>
-<member name="M:Disc.Read(System.Byte*,System.UInt32,System.UInt64,System.Boolean)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="177">
+<member name="M:Disc.Read(System.Byte*,System.UInt32,System.UInt64,System.Boolean)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="198">
 <summary>
 Reads data from the iso into the buffer pointer
 <param name="buffer">A pointer to a char buffer that the data will be stored in</param>
@@ -45,7 +45,7 @@ Reads data from the iso into the buffer pointer
 <returns>The number of bytes read. Returns -1 if an error occurs</returns>
 </summary>
 </member>
-<member name="M:Disc.MarkAsUsed(System.UInt64,System.UInt64)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="234">
+<member name="M:Disc.MarkAsUsed(System.UInt64,System.UInt64)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="255">
 <summary>
 Marks the clusters between nOffset and nOffset + nSize as used (eg not empty)
 <param name="nOffset">The starting position</param>
@@ -53,14 +53,14 @@ Marks the clusters between nOffset and nOffset + nSize as used (eg not empty)
 <returns>The number of clusters marked as used. 1 Cluster = 32768 bytes (32k)</returns>
 </summary>
 </member>
-<member name="T:part_header" decl="true" source="z:\development\wiidl\wiidlbase\disc.cpp" line="260">
+<member name="T:part_header" decl="true" source="z:\development\wiidl\wiidlbase\disc.cpp" line="281">
 <summary>
 Parses the raw header data in inputData in a part_header structure pointed to by header
 <param name="inputData">Pointer to the data to be parsed</param>
 <returns>Pointer to a part_header structure</returns>
 </summary>
 </member>
-<member name="M:Disc.LoadKey(System.Boolean)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="300">
+<member name="M:Disc.LoadKey(System.Boolean)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="321">
 <summary>
 Loads the the correct common key for the image. The old WiiScrubber
 used to load the key from a key.bin file, however since there is no
