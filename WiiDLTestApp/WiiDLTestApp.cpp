@@ -9,13 +9,13 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	//Open("Test");
 	Disc* d = new Disc("X:\\Downloads\\Complete\\su-hhrr\\su-hhrr.iso");
-	d->Open(true);
-	if (d->IsOpen)
+	d->Load(true);
+	if (d->IsLoaded)
 	{
 		printf("true");
-		d->Close();
-		d->Open(false);
-		d->Close();
+		d->CloseFile();
+		d->Load(false);
+		d->CloseFile();
 	}
 	else
 	{

@@ -47,11 +47,11 @@ class DISC_API Disc
 		~Disc(void);
 
 		// public variables
-		bool IsOpen;
+		bool IsLoaded;
 
 		// public methods
-		bool Open(bool readOnly);
-		bool Close();
+		bool Load(bool readOnly);
+		bool CloseFile();
 		const char * GetLastError();
 		int Read (unsigned char * buffer, size_t size, u64 offset, bool markUsed = true);
 		int MarkAsUsed(u64 nOffset, u64 nSize);
@@ -67,5 +67,7 @@ class DISC_API Disc
 		// private methods
 		struct part_header * ParseImageHeader(u8 * inputData);
 		void LoadKey(bool korean);
+		void ParseImage();
+		int ParsePartitions();
 		
 };

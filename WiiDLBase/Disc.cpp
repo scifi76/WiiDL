@@ -14,7 +14,7 @@
 ///</summary>
 Disc::Disc(char * IsoFileName)
 {
-	IsOpen = false;
+	IsLoaded = false;
 	_isoFileName = IsoFileName;
 
 	_blankSector = (unsigned char *) malloc(0x8000);
@@ -29,17 +29,26 @@ Disc::Disc(char * IsoFileName)
 ///</summary>
 Disc::~Disc()
 {
-	// Close the ISO if it's open
-	if (IsOpen)
-	{
-		Close();
-	}
+	// Close the ISO file if it's open
+	CloseFile();
+
 	
 	free(_image->FreeClusterTable);
-	free(_image->ImageHeader);
+	free(&_image->ImageHeader);
+	free(_image->File);
 	free(_image);
 	free(_blankSector);
 	free(_blankSector0);
+}
+
+///<summary>
+/// Gets the last error message that occured
+///<returns>The most recent error message</returns>
+///</summary>
+const char * Disc::GetLastError()
+{
+	// return the latest error message
+	return _lastErr;
 }
 
 ///<summary>
@@ -47,17 +56,17 @@ Disc::~Disc()
 ///<param name="readOnly">Whether or not the ISO should be opened in read only mode. Opening in read only mode will prevent the image file from being locked to other applications but any write actions to the image will fail</param>
 ///<returns>True if the ISO was successfully opened. Otherwise false</returns>
 ///</summary>
-bool Disc::Open(bool readOnly)
+bool Disc::Load(bool readOnly)
 {
-	if (!IsOpen) // dont bother if it's already open
+	if (!IsLoaded) // dont bother if it's already open
 	{
 		try
 		{
 			
 			string isoExtension;
 			FILE * fIsoFile; // a stream object for accessing the file
-			long long discOffset; // the offset within the ISO file where the disc's data starts
-			long long imageSize; // the size of the disc image
+			u64 discOffset; // the offset within the ISO file where the disc's data starts
+			u64 imageSize; // the size of the disc image
 
 			string mode;
 			if (readOnly)
@@ -75,9 +84,6 @@ bool Disc::Open(bool readOnly)
 			//check the file opened ok
 			if (fIsoFile != NULL)
 			{
-				// file opened ok
-				IsOpen = true;
-
 				// check if this is a devkitimage (.RVM)
 				isoExtension = Utils::StringToUpper(Utils::GetFileExtension(_isoFileName));
 				if (isoExtension == "RVM")
@@ -111,6 +117,9 @@ bool Disc::Open(bool readOnly)
 
 				memset (_image, 0, sizeof (struct image_file));
 				_image->File = fIsoFile; // add the file pointer to the image structure
+
+				// close the file (for now)
+				Disc::CloseFile();
 				
 				// add the read only flag to the struct
 				_image->IsReadOnly = readOnly;
@@ -121,26 +130,29 @@ bool Disc::Open(bool readOnly)
 				// allocate the FreeClusterTable
 				_image->FreeClusterTable = (unsigned char *) malloc(imageSize);
 				//set all clusters to free for now
-				memset(_image->FreeClusterTable, 0, (_image->ImageSize / (long long)(0x8000)) *2L);
+				memset(_image->FreeClusterTable, 0, (_image->ImageSize / (u64)(0x8000)) *2L);
 				// then set the header size to used
 				MarkAsUsed(0, 0x50000);
 
 				// read the header data
 				if (Disc::Read(buffer, 0x440, 0, false) == -1) 
 					throw std::ios::failure("Unable to read header from image file");
-				
+
 				// header data read ok if we got here so allocate some memory to store it in
 				header = (struct part_header *) (malloc (sizeof (struct part_header)));
 
 				if (!header) // memory allocation failed
 					throw std::ios::failure("Unable to allocate memory for image header struct");
 				
+				// parse the image header
 				header = ParseImageHeader(buffer);
 				_image->ImageHeader = *header;
-
+				
+				// check image magic!
 				if (!_image->ImageHeader.HasMagic) // no magic word
 					throw std::ios::failure("Image has bad magic word");
 
+				// load the common key
 				if (_image->ImageHeader.IsWii)
 				{
 					LoadKey(_image->ImageHeader.IsKoreanKey);
@@ -149,6 +161,12 @@ bool Disc::Open(bool readOnly)
 				{
 					// the old wii scrubber simply doesn't load any key for gamecube images
 				}
+
+				// parse the image
+				ParseImage();
+
+				IsLoaded = true;
+
 			}
 			else
 			{
@@ -159,38 +177,36 @@ bool Disc::Open(bool readOnly)
 		catch (std::ios::failure ex)
 		{
 			// failed...
-			Close();
+			CloseFile();
 			free(_image);
 			_lastErr = ex.what();
 		}
 	}
 
-	return IsOpen;
+	return IsLoaded;
 }
 
 ///<summary>
 /// Closes the Wii ISO
 ///<returns>True if the ISO was successfully closed. Otherwise false</returns>
 ///</summary>
-bool Disc::Close()
+bool Disc::CloseFile()
 {
-	// close the file;
-	if (IsOpen) // dont bother if it's already closed
-	{
+	bool retVal = false;
 		try
 		{
 			fclose(_image->File);
 			//free(_image); -- we dont want to free the image. The user should still be able to close the file but still work with some of the loaded settings
-			IsOpen = false;
+			retVal = true;
 		}
 		catch (std::ios::failure ex) // i dont think this will ever catch anything now fstream class isnt being used. Wont harm to leave it here anyway
 		{
 			// failed...
 			_lastErr = ex.what();
+			retVal = false;
 		}
-	}
 	
-	return !IsOpen;
+	return retVal;
 }
 
 ///<summary>
@@ -203,25 +219,30 @@ bool Disc::Close()
 ///</summary>
 int Disc::Read (unsigned char * buffer, size_t size, u64 offset, bool markUsed)
 {
-	if (Disc::IsOpen) // can't read if the disc isn't open
+
+	// open the file
+	_image->File = fopen(_isoFileName.c_str(), "rb");
+
+	if (_image->File != NULL)
 	{
-        size_t byteCount;
-		long long nSeek;
+		size_t byteCount;
+		u64 nSeek;
 		
 		// seek to the correct offset
 		nSeek = fseeko64(_image->File, offset + _image->DiscOffset, SEEK_SET);
+		//nSeek = fseeko64(_image->File, 262144, SEEK_SET);
 		#if defined (__GNUC__) && defined(__unix__)
 			// fseeko64 in unix always returns 0 on success so we need to use ftell to get the file position
 			nSeek = ftello64(_image->File);
 		#endif
 		
 		// check the seek was successful
-        if (nSeek==-1) 
+		if (nSeek==-1) 
 		{
 			// seek error
 			_lastErr = "Cannot read data from image. Seek error";
-            return -1;
-        }
+			return -1;
+		}
 		
 		if (markUsed)
 		{
@@ -229,10 +250,15 @@ int Disc::Read (unsigned char * buffer, size_t size, u64 offset, bool markUsed)
 			MarkAsUsed(offset, size);
 		}
 
+		// read the data
 		byteCount = fread(buffer, 1, size, _image->File);
-        if (byteCount == size)
+
+		// close the file
+		Disc::CloseFile();
+
+		if (byteCount == size)
 		{
-                return byteCount;
+				return byteCount;
 		}
 		else
 		{
@@ -242,7 +268,7 @@ int Disc::Read (unsigned char * buffer, size_t size, u64 offset, bool markUsed)
 	}
 	else
 	{
-		_lastErr = "Cannot read data when image is closed. Please call Open() first";
+		_lastErr = "Unable to open file. Check file exists and is writeable";
 		return -1;
 	}
 }
@@ -390,14 +416,71 @@ void Disc::LoadKey(bool korean)
 	{
 		LoadedKey[i] = (korean ? WiiDLKey[i]^KorKeyXor[i] : WiiDLKey[i]^CommonKeyXor[i]);
 	}
-	
+	memset(&_image->CommonKey, 0, sizeof(AES_KEY));
 	AES_set_decrypt_key (LoadedKey, 128, &_image->CommonKey);
 }
 
-const char * Disc::GetLastError()
+
+///<summary>
+/// Parses the image file data into the image structure
+///</summary>
+void Disc::ParseImage()
 {
-	// return the latest error message
-	return _lastErr;
+	u8 buffer[0x440];
+	u8 *fst;
+	u32 i;
+	u8 j, valid, nvp;
+	u32 nfiles;
+
+
+	if (_image->ImageHeader.IsWii)
+	{
+		ParsePartitions();
+	}
+	else
+	{
+		_image->Partitions = (struct partition *)malloc (sizeof (struct partition));
+		memset(&_image->Partitions[0], 0, sizeof (struct partition));
+		_image->PartitionCount = 1;
+		_image->PrimaryCount = 1;
+		_image->SecondaryCount = 0;
+		_image->TertiaryCount = 0;
+		_image->QuaternaryCount = 0;
+		_image->PrimaryTblOffset = 0;
+		_image->SecondaryTblOffset = 0;
+		_image->TertiaryTblOffset = 0;
+		_image->QuaternaryTblOffset = 0;
+		_image->Partitions[0].Type = PART_DATA;
+		_image->Partitions[0].DataSize = 1459978240;
+		_image->Partitions[0].DataOffset = 0;
+		_image->Partitions[0].Offset = 0;
+		_image->Partitions[0].IsEncrypted = false;
+	}
 }
 
+///<summary>
+// Parses the partition information into the Partitions structure
+///</summary>
+///<returns>The number of partitions loaded</returns>
+int Disc::ParsePartitions()
+{
+	int retVal = 0;
+	u8 buffer[32];
+    u32 i = 0;
+    u8 iv[16];
+	
+	// clear out the old memory allocated
+	if (_image->Partitions!=NULL)
+	{
+		free (_image->Partitions);
+		_image->Partitions = NULL;
+	}
+	Disc::Read(buffer, 32, 0x40000);
+	_image->PrimaryCount = be32 (&buffer[0]);
+	_image->SecondaryCount = be32 (&buffer[8]);
+	_image->TertiaryCount =  be32 (&buffer[16]);
+	_image->QuaternaryCount =  be32 (&buffer[24]);
+	_image->PartitionCount = _image->PrimaryCount + _image->SecondaryCount + _image->TertiaryCount + _image->QuaternaryCount + _image->PartitionCount;
 
+	return retVal;
+}

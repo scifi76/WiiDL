@@ -4,6 +4,15 @@
         "WiiDLBase"
     </assembly>
     <members>
+        <member name="M:Disc.ParsePartitions">
+            <summary />
+            <returns>The number of partitions loaded</returns>
+        </member>
+        <member name="M:Disc.ParseImage">
+            <summary>
+Parses the image file data into the image structure
+</summary>
+        </member>
         <member name="M:Disc.LoadKey(System.Boolean)">
             <summary>
 Loads the the correct common key for the image. The old WiiScrubber
@@ -28,15 +37,20 @@ Marks the clusters between nOffset and nOffset + nSize as used (eg not empty)
 Reads data from the iso into the buffer pointer
 <param name="buffer">A pointer to a char buffer that the data will be stored in</param><param name="size">The amount of data to read in bytes</param><param name="offset">The offset at which to being the read operation</param><param name="markUsed">Indicates whether the clusters being read should be marked as used (eg not empty). Defaults to True</param><returns>The number of bytes read. Returns -1 if an error occurs</returns></summary>
         </member>
-        <member name="M:Disc.Close">
+        <member name="M:Disc.CloseFile">
             <summary>
 Closes the Wii ISO
 <returns>True if the ISO was successfully closed. Otherwise false</returns></summary>
         </member>
-        <member name="M:Disc.Open(System.Boolean)">
+        <member name="M:Disc.Load(System.Boolean)">
             <summary>
 Opens the Wii ISO
 <param name="readOnly">Whether or not the ISO should be opened in read only mode. Opening in read only mode will prevent the image file from being locked to other applications but any write actions to the image will fail</param><returns>True if the ISO was successfully opened. Otherwise false</returns></summary>
+        </member>
+        <member name="M:Disc.GetLastError">
+            <summary>
+Gets the last error message that occured
+<returns>The most recent error message</returns></summary>
         </member>
         <member name="M:Disc.Dispose">
             <summary>

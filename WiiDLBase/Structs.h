@@ -9,29 +9,29 @@ enum tmd_sig {
 };
 
 struct tmd_content {
-        u32 cid;
-        u16 index;
-        u16 type;
-        u64 size;
-        u8 hash[20];
+        u32 Cid;
+        u16 Index;
+        u16 Type;
+        u64 Size;
+        u8 Hash[20];
 };
 
 struct tmd {
-        enum tmd_sig sig_type; 
-        u8 *sig;
-        char issuer[64];
-        u8 version;
-        u8 ca_crl_version;
-        u8 signer_crl_version;
-        u64 sys_version;
-        u64 title_id;
-        u32 title_type;
-        u16 group_id;
-        u32 access_rights;
-        u16 title_version;
-        u16 num_contents;
-        u16 boot_index;
-        struct tmd_content *contents;
+        enum tmd_sig SigType; 
+        u8 * Sig;
+        char Issuer[64];
+        u8 Version;
+        u8 CaCrlVersion;
+        u8 SignerCrlVersion;
+        u64 SysVersion;
+        u64 TitleId;
+        u32 TitleType;
+        u16 GroupId;
+        u32 AccessRights;
+        u16 TitleVersion;
+        u16 NumContents;
+        u16 BootIndex;
+        struct tmd_content * Contents;
 };
 
 struct part_header {
@@ -65,73 +65,72 @@ enum partition_type {
 };
 
 struct partition {
-        u64 offset;
+        u64 Offset;
 
-        struct part_header header;
+        struct part_header Header;
 
-        u64 appldr_size;
+        u64 AppldrSize;
 
-        u8 is_encrypted;
+        bool IsEncrypted;
 
-        u64 tmd_offset;
-        u64 tmd_size;
+        u64 TmdOffset;
+        u64 TmdSize;
 
-        struct tmd * tmd;
+        struct tmd * Tmd;
 
-		u64	h3_offset;
+		u64	H3Offset;
 
-        char title_id_str[17];
+        char TitleIdString[17];
 
-        enum partition_type type;
-        char chan_id[5];
+        enum partition_type Type;
+        char ChannelId[5];
 
-        char key_c[35];
-        AES_KEY key;
+        char KeyC[35];
+        AES_KEY Key;
 
-		u8 title_key[16];
+		u8 TitleKey[16];
 
-        u64 data_offset;
-        u64 data_size;
+        u64 DataOffset;
+        u64 DataSize;
 
-        u64 cert_offset;
-        u64 cert_size;
+        u64 CertOffset;
+        u64 CertSize;
 
-        u8 dec_buffer[0x8000];
+        u8 DecBuffer[0x8000];
 
-        u32 cached_block;
-        u8 cache[0x7c00];
+        u32 CachedBlock;
+        u8 Cache[0x7c00];
 };
 
 struct image_file {
  
 		FILE * File;
-		long long DiscOffset;
-		long long ImageSize;
-        u8 is_wii;
+		u64 DiscOffset;
+		u64 ImageSize;
 
 		unsigned char * FreeClusterTable;
 		bool IsReadOnly;
 
 		struct part_header ImageHeader;
 
-        u32 nparts;
-        struct partition * parts;
+        u32 PartitionCount;
+        struct partition * Partitions;
 
 		//TODO: Enable this for cross platform
         //struct _stat st; 
 
-        u64 nfiles;
-        u64 nbytes;
+        u64 FileCount;
+        u64 BytesCount;
 
 		u8	PrimaryCount;
 		u8	SecondaryCount;
 		u8	TertiaryCount;
 		u8	QuaternaryCount;
 
-		u64 Primary_tbl_offset;
-		u64	Secondary_tbl_offset;
-		u64	Tertiary_tbl_offset;
-		u64	Quaternary_tbl_offset;
+		u64 PrimaryTblOffset;
+		u64	SecondaryTblOffset;
+		u64	TertiaryTblOffset;
+		u64	QuaternaryTblOffset;
 
         AES_KEY CommonKey;
 };
