@@ -460,8 +460,8 @@ void Disc::ParseImage()
 
 ///<summary>
 // Parses the partition information into the Partitions structure
-///</summary>
 ///<returns>The number of partitions loaded</returns>
+///</summary>
 int Disc::ParsePartitions()
 {
 	int retVal = 0;
@@ -475,12 +475,227 @@ int Disc::ParsePartitions()
 		free (_image->Partitions);
 		_image->Partitions = NULL;
 	}
+	// read the partition info
 	Disc::Read(buffer, 32, 0x40000);
+	// set the partition counts based on the data read
 	_image->PrimaryCount = be32 (&buffer[0]);
 	_image->SecondaryCount = be32 (&buffer[8]);
 	_image->TertiaryCount =  be32 (&buffer[16]);
 	_image->QuaternaryCount =  be32 (&buffer[24]);
 	_image->PartitionCount = _image->PrimaryCount + _image->SecondaryCount + _image->TertiaryCount + _image->QuaternaryCount + _image->PartitionCount;
 
+	// set the partition offsets
+	_image->PrimaryTblOffset = u64 (be32 (&buffer[4])) * ((u64)(4));
+	_image->SecondaryTblOffset = (u64 )(be32 (&buffer[12])) * ((u64) (4));
+	_image->TertiaryTblOffset = (u64 )(be32 (&buffer[20])) * ((u64) (4));
+	_image->QuaternaryTblOffset = (u64 )(be32 (&buffer[28])) * ((u64) (4));
+
+	_image->Partitions = (struct partition *) malloc(_image->PartitionCount * sizeof (struct partition));
+	if (0!=_image->PartitionCount)
+	{
+		memset (_image->Partitions, 0, _image->PartitionCount * sizeof (struct partition));
+	}
+	
+	u64 nOffset = 0;
+	u32 nCount;
+	for (int z = 0; z < 4; ++z) // loop through each partition group (primary, secondary, etc)
+	{
+			// set the partition counts and offsets based on the current group
+			switch(z)
+			{
+			case 0:
+				nOffset = _image->PrimaryTblOffset;
+				nCount = _image->PrimaryCount;
+				break;
+			case 1:
+				nOffset = _image->SecondaryTblOffset;
+				nCount = _image->SecondaryCount;
+				break;
+			case 2:
+				nOffset = _image->TertiaryTblOffset;
+				nCount = _image->TertiaryCount;
+				break;
+			case 3:
+				nOffset = _image->QuaternaryTblOffset;
+				nCount = _image->QuaternaryCount;
+				break;
+			}
+
+			for (unsigned int x = 0; x < nCount; x++) // loop through each partition in the current group
+			{
+				// read the partition type
+				Read(buffer, 8, nOffset + x * 8);
+
+				switch (be32 (&buffer[4]))
+				{
+				case 0:
+					_image->Partitions[i].Type = PART_DATA;
+					break;
+					
+				case 1:
+					_image->Partitions[i].Type = PART_UPDATE;
+					break;
+					
+				case 2:
+					_image->Partitions[i].Type = PART_INSTALLER;
+					break;
+					
+				default:
+					_image->Partitions[i].Type = PART_VC;
+					_image->Partitions[i].ChannelId[0] = buffer[4];
+					_image->Partitions[i].ChannelId[1] = buffer[5];
+					_image->Partitions[i].ChannelId[2] = buffer[6];
+					_image->Partitions[i].ChannelId[3] = buffer[7];
+					break;
+				}
+
+				_image->Partitions[i].Offset = (u64)(be32 (buffer)) * ((u64)(4));
+
+				// mark the block as used
+				MarkAsUsed(_image->Partitions[i].Offset, 0x8000);
+
+				Read(buffer, 8, _image->Partitions[i].Offset + 0x1c);
+
+				if (be32(&buffer[0x0])==0xc2339f3d)
+				{
+					// Gamecube partition
+					_image->Partitions[i].IsEncrypted = 0;
+					_image->Partitions[i].DataOffset = 0;
+					_image->Partitions[i].Header.IsGC = true;
+	                Read(buffer, 8, _image->Partitions[i].Offset + 0x438);
+					_image->Partitions[i].DataSize = be32(&buffer[0]);
+					_image->Partitions[i].DataOffset = 0;
+				}
+				else
+				{
+					Read(buffer, 8, _image->Partitions[i].Offset + 0x2b8);
+					_image->Partitions[i].DataOffset = (u64)(be32 (buffer)) << 2;
+					_image->Partitions[i].DataSize = (u64)(be32 (&buffer[4])) << 2;
+					
+					// now get the H3 offset
+					Read(buffer, 4, _image->Partitions[i].Offset + 0x2b4);
+					_image->Partitions[i].H3Offset = (u64)(be32 (buffer)) << 2 ;
+					
+					TmdLoad (i);
+
+					// TODO: Finish this method
+				}
+
+			}
+	}
+
 	return retVal;
+}
+
+///<summary>
+// Loads the TMD (Title Metadata) info for the give partition number
+///<param name="inputData">Pointer to the data to be parsed</param>
+///</summary>
+void Disc::TmdLoad(u32 partNo)
+{
+	struct tmd * tmd;
+    u32 tmdOffset, tmdSize;
+    enum tmd_sig sig = SIG_UNKNOWN;
+
+    u64 off, certSize, certOff;
+    u8 buffer[64];
+    u16 i, s;
+
+    off = _image->Partitions[partNo].Offset;
+    Read(buffer, 16, off + 0x2a4);
+
+    tmdSize = be32 (buffer);
+    tmdOffset = be32 (&buffer[4]) * 4;
+    certSize = be32 (&buffer[8]);
+    certOff = be32 (&buffer[12]) * 4;
+
+	if (0==tmdSize)
+	{
+		return;
+	}
+
+	off += tmdOffset;
+
+    Read(buffer, 4, off);
+    off += 4;
+
+    switch (be32 (buffer)) 
+	{
+		case 0x00010001:
+            sig = SIG_RSA_2048;
+            s = 0x100;
+            break;
+
+		case 0x00010000:
+            sig = SIG_RSA_4096;
+            s = 0x200;
+            break;
+    }
+
+    if (sig == SIG_UNKNOWN)
+            return;
+
+	tmd = (struct tmd *) malloc (sizeof (struct tmd));
+    memset (tmd, 0, sizeof (struct tmd));
+
+    tmd->SigType = sig;
+
+	_image->Partitions[partNo].Tmd = tmd;
+	_image->Partitions[partNo].TmdOffset = tmdOffset;
+	_image->Partitions[partNo].TmdSize = tmdSize;
+
+	_image->Partitions[partNo].CertOffset = certOff;
+	_image->Partitions[partNo].CertSize = certSize;
+
+    tmd->Sig = (unsigned char *) malloc (s);
+    Read(tmd->Sig, s, off);
+    off += s;
+    
+    off = ROUNDUP64B(off);
+
+	Read((unsigned char *)&tmd->Issuer[0], 0x40, off);
+    off += 0x40;
+
+    Read(buffer, 26, off);
+    off += 26;
+
+	tmd->Version = buffer[0];
+	tmd->CaCrlVersion = buffer[1];
+	tmd->SignerCrlVersion = buffer[2];
+
+	tmd->SysVersion = be64 (&buffer[4]);
+	tmd->TitleId = be64 (&buffer[12]);
+	tmd->TitleType = be32 (&buffer[20]);
+	tmd->GroupId = be16 (&buffer[24]);
+
+    off += 62;
+
+	Read(buffer, 10, off);
+    off += 10;
+
+	tmd->AccessRights = be32 (buffer);
+	tmd->TitleVersion = be16 (&buffer[4]);
+	tmd->NumContents = be16 (&buffer[6]);
+	tmd->BootIndex = be16 (&buffer[8]);
+
+    off += 2;
+
+	if (tmd->NumContents < 1)
+            return;
+
+	tmd->Contents = (struct tmd_content *) malloc (sizeof (struct tmd_content) * tmd->NumContents);
+
+	for (i = 0; i < tmd->NumContents; ++i) // loop through each TMD content
+	{ 
+		Read(buffer, 0x30, off);
+		off += 0x30;
+
+		tmd->Contents[i].Cid = be32 (buffer);
+		tmd->Contents[i].Index = be16 (&buffer[4]);
+		tmd->Contents[i].Type = be16 (&buffer[6]);
+		tmd->Contents[i].Size = be64 (&buffer[8]);
+		memcpy (tmd->Contents[i].Hash, &buffer[16], 20);
+	}
+
+	return;
 }

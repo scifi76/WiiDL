@@ -84,8 +84,13 @@ Parses the image file data into the image structure
 </member>
 <member name="M:Disc.ParsePartitions" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="461">
 <summary>
-</summary>
 <returns>The number of partitions loaded</returns>
+</summary>
+</member>
+<member name="M:Disc.TmdLoad(System.UInt32)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="590">
+<summary>
+<param name="inputData">Pointer to the data to be parsed</param>
+</summary>
 </member>
 </members>
 </doc>

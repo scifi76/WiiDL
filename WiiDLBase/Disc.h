@@ -69,5 +69,6 @@ class DISC_API Disc
 		void LoadKey(bool korean);
 		void ParseImage();
 		int ParsePartitions();
+		void TmdLoad(u32 partNo);
 		
 };

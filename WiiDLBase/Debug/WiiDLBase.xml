@@ -4,9 +4,15 @@
         "WiiDLBase"
     </assembly>
     <members>
+        <member name="M:Disc.TmdLoad(System.UInt32)">
+            <summary>
+                <param name="inputData">Pointer to the data to be parsed</param>
+            </summary>
+        </member>
         <member name="M:Disc.ParsePartitions">
-            <summary />
-            <returns>The number of partitions loaded</returns>
+            <summary>
+                <returns>The number of partitions loaded</returns>
+            </summary>
         </member>
         <member name="M:Disc.ParseImage">
             <summary>
