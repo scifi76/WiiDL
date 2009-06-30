@@ -33,10 +33,10 @@ Disc::~Disc()
 	CloseFile();
 
 	
-	free(_image->FreeClusterTable);
-	free(&_image->ImageHeader);
-	free(_image->File);
-	free(_image);
+	free(Image->FreeClusterTable);
+	free(&Image->ImageHeader);
+	free(Image->File);
+	free(Image);
 	free(_blankSector);
 	free(_blankSector0);
 }
@@ -106,31 +106,31 @@ bool Disc::Load(bool readOnly)
 				#endif
 				imageSize -= discOffset;
 				
-				// get the image info and store it in _image
+				// get the image info and store it in Image
 				struct part_header * header;
 		        u8 buffer[0x440];
 				// allocate the memory
-				_image = (struct image_file *) malloc (sizeof (struct image_file));
+				Image = (struct image_file *) malloc (sizeof (struct image_file));
 		
-				if (!_image) // memory allocation failed
+				if (!Image) // memory allocation failed
 					throw std::ios::failure("Unable to allocate memory for image file struct");
 
-				memset (_image, 0, sizeof (struct image_file));
-				_image->File = fIsoFile; // add the file pointer to the image structure
+				memset (Image, 0, sizeof (struct image_file));
+				Image->File = fIsoFile; // add the file pointer to the image structure
 
 				// close the file (for now)
 				Disc::CloseFile();
 				
 				// add the read only flag to the struct
-				_image->IsReadOnly = readOnly;
+				Image->IsReadOnly = readOnly;
 
 				// set the image size
-				_image->ImageSize = imageSize;
+				Image->ImageSize = imageSize;
 
 				// allocate the FreeClusterTable
-				_image->FreeClusterTable = (unsigned char *) malloc(imageSize);
+				Image->FreeClusterTable = (unsigned char *) malloc(imageSize);
 				//set all clusters to free for now
-				memset(_image->FreeClusterTable, 0, (_image->ImageSize / (u64)(0x8000)) *2L);
+				memset(Image->FreeClusterTable, 0, (Image->ImageSize / (u64)(0x8000)) *2L);
 				// then set the header size to used
 				MarkAsUsed(0, 0x50000);
 
@@ -146,16 +146,16 @@ bool Disc::Load(bool readOnly)
 				
 				// parse the image header
 				header = ParseImageHeader(buffer);
-				_image->ImageHeader = *header;
+				Image->ImageHeader = *header;
 				
 				// check image magic!
-				if (!_image->ImageHeader.HasMagic) // no magic word
+				if (!Image->ImageHeader.HasMagic) // no magic word
 					throw std::ios::failure("Image has bad magic word");
 
 				// load the common key
-				if (_image->ImageHeader.IsWii)
+				if (Image->ImageHeader.IsWii)
 				{
-					LoadKey(_image->ImageHeader.IsKoreanKey);
+					LoadKey(Image->ImageHeader.IsKoreanKey);
 				}
 				else
 				{
@@ -178,7 +178,7 @@ bool Disc::Load(bool readOnly)
 		{
 			// failed...
 			CloseFile();
-			free(_image);
+			free(Image);
 			_lastErr = ex.what();
 		}
 	}
@@ -195,8 +195,8 @@ bool Disc::CloseFile()
 	bool retVal = false;
 		try
 		{
-			fclose(_image->File);
-			//free(_image); -- we dont want to free the image. The user should still be able to close the file but still work with some of the loaded settings
+			fclose(Image->File);
+			//free(Image); -- we dont want to free the image. The user should still be able to close the file but still work with some of the loaded settings
 			retVal = true;
 		}
 		catch (std::ios::failure ex) // i dont think this will ever catch anything now fstream class isnt being used. Wont harm to leave it here anyway
@@ -221,19 +221,19 @@ int Disc::Read (unsigned char * buffer, size_t size, u64 offset, bool markUsed)
 {
 
 	// open the file
-	_image->File = fopen(_isoFileName.c_str(), "rb");
+	Image->File = fopen(_isoFileName.c_str(), "rb");
 
-	if (_image->File != NULL)
+	if (Image->File != NULL)
 	{
 		size_t byteCount;
 		u64 nSeek;
 		
 		// seek to the correct offset
-		nSeek = fseeko64(_image->File, offset + _image->DiscOffset, SEEK_SET);
-		//nSeek = fseeko64(_image->File, 262144, SEEK_SET);
+		nSeek = fseeko64(Image->File, offset + Image->DiscOffset, SEEK_SET);
+		//nSeek = fseeko64(Image->File, 262144, SEEK_SET);
 		#if defined (__GNUC__) && defined(__unix__)
 			// fseeko64 in unix always returns 0 on success so we need to use ftell to get the file position
-			nSeek = ftello64(_image->File);
+			nSeek = ftello64(Image->File);
 		#endif
 		
 		// check the seek was successful
@@ -251,7 +251,7 @@ int Disc::Read (unsigned char * buffer, size_t size, u64 offset, bool markUsed)
 		}
 
 		// read the data
-		byteCount = fread(buffer, 1, size, _image->File);
+		byteCount = fread(buffer, 1, size, Image->File);
 
 		// close the file
 		Disc::CloseFile();
@@ -289,11 +289,11 @@ int Disc::MarkAsUsed(u64 nOffset, u64 nSize)
 	u64 nEndValue = nOffset + nSize;
 
 	while((nStartValue < nEndValue)&&
-		  (nStartValue < (_image->ImageSize)))
+		  (nStartValue < (Image->ImageSize)))
 	{
-		if (_image->FreeClusterTable[nStartValue / (u64)(0x8000)] != 1)
+		if (Image->FreeClusterTable[nStartValue / (u64)(0x8000)] != 1)
 		{
-			_image->FreeClusterTable[nStartValue / (u64)(0x8000)] = 1;
+			Image->FreeClusterTable[nStartValue / (u64)(0x8000)] = 1;
 		}
 		nStartValue = nStartValue + ((u64)(0x8000));
 		retVal++;
@@ -416,8 +416,8 @@ void Disc::LoadKey(bool korean)
 	{
 		LoadedKey[i] = (korean ? WiiDLKey[i]^KorKeyXor[i] : WiiDLKey[i]^CommonKeyXor[i]);
 	}
-	memset(&_image->CommonKey, 0, sizeof(AES_KEY));
-	AES_set_decrypt_key (LoadedKey, 128, &_image->CommonKey);
+	memset(&Image->CommonKey, 0, sizeof(AES_KEY));
+	AES_set_decrypt_key (LoadedKey, 128, &Image->CommonKey);
 }
 
 
@@ -433,28 +433,37 @@ void Disc::ParseImage()
 	u32 nfiles;
 
 
-	if (_image->ImageHeader.IsWii)
+	if (Image->ImageHeader.IsWii)
 	{
 		ParsePartitions();
 	}
 	else
 	{
-		_image->Partitions = (struct partition *)malloc (sizeof (struct partition));
-		memset(&_image->Partitions[0], 0, sizeof (struct partition));
-		_image->PartitionCount = 1;
-		_image->PrimaryCount = 1;
-		_image->SecondaryCount = 0;
-		_image->TertiaryCount = 0;
-		_image->QuaternaryCount = 0;
-		_image->PrimaryTblOffset = 0;
-		_image->SecondaryTblOffset = 0;
-		_image->TertiaryTblOffset = 0;
-		_image->QuaternaryTblOffset = 0;
-		_image->Partitions[0].Type = PART_DATA;
-		_image->Partitions[0].DataSize = 1459978240;
-		_image->Partitions[0].DataOffset = 0;
-		_image->Partitions[0].Offset = 0;
-		_image->Partitions[0].IsEncrypted = false;
+		Image->Partitions = (struct partition *)malloc (sizeof (struct partition));
+		memset(&Image->Partitions[0], 0, sizeof (struct partition));
+		Image->PartitionCount = 1;
+		Image->PrimaryCount = 1;
+		Image->SecondaryCount = 0;
+		Image->TertiaryCount = 0;
+		Image->QuaternaryCount = 0;
+		Image->PrimaryTblOffset = 0;
+		Image->SecondaryTblOffset = 0;
+		Image->TertiaryTblOffset = 0;
+		Image->QuaternaryTblOffset = 0;
+		Image->Partitions[0].Type = PART_DATA;
+		Image->Partitions[0].DataSize = 1459978240;
+		Image->Partitions[0].DataOffset = 0;
+		Image->Partitions[0].Offset = 0;
+		Image->Partitions[0].IsEncrypted = false;
+	}
+
+	nvp = 0;
+	for (i = 0; i < Image->PartitionCount; ++i)
+	{
+		if (!io_read_part (buffer, 0x440, image, i, 0)) {
+			AfxMessageBox("partition header");
+			return 1;
+		}
 	}
 }
 
@@ -467,33 +476,35 @@ int Disc::ParsePartitions()
 	int retVal = 0;
 	u8 buffer[32];
     u32 i = 0;
+	u8 titleKey[16];
+    u8 partitionKey[16];
     u8 iv[16];
 	
 	// clear out the old memory allocated
-	if (_image->Partitions!=NULL)
+	if (Image->Partitions!=NULL)
 	{
-		free (_image->Partitions);
-		_image->Partitions = NULL;
+		free (Image->Partitions);
+		Image->Partitions = NULL;
 	}
 	// read the partition info
 	Disc::Read(buffer, 32, 0x40000);
 	// set the partition counts based on the data read
-	_image->PrimaryCount = be32 (&buffer[0]);
-	_image->SecondaryCount = be32 (&buffer[8]);
-	_image->TertiaryCount =  be32 (&buffer[16]);
-	_image->QuaternaryCount =  be32 (&buffer[24]);
-	_image->PartitionCount = _image->PrimaryCount + _image->SecondaryCount + _image->TertiaryCount + _image->QuaternaryCount + _image->PartitionCount;
+	Image->PrimaryCount = be32 (&buffer[0]);
+	Image->SecondaryCount = be32 (&buffer[8]);
+	Image->TertiaryCount =  be32 (&buffer[16]);
+	Image->QuaternaryCount =  be32 (&buffer[24]);
+	Image->PartitionCount = Image->PrimaryCount + Image->SecondaryCount + Image->TertiaryCount + Image->QuaternaryCount + Image->PartitionCount;
 
 	// set the partition offsets
-	_image->PrimaryTblOffset = u64 (be32 (&buffer[4])) * ((u64)(4));
-	_image->SecondaryTblOffset = (u64 )(be32 (&buffer[12])) * ((u64) (4));
-	_image->TertiaryTblOffset = (u64 )(be32 (&buffer[20])) * ((u64) (4));
-	_image->QuaternaryTblOffset = (u64 )(be32 (&buffer[28])) * ((u64) (4));
+	Image->PrimaryTblOffset = u64 (be32 (&buffer[4])) * ((u64)(4));
+	Image->SecondaryTblOffset = (u64 )(be32 (&buffer[12])) * ((u64) (4));
+	Image->TertiaryTblOffset = (u64 )(be32 (&buffer[20])) * ((u64) (4));
+	Image->QuaternaryTblOffset = (u64 )(be32 (&buffer[28])) * ((u64) (4));
 
-	_image->Partitions = (struct partition *) malloc(_image->PartitionCount * sizeof (struct partition));
-	if (0!=_image->PartitionCount)
+	Image->Partitions = (struct partition *) malloc(Image->PartitionCount * sizeof (struct partition));
+	if (0!=Image->PartitionCount)
 	{
-		memset (_image->Partitions, 0, _image->PartitionCount * sizeof (struct partition));
+		memset (Image->Partitions, 0, Image->PartitionCount * sizeof (struct partition));
 	}
 	
 	u64 nOffset = 0;
@@ -504,20 +515,20 @@ int Disc::ParsePartitions()
 			switch(z)
 			{
 			case 0:
-				nOffset = _image->PrimaryTblOffset;
-				nCount = _image->PrimaryCount;
+				nOffset = Image->PrimaryTblOffset;
+				nCount = Image->PrimaryCount;
 				break;
 			case 1:
-				nOffset = _image->SecondaryTblOffset;
-				nCount = _image->SecondaryCount;
+				nOffset = Image->SecondaryTblOffset;
+				nCount = Image->SecondaryCount;
 				break;
 			case 2:
-				nOffset = _image->TertiaryTblOffset;
-				nCount = _image->TertiaryCount;
+				nOffset = Image->TertiaryTblOffset;
+				nCount = Image->TertiaryCount;
 				break;
 			case 3:
-				nOffset = _image->QuaternaryTblOffset;
-				nCount = _image->QuaternaryCount;
+				nOffset = Image->QuaternaryTblOffset;
+				nCount = Image->QuaternaryCount;
 				break;
 			}
 
@@ -529,58 +540,77 @@ int Disc::ParsePartitions()
 				switch (be32 (&buffer[4]))
 				{
 				case 0:
-					_image->Partitions[i].Type = PART_DATA;
+					Image->Partitions[i].Type = PART_DATA;
 					break;
 					
 				case 1:
-					_image->Partitions[i].Type = PART_UPDATE;
+					Image->Partitions[i].Type = PART_UPDATE;
 					break;
 					
 				case 2:
-					_image->Partitions[i].Type = PART_INSTALLER;
+					Image->Partitions[i].Type = PART_INSTALLER;
 					break;
 					
 				default:
-					_image->Partitions[i].Type = PART_VC;
-					_image->Partitions[i].ChannelId[0] = buffer[4];
-					_image->Partitions[i].ChannelId[1] = buffer[5];
-					_image->Partitions[i].ChannelId[2] = buffer[6];
-					_image->Partitions[i].ChannelId[3] = buffer[7];
+					Image->Partitions[i].Type = PART_VC;
+					Image->Partitions[i].ChannelId[0] = buffer[4];
+					Image->Partitions[i].ChannelId[1] = buffer[5];
+					Image->Partitions[i].ChannelId[2] = buffer[6];
+					Image->Partitions[i].ChannelId[3] = buffer[7];
 					break;
 				}
 
-				_image->Partitions[i].Offset = (u64)(be32 (buffer)) * ((u64)(4));
+				Image->Partitions[i].Offset = (u64)(be32 (buffer)) * ((u64)(4));
 
 				// mark the block as used
-				MarkAsUsed(_image->Partitions[i].Offset, 0x8000);
+				MarkAsUsed(Image->Partitions[i].Offset, 0x8000);
 
-				Read(buffer, 8, _image->Partitions[i].Offset + 0x1c);
+				Read(buffer, 8, Image->Partitions[i].Offset + 0x1c);
 
 				if (be32(&buffer[0x0])==0xc2339f3d)
 				{
 					// Gamecube partition
-					_image->Partitions[i].IsEncrypted = 0;
-					_image->Partitions[i].DataOffset = 0;
-					_image->Partitions[i].Header.IsGC = true;
-	                Read(buffer, 8, _image->Partitions[i].Offset + 0x438);
-					_image->Partitions[i].DataSize = be32(&buffer[0]);
-					_image->Partitions[i].DataOffset = 0;
+					Image->Partitions[i].IsEncrypted = 0;
+					Image->Partitions[i].DataOffset = 0;
+					Image->Partitions[i].Header.IsGC = true;
+	                Read(buffer, 8, Image->Partitions[i].Offset + 0x438);
+					Image->Partitions[i].DataSize = be32(&buffer[0]);
+					Image->Partitions[i].DataOffset = 0;
 				}
 				else
 				{
-					Read(buffer, 8, _image->Partitions[i].Offset + 0x2b8);
-					_image->Partitions[i].DataOffset = (u64)(be32 (buffer)) << 2;
-					_image->Partitions[i].DataSize = (u64)(be32 (&buffer[4])) << 2;
+					Read(buffer, 8, Image->Partitions[i].Offset + 0x2b8);
+					Image->Partitions[i].DataOffset = (u64)(be32 (buffer)) << 2;
+					Image->Partitions[i].DataSize = (u64)(be32 (&buffer[4])) << 2;
 					
 					// now get the H3 offset
-					Read(buffer, 4, _image->Partitions[i].Offset + 0x2b4);
-					_image->Partitions[i].H3Offset = (u64)(be32 (buffer)) << 2 ;
+					Read(buffer, 4, Image->Partitions[i].Offset + 0x2b4);
+					Image->Partitions[i].H3Offset = (u64)(be32 (buffer)) << 2 ;
 					
-					TmdLoad (i);
-
-					// TODO: Finish this method
+					if (TmdLoad(i) == NULL)
+					{
+						//no valid TMD
+						Image->Partitions[i].IsEncrypted = 0;
+					}
+					else
+					{
+						Image->Partitions[i].IsEncrypted = 1;
+						Image->Partitions[i].CachedBlock = 0xffffffff;
+						
+						memset(titleKey, 0, 16);
+						memset(iv, 0, 16);
+						
+						Read(titleKey, 16, Image->Partitions[i].Offset + 0x1bf);
+						Read(iv, 8, Image->Partitions[i].Offset + 0x1dc);
+						
+						AES_cbc_encrypt(titleKey, partitionKey, 16, &Image->CommonKey, iv, AES_DECRYPT);
+						
+						memcpy(Image->Partitions[i].TitleKey, partitionKey, 16);
+						
+						AES_set_decrypt_key (partitionKey, 128, &Image->Partitions[i].Key);
+					}
 				}
-
+				i++;
 			}
 	}
 
@@ -589,9 +619,9 @@ int Disc::ParsePartitions()
 
 ///<summary>
 // Loads the TMD (Title Metadata) info for the give partition number
-///<param name="inputData">Pointer to the data to be parsed</param>
+///<param name="partNo">The partition number to load the TMD from</param>
 ///</summary>
-void Disc::TmdLoad(u32 partNo)
+tmd * Disc::TmdLoad(u32 partNo)
 {
 	struct tmd * tmd;
     u32 tmdOffset, tmdSize;
@@ -601,7 +631,7 @@ void Disc::TmdLoad(u32 partNo)
     u8 buffer[64];
     u16 i, s;
 
-    off = _image->Partitions[partNo].Offset;
+    off = Image->Partitions[partNo].Offset;
     Read(buffer, 16, off + 0x2a4);
 
     tmdSize = be32 (buffer);
@@ -609,9 +639,10 @@ void Disc::TmdLoad(u32 partNo)
     certSize = be32 (&buffer[8]);
     certOff = be32 (&buffer[12]) * 4;
 
-	if (0==tmdSize)
+	if (tmdSize==0)
 	{
-		return;
+		_lastErr = "Zero TMD size";
+		return NULL;
 	}
 
 	off += tmdOffset;
@@ -633,19 +664,22 @@ void Disc::TmdLoad(u32 partNo)
     }
 
     if (sig == SIG_UNKNOWN)
-            return;
+	{
+		_lastErr = "Unknown TMD Signature";
+        return NULL;
+	}
 
 	tmd = (struct tmd *) malloc (sizeof (struct tmd));
     memset (tmd, 0, sizeof (struct tmd));
 
     tmd->SigType = sig;
 
-	_image->Partitions[partNo].Tmd = tmd;
-	_image->Partitions[partNo].TmdOffset = tmdOffset;
-	_image->Partitions[partNo].TmdSize = tmdSize;
+	Image->Partitions[partNo].Tmd = tmd;
+	Image->Partitions[partNo].TmdOffset = tmdOffset;
+	Image->Partitions[partNo].TmdSize = tmdSize;
 
-	_image->Partitions[partNo].CertOffset = certOff;
-	_image->Partitions[partNo].CertSize = certSize;
+	Image->Partitions[partNo].CertOffset = certOff;
+	Image->Partitions[partNo].CertSize = certSize;
 
     tmd->Sig = (unsigned char *) malloc (s);
     Read(tmd->Sig, s, off);
@@ -681,7 +715,10 @@ void Disc::TmdLoad(u32 partNo)
     off += 2;
 
 	if (tmd->NumContents < 1)
-            return;
+	{
+		_lastErr = "Empty TMD Contents";
+        return NULL;
+	}
 
 	tmd->Contents = (struct tmd_content *) malloc (sizeof (struct tmd_content) * tmd->NumContents);
 
@@ -697,5 +734,5 @@ void Disc::TmdLoad(u32 partNo)
 		memcpy (tmd->Contents[i].Hash, &buffer[16], 20);
 	}
 
-	return;
+	return tmd;
 }

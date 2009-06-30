@@ -6,7 +6,7 @@
     <members>
         <member name="M:Disc.TmdLoad(System.UInt32)">
             <summary>
-                <param name="inputData">Pointer to the data to be parsed</param>
+                <param name="partNo">The partition number to load the TMD from</param>
             </summary>
         </member>
         <member name="M:Disc.ParsePartitions">

@@ -82,14 +82,14 @@ side, the actual key is not embeded, instead XORd values are stored
 Parses the image file data into the image structure
 </summary>
 </member>
-<member name="M:Disc.ParsePartitions" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="461">
+<member name="M:Disc.ParsePartitions" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="463">
 <summary>
 <returns>The number of partitions loaded</returns>
 </summary>
 </member>
-<member name="M:Disc.TmdLoad(System.UInt32)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="590">
+<member name="M:Disc.TmdLoad(System.UInt32)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="613">
 <summary>
-<param name="inputData">Pointer to the data to be parsed</param>
+<param name="partNo">The partition number to load the TMD from</param>
 </summary>
 </member>
 </members>
