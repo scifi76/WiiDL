@@ -17,7 +17,7 @@
         <member name="M:Disc.ParseImage">
             <summary>
 Parses the image file data into the image structure
-</summary>
+<returns>0 = Success, -1 = Failure</returns></summary>
         </member>
         <member name="M:Disc.LoadKey(System.Boolean)">
             <summary>
@@ -37,6 +37,16 @@ Parses the raw header data in inputData in a part_header structure pointed to by
             <summary>
 Marks the clusters between nOffset and nOffset + nSize as used (eg not empty)
 <param name="nOffset">The starting position</param><param name="nOffset">The amount of data in bytes to mark as used (will round to the nearset sector)</param><returns>The number of clusters marked as used. 1 Cluster = 32768 bytes (32k)</returns></summary>
+        </member>
+        <member name="M:Disc.DecryptPartitionBlock(System.UInt32,System.UInt32)">
+            <summary>
+Reads and decrypts a block of data from the specified partition
+<param name="partNo">The partition to read from</param><param name="block">The block number to read</param><returns>The 0 on success. Returns -1 if an error occurs</returns></summary>
+        </member>
+        <member name="M:Disc.ReadFromPartition(System.Byte*,System.UInt32,System.UInt32,System.UInt64)">
+            <summary>
+Reads data from the specified partition, decrypting it if necessary
+<param name="buffer">A pointer to a char buffer that the data will be stored in</param><param name="size">The amount of data to read in bytes</param><param name="partNo">The partition to read from</param><param name="offset">The offset (from the beginning of the partition) at which to being the read operation</param><returns>The number of bytes read. Returns -1 if an error occurs</returns></summary>
         </member>
         <member name="M:Disc.Read(System.Byte*,System.UInt32,System.UInt64,System.Boolean)">
             <summary>

@@ -268,11 +268,90 @@ int Disc::Read (unsigned char * buffer, size_t size, u64 offset, bool markUsed)
 	}
 	else
 	{
-		_lastErr = "Unable to open file. Check file exists and is writeable";
+		_lastErr = "Unable to open file. Check file exists and is readable";
 		return -1;
 	}
 }
 
+///<summary>
+/// Reads data from the specified partition, decrypting it if necessary
+///<param name="buffer">A pointer to a char buffer that the data will be stored in</param>
+///<param name="size">The amount of data to read in bytes</param>
+///<param name="partNo">The partition to read from</param>
+///<param name="offset">The offset (from the beginning of the partition) at which to being the read operation</param>
+///<returns>The number of bytes read. Returns -1 if an error occurs</returns>
+///</summary>
+int Disc::ReadFromPartition(unsigned char * buffer, size_t size, u32 partNo, u64 offset) 
+{
+        u32 block = (u32)(offset / (u64)(0x7c00));
+        u32 cacheOffset = (u32)(offset % (u64)(0x7c00));
+        u32 cacheSize;
+        unsigned char * dst = buffer;
+
+		if (!Image->Partitions[partNo].IsEncrypted)
+		{
+			// just a plain read of the data
+			return Read(buffer, size, Image->Partitions[partNo].Offset + offset);
+		}
+		else
+		{
+			while (size) 
+			{
+				if (DecryptPartitionBlock(partNo, block))
+				{
+					return (dst - buffer);
+				}
+				else
+				{
+					cacheSize = size;
+					if (cacheSize + cacheOffset > 0x7c00)
+					{
+						cacheSize = 0x7c00 - cacheOffset;
+					}
+
+					memcpy(dst, Image->Partitions[partNo].Cache + cacheOffset, cacheSize);
+					dst += cacheSize;
+					size -= cacheSize;
+					cacheOffset = 0;
+				}
+				block++;
+			}
+			return dst - buffer;
+		}
+}
+
+///<summary>
+/// Reads and decrypts a block of data from the specified partition
+///<param name="partNo">The partition to read from</param>
+///<param name="block">The block number to read</param>
+///<returns>The 0 on success. Returns -1 if an error occurs</returns>
+///</summary>
+int Disc::DecryptPartitionBlock(u32 partNo, u32 block) 
+{
+	// have we already decrypted and cached this block?
+	if (block == Image->Partitions[partNo].CachedBlock)
+	{
+		// yes, just return success
+		return 0;
+	}
+	else
+	{
+		if (Read(Image->Partitions[partNo].DecBuffer, 0x8000, Image->Partitions[partNo].Offset + Image->Partitions[partNo].DataOffset + (u64)(0x8000) * (u64)(block)) != 0x8000)
+		{
+			// error
+			return -1;
+        }
+
+		AES_cbc_encrypt(&Image->Partitions[partNo].DecBuffer[0x400],
+                         Image->Partitions[partNo].Cache, 0x7c00,
+						 &Image->Partitions[partNo].Key,
+                         &Image->Partitions[partNo].DecBuffer[0x3d0], AES_DECRYPT);
+
+        Image->Partitions[partNo].CachedBlock = block;
+
+        return 0;
+	}
+}
 
 
 
@@ -423,8 +502,9 @@ void Disc::LoadKey(bool korean)
 
 ///<summary>
 /// Parses the image file data into the image structure
+///<returns>0 = Success, -1 = Failure</returns>
 ///</summary>
-void Disc::ParseImage()
+int Disc::ParseImage()
 {
 	u8 buffer[0x440];
 	u8 *fst;
@@ -460,10 +540,12 @@ void Disc::ParseImage()
 	nvp = 0;
 	for (i = 0; i < Image->PartitionCount; ++i)
 	{
-		if (!io_read_part (buffer, 0x440, image, i, 0)) {
-			AfxMessageBox("partition header");
-			return 1;
+		if (!ReadFromPartition(buffer, 0x440, i, 0)) 
+		{
+			//_lastErr = "Failed to parse image. Error while reading from partition";
+			return -1;
 		}
+		// TODO: Finish this method
 	}
 }
 

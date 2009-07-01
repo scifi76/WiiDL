@@ -8,7 +8,7 @@ int _tmain(int argc, _TCHAR* argv[])
 {
 
 	//Open("Test");
-	Disc* d = new Disc("X:\\Downloads\\Complete\\su-hhrr\\su-hhrr.iso");
+	Disc* d = new Disc("X:\\Downloads\\Complete\\su-ssp\\su-ssp.iso");
 	d->Load(true);
 	if (d->IsLoaded)
 	{

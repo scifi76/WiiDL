@@ -55,10 +55,11 @@ class DISC_API Disc
 		bool CloseFile();
 		const char * GetLastError();
 		int Read (unsigned char * buffer, size_t size, u64 offset, bool markUsed = true);
+		int ReadFromPartition(unsigned char * buffer, size_t size, u32 partNo, u64 offset);
 		struct part_header * ParseImageHeader(u8 * inputData);
 		void LoadKey(bool korean);
 		int MarkAsUsed(u64 nOffset, u64 nSize);
-		void ParseImage();
+		int ParseImage();
 		int ParsePartitions();
 		tmd * TmdLoad(u32 partNo);
 		
@@ -70,5 +71,6 @@ class DISC_API Disc
 		unsigned char * _blankSector; // contains data needed to write an empty cluster with 0xFF
 		unsigned char * _blankSector0; // as above but with 0x0
 		
-		
+		//private methods
+		int DecryptPartitionBlock(u32 partNo, u32 block);
 };
