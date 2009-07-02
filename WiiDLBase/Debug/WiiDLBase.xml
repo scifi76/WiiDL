@@ -33,10 +33,15 @@ side, the actual key is not embeded, instead XORd values are stored
 Parses the raw header data in inputData in a part_header structure pointed to by header
 <param name="inputData">Pointer to the data to be parsed</param><returns>Pointer to a part_header structure</returns></summary>
         </member>
+        <member name="M:Disc.MarkAsUsedCrypto(System.UInt64,System.UInt64,System.UInt64,System.Boolean)">
+            <summary>
+Marks the clusters within a partition between nOffset and nOffset + nSize as used (eg not empty). Takes into account whether the data is encrypted and if so accomodates for the extra 1024 bytes of crypto data per cluster
+<param name="partOffset">The starting position</param><param name="offset">The amount of data in bytes to mark as used (will round to the nearset sector)</param><param name="size">The amount of data in bytes to mark as used (will round to the nearset sector)</param><returns>The number of clusters marked as used. 1 Cluster = 32768 bytes (32k)</returns></summary>
+        </member>
         <member name="M:Disc.MarkAsUsed(System.UInt64,System.UInt64)">
             <summary>
 Marks the clusters between nOffset and nOffset + nSize as used (eg not empty)
-<param name="nOffset">The starting position</param><param name="nOffset">The amount of data in bytes to mark as used (will round to the nearset sector)</param><returns>The number of clusters marked as used. 1 Cluster = 32768 bytes (32k)</returns></summary>
+<param name="offset">The starting position</param><param name="size">The amount of data in bytes to mark as used (will round to the nearset sector)</param><returns>The number of clusters marked as used. 1 Cluster = 32768 bytes (32k)</returns></summary>
         </member>
         <member name="M:Disc.DecryptPartitionBlock(System.UInt32,System.UInt32)">
             <summary>

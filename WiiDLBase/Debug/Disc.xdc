@@ -72,19 +72,28 @@ Reads and decrypts a block of data from the specified partition
 <member name="M:Disc.MarkAsUsed(System.UInt64,System.UInt64)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="358">
 <summary>
 Marks the clusters between nOffset and nOffset + nSize as used (eg not empty)
-<param name="nOffset">The starting position</param>
-<param name="nOffset">The amount of data in bytes to mark as used (will round to the nearset sector)</param>
+<param name="offset">The starting position</param>
+<param name="size">The amount of data in bytes to mark as used (will round to the nearset sector)</param>
 <returns>The number of clusters marked as used. 1 Cluster = 32768 bytes (32k)</returns>
 </summary>
 </member>
-<member name="T:part_header" decl="true" source="z:\development\wiidl\wiidlbase\disc.cpp" line="384">
+<member name="M:Disc.MarkAsUsedCrypto(System.UInt64,System.UInt64,System.UInt64,System.Boolean)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="384">
+<summary>
+Marks the clusters within a partition between nOffset and nOffset + nSize as used (eg not empty). Takes into account whether the data is encrypted and if so accomodates for the extra 1024 bytes of crypto data per cluster
+<param name="partOffset">The starting position</param>
+<param name="offset">The amount of data in bytes to mark as used (will round to the nearset sector)</param>
+<param name="size">The amount of data in bytes to mark as used (will round to the nearset sector)</param>
+<returns>The number of clusters marked as used. 1 Cluster = 32768 bytes (32k)</returns>
+</summary>
+</member>
+<member name="T:part_header" decl="true" source="z:\development\wiidl\wiidlbase\disc.cpp" line="422">
 <summary>
 Parses the raw header data in inputData in a part_header structure pointed to by header
 <param name="inputData">Pointer to the data to be parsed</param>
 <returns>Pointer to a part_header structure</returns>
 </summary>
 </member>
-<member name="M:Disc.LoadKey(System.Boolean)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="424">
+<member name="M:Disc.LoadKey(System.Boolean)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="462">
 <summary>
 Loads the the correct common key for the image. The old WiiScrubber
 used to load the key from a key.bin file, however since there is no
@@ -95,18 +104,18 @@ side, the actual key is not embeded, instead XORd values are stored
 <returns>Pointer to a part_header structure</returns>
 </summary>
 </member>
-<member name="M:Disc.ParseImage" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="503">
+<member name="M:Disc.ParseImage" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="541">
 <summary>
 Parses the image file data into the image structure
 <returns>0 = Success, -1 = Failure</returns>
 </summary>
 </member>
-<member name="M:Disc.ParsePartitions" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="551">
+<member name="M:Disc.ParsePartitions" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="630">
 <summary>
 <returns>The number of partitions loaded</returns>
 </summary>
 </member>
-<member name="M:Disc.TmdLoad(System.UInt32)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="701">
+<member name="M:Disc.TmdLoad(System.UInt32)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="780">
 <summary>
 <param name="partNo">The partition number to load the TMD from</param>
 </summary>

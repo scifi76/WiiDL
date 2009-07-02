@@ -357,28 +357,66 @@ int Disc::DecryptPartitionBlock(u32 partNo, u32 block)
 
 ///<summary>
 /// Marks the clusters between nOffset and nOffset + nSize as used (eg not empty)
-///<param name="nOffset">The starting position</param>
-///<param name="nOffset">The amount of data in bytes to mark as used (will round to the nearset sector)</param>
+///<param name="offset">The starting position</param>
+///<param name="size">The amount of data in bytes to mark as used (will round to the nearset sector)</param>
 ///<returns>The number of clusters marked as used. 1 Cluster = 32768 bytes (32k)</returns>
 ///</summary>
-int Disc::MarkAsUsed(u64 nOffset, u64 nSize)
+int Disc::MarkAsUsed(u64 offset, u64 size)
 {
 	int retVal = 0;
-	u64 nStartValue = nOffset;
-	u64 nEndValue = nOffset + nSize;
+	u64 startValue = offset;
+	u64 endValue = offset + size;
 
-	while((nStartValue < nEndValue)&&
-		  (nStartValue < (Image->ImageSize)))
+	while((startValue < endValue)&&
+		  (startValue < (Image->ImageSize)))
 	{
-		if (Image->FreeClusterTable[nStartValue / (u64)(0x8000)] != 1)
+		if (Image->FreeClusterTable[startValue / (u64)(0x8000)] != 1)
 		{
-			Image->FreeClusterTable[nStartValue / (u64)(0x8000)] = 1;
+			Image->FreeClusterTable[startValue / (u64)(0x8000)] = 1;
 		}
-		nStartValue = nStartValue + ((u64)(0x8000));
+		startValue = startValue + ((u64)(0x8000));
 		retVal++;
 	}
 
 	return retVal;
+}
+
+///<summary>
+/// Marks the clusters within a partition between nOffset and nOffset + nSize as used (eg not empty). Takes into account whether the data is encrypted and if so accomodates for the extra 1024 bytes of crypto data per cluster
+///<param name="partOffset">The starting position</param>
+///<param name="offset">The amount of data in bytes to mark as used (will round to the nearset sector)</param>
+///<param name="size">The amount of data in bytes to mark as used (will round to the nearset sector)</param>
+///<returns>The number of clusters marked as used. 1 Cluster = 32768 bytes (32k)</returns>
+///</summary>
+int Disc::MarkAsUsedCrypto(u64 partOffset, u64 offset, u64 size, bool isEncrypted)
+{
+	u64 tempOffset;
+	u64 tempSize;
+	
+	if (isEncrypted)
+	{
+		// the offset and size relate to the decrypted file so.........
+		// we need to change the values to accomodate the 0x400 bytes of crypto data
+		
+		tempOffset = offset / (u64)(0x7c00);
+		tempOffset = tempOffset * ((u64)(0x8000));
+		tempOffset += partOffset;
+		
+		tempSize = size / (u64)(0x7c00);
+		tempSize = (tempSize + 1) * ((u64)(0x8000));
+		
+		// add on the offset in the first nblock for the case where data straddles blocks
+		
+		tempSize += offset % (u64)(0x7c00);
+	}
+	else
+	{
+		// unencrypted - we use the actual offsets
+		tempOffset = partOffset + offset;
+		tempSize = size;
+	}
+	return MarkAsUsed(tempOffset, tempSize);
+
 }
 
 ///<summary>
@@ -545,7 +583,47 @@ int Disc::ParseImage()
 			//_lastErr = "Failed to parse image. Error while reading from partition";
 			return -1;
 		}
-		// TODO: Finish this method
+		
+		valid = 1;
+		for (j = 0; j < 6; ++j) {
+			if (!isprint (buffer[j])) {
+				valid = 0;
+				break;
+			}
+		}
+
+		if (valid)
+		{
+			// valid partition
+			nvp++;
+			Image->Partitions[i].Header = *ParseImageHeader(buffer);
+			Image->Partitions[i].IsValid = true;
+
+			if (Image->Partitions[i].Type!=PART_UNKNOWN)
+			{
+				if (Image->Partitions[i].Header.IsWii)
+				{
+					//AddToLog("\\partition.bin", image->parts[i].offset, image->parts[i].data_offset);
+					MarkAsUsed(Image->Partitions[i].Offset, Image->Partitions[i].DataOffset);
+				}
+				// add on the boot.bin
+				//AddToLog("\\boot.bin", image->parts[i].offset + image->parts[i].data_offset, (u64)0x440);
+				MarkAsUsedCrypto(Image->Partitions[i].Offset + Image->Partitions[i].DataOffset, 0, (u64)0x440, Image->Partitions[i].IsEncrypted);
+				
+				// add on the bi2.bin
+				//AddToLog("\\bi2.bin", image->parts[i].offset + image->parts[i].data_offset + 0x440, (u64)0x2000);
+
+				// TODO: Add a structure to store file info for each partition
+				// TODO: Finish this bit
+			}
+		}
+		else
+		{
+			// bad partition
+			Image->Partitions[i].IsValid = false;
+			// TODO: might want to do something here later
+		}
+
 	}
 }
 

@@ -72,6 +72,7 @@ struct partition {
         u64 AppldrSize;
 
         bool IsEncrypted;
+		bool IsValid;
 
         u64 TmdOffset;
         u64 TmdSize;

@@ -59,6 +59,7 @@ class DISC_API Disc
 		struct part_header * ParseImageHeader(u8 * inputData);
 		void LoadKey(bool korean);
 		int MarkAsUsed(u64 nOffset, u64 nSize);
+		int MarkAsUsedCrypto(u64 partOffset, u64 offset, u64 size, bool isEncrypted);
 		int ParseImage();
 		int ParsePartitions();
 		tmd * TmdLoad(u32 partNo);
