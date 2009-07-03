@@ -14,6 +14,12 @@
                 <returns>The number of partitions loaded</returns>
             </summary>
         </member>
+        <member name="M:Disc.AddFileToPart(System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte*,partition*,System.UInt64,System.UInt64)">
+            <summary>
+Creates a partition_file struct and adds it to the Files collection of the partition pointed to by part
+Note that this method does NOT add a new file into the image
+<param name="fileName">The name of the file</param><param name="part">The partition to add the file to</param><param name="offset">The offset of the file within the partition</param><param name="size">The size of the file</param><returns>Pointer to a part_header structure</returns></summary>
+        </member>
         <member name="M:Disc.ParseImage">
             <summary>
 Parses the image file data into the image structure

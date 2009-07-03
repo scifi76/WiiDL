@@ -69,9 +69,11 @@ class DISC_API Disc
 		string _isoFileName; // the name of the isofile
 		const char * _lastErr; // used to store the last error message that occured
 		
+
 		unsigned char * _blankSector; // contains data needed to write an empty cluster with 0xFF
 		unsigned char * _blankSector0; // as above but with 0x0
 		
 		//private methods
 		int DecryptPartitionBlock(u32 partNo, u32 block);
+		void AddFileToPart(char * fileName, partition * part, u64 offset, u64 size);
 };

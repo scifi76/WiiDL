@@ -68,6 +68,8 @@ struct partition {
         u64 Offset;
 
         struct part_header Header;
+		struct partition_file * Files;
+		u64 FileCount;
 
         u64 AppldrSize;
 
@@ -101,6 +103,13 @@ struct partition {
 
         u32 CachedBlock;
         u8 Cache[0x7c00];
+};
+
+struct partition_file 
+{
+	u64 Offset;
+	u64 Size;
+	char * FileName;
 };
 
 struct image_file {

@@ -110,12 +110,23 @@ Parses the image file data into the image structure
 <returns>0 = Success, -1 = Failure</returns>
 </summary>
 </member>
-<member name="M:Disc.ParsePartitions" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="630">
+<member name="M:Disc.AddFileToPart(System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte*,partition*,System.UInt64,System.UInt64)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="630">
+<summary>
+Creates a partition_file struct and adds it to the Files collection of the partition pointed to by part
+Note that this method does NOT add a new file into the image
+<param name="fileName">The name of the file</param>
+<param name="part">The partition to add the file to</param>
+<param name="offset">The offset of the file within the partition</param>
+<param name="size">The size of the file</param>
+<returns>Pointer to a part_header structure</returns>
+</summary>
+</member>
+<member name="M:Disc.ParsePartitions" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="657">
 <summary>
 <returns>The number of partitions loaded</returns>
 </summary>
 </member>
-<member name="M:Disc.TmdLoad(System.UInt32)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="780">
+<member name="M:Disc.TmdLoad(System.UInt32)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="809">
 <summary>
 <param name="partNo">The partition number to load the TMD from</param>
 </summary>

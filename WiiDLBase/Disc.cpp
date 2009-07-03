@@ -603,7 +603,7 @@ int Disc::ParseImage()
 			{
 				if (Image->Partitions[i].Header.IsWii)
 				{
-					//AddToLog("\\partition.bin", image->parts[i].offset, image->parts[i].data_offset);
+					AddFileToPart("\\partition.bin", &Image->Partitions[i], Image->Partitions[i].Offset, Image->Partitions[i].DataOffset);
 					MarkAsUsed(Image->Partitions[i].Offset, Image->Partitions[i].DataOffset);
 				}
 				// add on the boot.bin
@@ -625,6 +625,35 @@ int Disc::ParseImage()
 		}
 
 	}
+}
+
+///<summary>
+/// Creates a partition_file struct and adds it to the Files collection of the partition pointed to by part
+/// Note that this method does NOT add a new file into the image
+///<param name="fileName">The name of the file</param>
+///<param name="part">The partition to add the file to</param>
+///<param name="offset">The offset of the file within the partition</param>
+///<param name="size">The size of the file</param>
+///<returns>Pointer to a part_header structure</returns>
+///</summary>
+void Disc::AddFileToPart(char * fileName, struct partition * part, u64 offset, u64 size)
+{
+	// create a new file struct
+	struct partition_file * file;
+	file = (struct partition_file *) (malloc (sizeof (struct partition_file)));
+	memset(file, 0, sizeof (struct partition_file));
+
+	file->FileName = fileName;
+	file->Offset = offset;
+	file->Size = size;
+	
+	part->Files = (struct partition_file *)(realloc(part->Files, sizeof(part->Files) + sizeof(file)));
+	part->FileCount++;
+
+	
+
+
+
 }
 
 ///<summary>
@@ -719,6 +748,8 @@ int Disc::ParsePartitions()
 					Image->Partitions[i].ChannelId[3] = buffer[7];
 					break;
 				}
+
+				Image->Partitions[i].FileCount = 0;
 
 				Image->Partitions[i].Offset = (u64)(be32 (buffer)) * ((u64)(4));
 
