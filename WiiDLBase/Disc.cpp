@@ -545,7 +545,7 @@ void Disc::LoadKey(bool korean)
 int Disc::ParseImage()
 {
 	u8 buffer[0x440];
-	u8 *fst;
+	u8 * fst;
 	u32 i;
 	u8 j, valid, nvp;
 	u32 nfiles;
@@ -603,28 +603,176 @@ int Disc::ParseImage()
 			{
 				if (Image->Partitions[i].Header.IsWii)
 				{
-					AddFileToPart("\\partition.bin", &Image->Partitions[i], Image->Partitions[i].Offset, Image->Partitions[i].DataOffset);
+					AddFileToPart("partition.bin", "\\", &Image->Partitions[i], 0x0, Image->Partitions[i].DataOffset);
 					MarkAsUsed(Image->Partitions[i].Offset, Image->Partitions[i].DataOffset);
 				}
 				// add on the boot.bin
-				//AddToLog("\\boot.bin", image->parts[i].offset + image->parts[i].data_offset, (u64)0x440);
+				AddFileToPart("boot.bin", "\\", &Image->Partitions[i], Image->Partitions[i].DataOffset, (u64)0x440);
 				MarkAsUsedCrypto(Image->Partitions[i].Offset + Image->Partitions[i].DataOffset, 0, (u64)0x440, Image->Partitions[i].IsEncrypted);
 				
 				// add on the bi2.bin
-				//AddToLog("\\bi2.bin", image->parts[i].offset + image->parts[i].data_offset + 0x440, (u64)0x2000);
-
-				// TODO: Add a structure to store file info for each partition
-				// TODO: Finish this bit
+				AddFileToPart("bi2.bin", "\\", &Image->Partitions[i], Image->Partitions[i].DataOffset + 0x440, (u64)0x2000);
 			}
+
+			ReadFromPartition(buffer, 9, i, 0x2440 + 0x14);
+			Image->Partitions[i].AppldrSize = be32 (buffer) + be32 (&buffer[4]);
+
+			if (Image->Partitions[i].AppldrSize > 0)
+			{
+				Image->Partitions[i].AppldrSize += 32;
+				AddFileToPart("apploader.img", "\\", &Image->Partitions[i], Image->Partitions[i].DataOffset + 0x2440, Image->Partitions[i].AppldrSize);
+				MarkAsUsedCrypto(Image->Partitions[i].Offset + Image->Partitions[i].DataOffset,	0x2440,	Image->Partitions[i].AppldrSize, Image->Partitions[i].IsEncrypted);
+			}
+
+			if (Image->Partitions[i].Header.DolOffset > 0)
+			{
+				ReadFromPartition(buffer, 0x100, i, Image->Partitions[i].Header.DolOffset);
+				Image->Partitions[i].Header.DolSize = get_dol_size (buffer);
+				
+				// now check for error condition with bad main.dol
+				if (Image->Partitions[i].Header.DolSize >= Image->Partitions[i].DataSize)
+				{
+					// almost certainly an error as it's bigger than the partition
+					_lastErr = "main.dol read error. Size is larger than partition size";
+					Image->Partitions[i].Header.DolSize = 0;
+					
+				}
+				MarkAsUsedCrypto(Image->Partitions[i].Offset + Image->Partitions[i].DataOffset, Image->Partitions[i].Header.DolOffset, Image->Partitions[i].Header.DolSize, Image->Partitions[i].IsEncrypted);
+				
+				AddFileToPart("main.dol", "\\", &Image->Partitions[i], Image->Partitions[i].DataOffset + Image->Partitions[i].Header.DolOffset, Image->Partitions[i].Header.DolSize);
+				
+			} 
+			else
+			{
+				_lastErr = "Missing main.dol in partition";
+			}
+
+			if (Image->Partitions[i].IsEncrypted)
+			{
+				// Now add the TMD.BIN and cert.bin files - as these are part of partition.bin
+				// we don't need to mark them as used
+				AddFileToPart("tmd.bin", "\\", &Image->Partitions[i], Image->Partitions[i].TmdOffset, Image->Partitions[i].TmdSize);
+				
+				AddFileToPart("cert.bin", "\\", &Image->Partitions[i], Image->Partitions[i].CertOffset, Image->Partitions[i].CertSize);
+				
+				AddFileToPart("h3.bin", "\\", &Image->Partitions[i], Image->Partitions[i].H3Offset, (u64)0x18000);
+				MarkAsUsedCrypto(Image->Partitions[i].Offset, Image->Partitions[i].H3Offset, (u64)0x18000, false);
+				
+				AddFileToPart("ticket.bin", "\\", &Image->Partitions[i], Image->Partitions[i].Offset, (u64)0x2a4);
+				MarkAsUsedCrypto(Image->Partitions[i].Offset, 0, (u64)0x2a4, false);
+			}
+			
+			if (Image->Partitions[i].Header.FstOffset > 0 && Image->Partitions[i].Header.FstSize > 0)
+			{
+				AddFileToPart("fst.bin", "\\", &Image->Partitions[i], Image->Partitions[i].DataOffset + Image->Partitions[i].Header.FstOffset, Image->Partitions[i].Header.FstSize);
+				MarkAsUsedCrypto(Image->Partitions[i].Offset +Image->Partitions[i].DataOffset, Image->Partitions[i].Header.FstOffset, Image->Partitions[i].Header.FstSize, Image->Partitions[i].IsEncrypted);
+				
+				fst = (u8 *) (malloc ((u32)(Image->Partitions[i].Header.FstSize)));
+				if (ReadFromPartition(fst, (u32)(Image->Partitions[i].Header.FstSize), i, Image->Partitions[i].Header.FstOffset) != Image->Partitions[i].Header.FstSize)
+				{
+					Image->Partitions[i].IsValid = false;
+					_lastErr = "Error reading fst.bin";
+					free (fst);
+					//return -1; -- I think we should break instead to continue with the OTHER partitions
+					break;
+				}
+				
+				nfiles = be32 (fst + 8);
+				
+				if (12 * nfiles > Image->Partitions[i].Header.FstSize)
+				{
+					Image->Partitions[i].IsValid = false;
+					_lastErr = "fst.bin is invalid";
+					break;
+				} 
+				else 
+				{
+					ParseFst(fst, (char *) (fst + 12 * nfiles), "\\", 0, NULL, i);
+				}
+				
+				free (fst);
+			} else
+			{
+				Image->Partitions[i].IsValid = false;
+				_lastErr = "Missing fst.bin in partition!";
+				break;
+				
+			}
+
 		}
 		else
 		{
 			// bad partition
 			Image->Partitions[i].IsValid = false;
-			// TODO: might want to do something here later
+			_lastErr = "Unable to read partition";
+			break;
+			
 		}
 
 	}
+}
+
+///<summary>
+/// Parses a partition's fst.bin file as passed into fst and adds all of it's files into the partitions Files collection
+///<param name="fst">Pointer to the fst.bin data</param>
+///<param name="names">??</param>
+///<param name="currentDir">The current directory. usually "\"</param>
+///<param name="i">??</param>
+///<param name="tree">??</param>
+///<param name="tree">??</param>
+///<param name="partNo">The partiton number to parse</param>
+///<returns>The number of directories or files parsed</returns>
+///</summary>
+u32 Disc::ParseFst(u8 * fst, const char * names, char * currentDir, u32 i, struct tree * tree, u32 partNo)
+{
+	u64 offset;
+    u32 size;
+    const char * name;
+    u32 j;
+
+    name = names + (be32 (fst + 12 * i) & 0x00ffffff);
+    size = be32 (fst + 12 * i + 8);
+
+    if (i == 0) // root directory
+	{
+		// directory so need to go through the directory entries
+        for (j = 1; j < size; )
+		{
+			j = ParseFst(fst, names, currentDir, j, tree, partNo);
+		}
+		return size;
+	}
+
+    if (fst[12 * i]) 
+	{
+		// directory
+		char * dirName = strcat(currentDir, name);
+		dirName = strcat(dirName, "\\");
+  
+        for (j = i + 1; j < size; )
+			j = ParseFst (fst, names, dirName, j, NULL, partNo);
+
+		// now remove the directory name we just added
+		//m_csText = m_csText.Left(m_csText.GetLength()-strlen(name) - 1);
+        return size;
+    }
+	else
+	{
+		//file
+		offset = be32(fst + 12 * i + 4);
+		if (Image->Partitions[partNo].Header.IsWii)
+		{
+			offset *= 4;
+		}
+		
+		AddFileToPart(name, currentDir, &Image->Partitions[partNo], offset, size);
+		MarkAsUsedCrypto(Image->Partitions[partNo].Offset + Image->Partitions[partNo].DataOffset, offset, size, Image->Partitions[partNo].IsEncrypted);
+
+		Image->FileCount ++;
+		Image->BytesCount += size;
+
+        return i + 1;
+    }
 }
 
 ///<summary>
@@ -636,7 +784,7 @@ int Disc::ParseImage()
 ///<param name="size">The size of the file</param>
 ///<returns>Pointer to a part_header structure</returns>
 ///</summary>
-void Disc::AddFileToPart(char * fileName, struct partition * part, u64 offset, u64 size)
+void Disc::AddFileToPart(const char * fileName, const char * directoryName, struct partition * part, u64 offset, u64 size)
 {
 	// create a new file struct
 	struct partition_file * file;
@@ -646,13 +794,11 @@ void Disc::AddFileToPart(char * fileName, struct partition * part, u64 offset, u
 	file->FileName = fileName;
 	file->Offset = offset;
 	file->Size = size;
+
+	file->DirectoryName = directoryName;
 	
 	part->Files = (struct partition_file *)(realloc(part->Files, sizeof(part->Files) + sizeof(file)));
 	part->FileCount++;
-
-	
-
-
 
 }
 

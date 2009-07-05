@@ -14,11 +14,16 @@
                 <returns>The number of partitions loaded</returns>
             </summary>
         </member>
-        <member name="M:Disc.AddFileToPart(System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte*,partition*,System.UInt64,System.UInt64)">
+        <member name="M:Disc.AddFileToPart(System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,partition*,System.UInt64,System.UInt64)">
             <summary>
 Creates a partition_file struct and adds it to the Files collection of the partition pointed to by part
 Note that this method does NOT add a new file into the image
 <param name="fileName">The name of the file</param><param name="part">The partition to add the file to</param><param name="offset">The offset of the file within the partition</param><param name="size">The size of the file</param><returns>Pointer to a part_header structure</returns></summary>
+        </member>
+        <member name="M:Disc.ParseFst(System.Byte*,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte*,System.UInt32,tree*,System.UInt32)">
+            <summary>
+Parses a partition's fst.bin file as passed into fst and adds all of it's files into the partitions Files collection
+<param name="fst">Pointer to the fst.bin data</param><param name="names">??</param><param name="currentDir">The current directory. usually "\"</param><param name="i">??</param><param name="tree">??</param><param name="tree">??</param><param name="partNo">The partiton number to parse</param><returns>The number of directories or files parsed</returns></summary>
         </member>
         <member name="M:Disc.ParseImage">
             <summary>

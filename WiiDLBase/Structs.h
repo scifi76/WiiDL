@@ -109,7 +109,8 @@ struct partition_file
 {
 	u64 Offset;
 	u64 Size;
-	char * FileName;
+	const char * FileName;
+	const char * DirectoryName;
 };
 
 struct image_file {
