@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <doc>
 <members>
-<member name="T:Disc" decl="false" source="z:\development\wiidl\wiidlbase\disc.h" line="39">
+<member name="T:Disc" decl="false" source="z:\development\wiidl\wiidlbase\disc.h" line="40">
 <summary>
 Represents a Wii disc image (ISO) and contains most of the methods for working with the image
 </summary>
@@ -110,7 +110,7 @@ Parses the image file data into the image structure
 <returns>0 = Success, -1 = Failure</returns>
 </summary>
 </member>
-<member name="M:Disc.ParseFst(System.Byte*,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte*,System.UInt32,tree*,System.UInt32)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="715">
+<member name="M:Disc.ParseFst(System.Byte*,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,System.UInt32,tree*,System.UInt32)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="715">
 <summary>
 Parses a partition's fst.bin file as passed into fst and adds all of it's files into the partitions Files collection
 <param name="fst">Pointer to the fst.bin data</param>
@@ -123,7 +123,7 @@ Parses a partition's fst.bin file as passed into fst and adds all of it's files 
 <returns>The number of directories or files parsed</returns>
 </summary>
 </member>
-<member name="M:Disc.AddFileToPart(System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,partition*,System.UInt64,System.UInt64)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="778">
+<member name="M:Disc.AddFileToPart(System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,partition*,System.UInt64,System.UInt64)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="781">
 <summary>
 Creates a partition_file struct and adds it to the Files collection of the partition pointed to by part
 Note that this method does NOT add a new file into the image
@@ -134,7 +134,7 @@ Note that this method does NOT add a new file into the image
 <returns>Pointer to a part_header structure</returns>
 </summary>
 </member>
-<member name="M:Disc.ParsePartitions" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="805">
+<member name="M:Disc.ParsePartitions" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="807">
 <summary>
 <returns>The number of partitions loaded</returns>
 </summary>

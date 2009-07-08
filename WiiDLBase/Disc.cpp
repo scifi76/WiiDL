@@ -723,7 +723,7 @@ int Disc::ParseImage()
 ///<param name="partNo">The partiton number to parse</param>
 ///<returns>The number of directories or files parsed</returns>
 ///</summary>
-u32 Disc::ParseFst(u8 * fst, const char * names, char * currentDir, u32 i, struct tree * tree, u32 partNo)
+u32 Disc::ParseFst(u8 * fst, const char * names, const char * currentDir, u32 i, struct tree * tree, u32 partNo)
 {
 	u64 offset;
     u32 size;
@@ -746,11 +746,14 @@ u32 Disc::ParseFst(u8 * fst, const char * names, char * currentDir, u32 i, struc
     if (fst[12 * i]) 
 	{
 		// directory
-		char * dirName = strcat(currentDir, name);
-		dirName = strcat(dirName, "\\");
+		/*char * dirName = strcat(currentDir, name);
+		dirName = strcat(dirName, "\\");*/
   
+		string dirName = currentDir;
+		dirName.append(name);
+		dirName.append("\\");
         for (j = i + 1; j < size; )
-			j = ParseFst (fst, names, dirName, j, NULL, partNo);
+			j = ParseFst (fst, names, dirName.c_str(), j, NULL, partNo);
 
 		// now remove the directory name we just added
 		//m_csText = m_csText.Left(m_csText.GetLength()-strlen(name) - 1);
@@ -797,8 +800,7 @@ void Disc::AddFileToPart(const char * fileName, const char * directoryName, stru
 
 	file->DirectoryName = directoryName;
 	
-	part->Files = (struct partition_file *)(realloc(part->Files, sizeof(part->Files) + sizeof(file)));
-	part->FileCount++;
+	part->Files.Add(file);
 
 }
 
@@ -894,8 +896,6 @@ int Disc::ParsePartitions()
 					Image->Partitions[i].ChannelId[3] = buffer[7];
 					break;
 				}
-
-				Image->Partitions[i].FileCount = 0;
 
 				Image->Partitions[i].Offset = (u64)(be32 (buffer)) * ((u64)(4));
 

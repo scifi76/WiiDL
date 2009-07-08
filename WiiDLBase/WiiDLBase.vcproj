@@ -180,6 +180,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\FileList.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Global.cpp"
 				>
 			</File>
@@ -195,6 +199,10 @@
 			>
 			<File
 				RelativePath=".\Disc.h"
+				>
+			</File>
+			<File
+				RelativePath=".\FileList.h"
 				>
 			</File>
 			<File

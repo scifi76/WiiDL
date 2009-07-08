@@ -6,6 +6,7 @@
 #include <string>
 #include "Structs.h"
 #include "aes.h"
+#include "FileList.h"
 
 
 
@@ -76,5 +77,5 @@ class DISC_API Disc
 		//private methods
 		int DecryptPartitionBlock(u32 partNo, u32 block);
 		void AddFileToPart(const char * fileName, const char * directoryName, partition * part, u64 offset, u64 size);
-		u32 ParseFst(u8 * fst, const char * names, char * currentDir, u32 i, struct tree * tree, u32 partNo);
+		u32 ParseFst(u8 * fst, const char * names, const char * currentDir, u32 i, struct tree * tree, u32 partNo);
 };

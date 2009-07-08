@@ -1,6 +1,7 @@
 #include "Global.h"
 #include "aes.h"
 #include <sys/stat.h>
+#include "FileList.h"
 
 enum tmd_sig {
         SIG_UNKNOWN = 0,
@@ -68,8 +69,7 @@ struct partition {
         u64 Offset;
 
         struct part_header Header;
-		struct partition_file * Files;
-		u64 FileCount;
+		FileList Files;
 
         u64 AppldrSize;
 
@@ -105,13 +105,6 @@ struct partition {
         u8 Cache[0x7c00];
 };
 
-struct partition_file 
-{
-	u64 Offset;
-	u64 Size;
-	const char * FileName;
-	const char * DirectoryName;
-};
 
 struct image_file {
  
