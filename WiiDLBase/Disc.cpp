@@ -45,7 +45,7 @@ Disc::~Disc()
 /// Gets the last error message that occured
 ///<returns>The most recent error message</returns>
 ///</summary>
-const char * Disc::GetLastError()
+string Disc::GetLastError()
 {
 	// return the latest error message
 	return _lastErr;
@@ -217,7 +217,7 @@ bool Disc::CloseFile()
 ///<param name="markUsed">Indicates whether the clusters being read should be marked as used (eg not empty). Defaults to True</param>
 ///<returns>The number of bytes read. Returns -1 if an error occurs</returns>
 ///</summary>
-int Disc::Read (unsigned char * buffer, size_t size, u64 offset, bool markUsed)
+u64 Disc::Read (unsigned char * buffer, size_t size, u64 offset, bool markUsed)
 {
 
 	// open the file
@@ -281,7 +281,7 @@ int Disc::Read (unsigned char * buffer, size_t size, u64 offset, bool markUsed)
 ///<param name="offset">The offset (from the beginning of the partition) at which to being the read operation</param>
 ///<returns>The number of bytes read. Returns -1 if an error occurs</returns>
 ///</summary>
-int Disc::ReadFromPartition(unsigned char * buffer, size_t size, u32 partNo, u64 offset) 
+u64 Disc::ReadFromPartition(unsigned char * buffer, size_t size, u32 partNo, u64 offset) 
 {
         u32 block = (u32)(offset / (u64)(0x7c00));
         u32 cacheOffset = (u32)(offset % (u64)(0x7c00));
@@ -690,7 +690,7 @@ int Disc::ParseImage()
 					ParseFst(fst, (char *) (fst + 12 * nfiles), "\\", 0, NULL, i);
 				}
 				
-				free (fst);
+				//free (fst);
 			} else
 			{
 				Image->Partitions[i].IsValid = false;

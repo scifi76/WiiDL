@@ -93,6 +93,7 @@
   </Target>
   -->
   <PropertyGroup>
-    <PreBuildEvent>copy $(SolutionDir)WiiDLManagedWrapper\Debug\WiiDLManagedWrapper.dll $(TargetDir)WiiDLManagedWrapper.dll</PreBuildEvent>
+    <PreBuildEvent>copy $(SolutionDir)WiiDLManagedWrapper\Debug\WiiDLManagedWrapper.dll $(TargetDir)WiiDLManagedWrapper.dll
+copy $(SolutionDir)WiiDLBase\Debug\WiiDLBase.dll $(TargetDir)WiiDLBase.dll</PreBuildEvent>
   </PropertyGroup>
 </Project>

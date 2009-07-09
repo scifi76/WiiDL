@@ -15,9 +15,9 @@ namespace WiiDLCSharpTestApp
 
         private void btnTest_Click(object sender, EventArgs e)
         {
-            WiiDLManagedWrapper.ManagedDisc d = new WiiDLManagedWrapper.ManagedDisc(@"C:\test.iso.RVM");
+            WiiDLManagedWrapper.ManagedDisc d = new WiiDLManagedWrapper.ManagedDisc(@"X:\Temp\su-munch.iso");
+            d.Load(true);
             
-
         }
     }
 }

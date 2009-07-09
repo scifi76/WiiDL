@@ -54,9 +54,9 @@ class DISC_API Disc
 		// public methods
 		bool Load(bool readOnly);
 		bool CloseFile();
-		const char * GetLastError();
-		int Read (unsigned char * buffer, size_t size, u64 offset, bool markUsed = true);
-		int ReadFromPartition(unsigned char * buffer, size_t size, u32 partNo, u64 offset);
+		string GetLastError();
+		u64 Read (unsigned char * buffer, size_t size, u64 offset, bool markUsed = true);
+		u64 ReadFromPartition(unsigned char * buffer, size_t size, u32 partNo, u64 offset);
 		struct part_header * ParseImageHeader(u8 * inputData);
 		void LoadKey(bool korean);
 		int MarkAsUsed(u64 nOffset, u64 nSize);
