@@ -64,13 +64,13 @@ class DISC_API Disc
 		int ParseImage();
 		int ParsePartitions();
 		tmd * TmdLoad(u32 partNo);
+		string ImageFileName; // the name of the isofile
 		
 	private:
 		// private variables
-		string _isoFileName; // the name of the isofile
+		
 		const char * _lastErr; // used to store the last error message that occured
 		
-
 		unsigned char * _blankSector; // contains data needed to write an empty cluster with 0xFF
 		unsigned char * _blankSector0; // as above but with 0x0
 		

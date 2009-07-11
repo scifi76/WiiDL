@@ -15,21 +15,41 @@ namespace WiiDLManagedWrapper
 	ManagedDisc::~ManagedDisc()
 	{
 		_disc->~Disc();
+		delete _disc;
 	}
+
+	String^ ManagedDisc::LastError::get()
+	{
+		return gcnew String(_disc->GetLastError().c_str());
+	}
+
+	bool ManagedDisc::IsLoaded::get()
+    {
+        return _disc->IsLoaded;
+    }
+
+	ManagedImageFile ManagedDisc::Image::get()
+	{
+		return gcnew ManagedImageFile(_disc->Image);
+	}
+
+
+
 
 	bool ManagedDisc::Load(bool readOnly)
 	{
-		return _disc->Load(readOnly);	
+		return _disc->Load(readOnly);
 	}
 
+	String^ ManagedDisc::ImageFileName::get()
+	{
+		return gcnew String(_disc->ImageFileName.c_str());
+	}
+
+	
 	bool ManagedDisc::CloseFile()
 	{
 		return _disc->CloseFile();
-	}
-
-	String^ ManagedDisc::GetLastError()
-	{
-		return gcnew String(_disc->GetLastError().c_str());
 	}
 
 	UInt64 ManagedDisc::Read(unsigned char * buffer, UInt32 size, UInt64 offset, bool markUsed)
@@ -77,14 +97,28 @@ namespace WiiDLManagedWrapper
 		return _disc->TmdLoad(partNo);
 	}
 
-	bool ManagedDisc::IsLoaded()
-    {
-        return _disc->IsLoaded;
-    }
+	
 
-	struct image_file * ManagedDisc::GetImage()
+
+
+
+	// ManagedImageFile stuff
+	ManagedImageFile::ManagedImageFile(image_file * image)
 	{
-		return _disc->Image;
+		_image = image;
 	}
+
+	ManagedImageFile::~ManagedImageFile()
+	{
+		
+	}
+
+	UInt64 ManagedImageFile::GetBytesCount()
+	{
+		return _image->BytesCount;
+	}
+	
+
+
 
 }

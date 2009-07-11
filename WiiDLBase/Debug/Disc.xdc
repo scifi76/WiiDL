@@ -17,31 +17,31 @@ Constructor. Creates a Disc object
 <param name="IsoFilename">The path of the Wii ISO file that the Disc object will access</param>
 </summary>
 </member>
-<member name="M:Disc.Dispose" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="27">
+<member name="M:Disc.Dispose" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="29">
 <summary>
 Destructor. Disposes of the Disc object
 </summary>
 </member>
-<member name="M:Disc.GetLastError" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="44">
+<member name="M:Disc.GetLastError" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="46">
 <summary>
 Gets the last error message that occured
 <returns>The most recent error message</returns>
 </summary>
 </member>
-<member name="M:Disc.Load(System.Boolean)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="54">
+<member name="M:Disc.Load(System.Boolean)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="56">
 <summary>
 Opens the Wii ISO
 <param name="readOnly">Whether or not the ISO should be opened in read only mode. Opening in read only mode will prevent the image file from being locked to other applications but any write actions to the image will fail</param>
 <returns>True if the ISO was successfully opened. Otherwise false</returns>
 </summary>
 </member>
-<member name="M:Disc.CloseFile" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="189">
+<member name="M:Disc.CloseFile" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="191">
 <summary>
 Closes the Wii ISO
 <returns>True if the ISO was successfully closed. Otherwise false</returns>
 </summary>
 </member>
-<member name="M:Disc.Read(System.Byte*,System.UInt32,System.UInt64,System.Boolean)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="212">
+<member name="M:Disc.Read(System.Byte*,System.UInt32,System.UInt64,System.Boolean)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="214">
 <summary>
 Reads data from the iso into the buffer pointer
 <param name="buffer">A pointer to a char buffer that the data will be stored in</param>
@@ -51,7 +51,7 @@ Reads data from the iso into the buffer pointer
 <returns>The number of bytes read. Returns -1 if an error occurs</returns>
 </summary>
 </member>
-<member name="M:Disc.ReadFromPartition(System.Byte*,System.UInt32,System.UInt32,System.UInt64)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="276">
+<member name="M:Disc.ReadFromPartition(System.Byte*,System.UInt32,System.UInt32,System.UInt64)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="278">
 <summary>
 Reads data from the specified partition, decrypting it if necessary
 <param name="buffer">A pointer to a char buffer that the data will be stored in</param>
@@ -61,7 +61,7 @@ Reads data from the specified partition, decrypting it if necessary
 <returns>The number of bytes read. Returns -1 if an error occurs</returns>
 </summary>
 </member>
-<member name="M:Disc.DecryptPartitionBlock(System.UInt32,System.UInt32)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="323">
+<member name="M:Disc.DecryptPartitionBlock(System.UInt32,System.UInt32)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="325">
 <summary>
 Reads and decrypts a block of data from the specified partition
 <param name="partNo">The partition to read from</param>
@@ -69,7 +69,7 @@ Reads and decrypts a block of data from the specified partition
 <returns>The 0 on success. Returns -1 if an error occurs</returns>
 </summary>
 </member>
-<member name="M:Disc.MarkAsUsed(System.UInt64,System.UInt64)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="358">
+<member name="M:Disc.MarkAsUsed(System.UInt64,System.UInt64)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="360">
 <summary>
 Marks the clusters between nOffset and nOffset + nSize as used (eg not empty)
 <param name="offset">The starting position</param>
@@ -77,7 +77,7 @@ Marks the clusters between nOffset and nOffset + nSize as used (eg not empty)
 <returns>The number of clusters marked as used. 1 Cluster = 32768 bytes (32k)</returns>
 </summary>
 </member>
-<member name="M:Disc.MarkAsUsedCrypto(System.UInt64,System.UInt64,System.UInt64,System.Boolean)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="384">
+<member name="M:Disc.MarkAsUsedCrypto(System.UInt64,System.UInt64,System.UInt64,System.Boolean)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="386">
 <summary>
 Marks the clusters within a partition between nOffset and nOffset + nSize as used (eg not empty). Takes into account whether the data is encrypted and if so accomodates for the extra 1024 bytes of crypto data per cluster
 <param name="partOffset">The starting position</param>
@@ -86,14 +86,14 @@ Marks the clusters within a partition between nOffset and nOffset + nSize as use
 <returns>The number of clusters marked as used. 1 Cluster = 32768 bytes (32k)</returns>
 </summary>
 </member>
-<member name="T:part_header" decl="true" source="z:\development\wiidl\wiidlbase\disc.cpp" line="422">
+<member name="T:part_header" decl="true" source="z:\development\wiidl\wiidlbase\disc.cpp" line="424">
 <summary>
 Parses the raw header data in inputData in a part_header structure pointed to by header
 <param name="inputData">Pointer to the data to be parsed</param>
 <returns>Pointer to a part_header structure</returns>
 </summary>
 </member>
-<member name="M:Disc.LoadKey(System.Boolean)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="462">
+<member name="M:Disc.LoadKey(System.Boolean)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="464">
 <summary>
 Loads the the correct common key for the image. The old WiiScrubber
 used to load the key from a key.bin file, however since there is no
@@ -104,13 +104,13 @@ side, the actual key is not embeded, instead XORd values are stored
 <returns>Pointer to a part_header structure</returns>
 </summary>
 </member>
-<member name="M:Disc.ParseImage" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="541">
+<member name="M:Disc.ParseImage" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="543">
 <summary>
 Parses the image file data into the image structure
 <returns>0 = Success, -1 = Failure</returns>
 </summary>
 </member>
-<member name="M:Disc.ParseFst(System.Byte*,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,System.UInt32,tree*,System.UInt32)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="715">
+<member name="M:Disc.ParseFst(System.Byte*,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,System.UInt32,tree*,System.UInt32)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="717">
 <summary>
 Parses a partition's fst.bin file as passed into fst and adds all of it's files into the partitions Files collection
 <param name="fst">Pointer to the fst.bin data</param>
@@ -123,7 +123,7 @@ Parses a partition's fst.bin file as passed into fst and adds all of it's files 
 <returns>The number of directories or files parsed</returns>
 </summary>
 </member>
-<member name="M:Disc.AddFileToPart(System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,partition*,System.UInt64,System.UInt64)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="781">
+<member name="M:Disc.AddFileToPart(System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,partition*,System.UInt64,System.UInt64)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="783">
 <summary>
 Creates a partition_file struct and adds it to the Files collection of the partition pointed to by part
 Note that this method does NOT add a new file into the image
@@ -134,12 +134,12 @@ Note that this method does NOT add a new file into the image
 <returns>Pointer to a part_header structure</returns>
 </summary>
 </member>
-<member name="M:Disc.ParsePartitions" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="807">
+<member name="M:Disc.ParsePartitions" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="809">
 <summary>
 <returns>The number of partitions loaded</returns>
 </summary>
 </member>
-<member name="M:Disc.TmdLoad(System.UInt32)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="957">
+<member name="M:Disc.TmdLoad(System.UInt32)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="959">
 <summary>
 <param name="partNo">The partition number to load the TMD from</param>
 </summary>

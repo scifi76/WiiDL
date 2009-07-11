@@ -15,13 +15,15 @@
 Disc::Disc(char * IsoFileName)
 {
 	IsLoaded = false;
-	_isoFileName = IsoFileName;
+	ImageFileName = IsoFileName;
 
 	_blankSector = (unsigned char *) malloc(0x8000);
 	memset(_blankSector, 0xFF, 0x8000);
 
 	_blankSector0 = (unsigned char *) malloc(0x8000);
 	memset (_blankSector0, 0, 0x8000);
+
+	_lastErr = "";
 }
 
 ///<summary>
@@ -79,13 +81,13 @@ bool Disc::Load(bool readOnly)
 				
 			}
 			// try to open the iso
-			fIsoFile = fopen(_isoFileName.c_str(), mode.c_str());
+			fIsoFile = fopen(ImageFileName.c_str(), mode.c_str());
 
 			//check the file opened ok
 			if (fIsoFile != NULL)
 			{
 				// check if this is a devkitimage (.RVM)
-				isoExtension = Utils::StringToUpper(Utils::GetFileExtension(_isoFileName));
+				isoExtension = Utils::StringToUpper(Utils::GetFileExtension(ImageFileName));
 				if (isoExtension == "RVM")
 				{
 					// devkit images have an additional 32k header. We need to skip it
@@ -221,7 +223,7 @@ u64 Disc::Read (unsigned char * buffer, size_t size, u64 offset, bool markUsed)
 {
 
 	// open the file
-	Image->File = fopen(_isoFileName.c_str(), "rb");
+	Image->File = fopen(ImageFileName.c_str(), "rb");
 
 	if (Image->File != NULL)
 	{
