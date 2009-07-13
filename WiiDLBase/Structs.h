@@ -106,9 +106,9 @@ struct partition {
 };
 
 
-struct image_file {
- 
-		FILE * File;
+class image_file {
+public:
+ 		FILE * File;
 		u64 DiscOffset;
 		u64 ImageSize;
 

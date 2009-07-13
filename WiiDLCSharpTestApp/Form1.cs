@@ -21,6 +21,8 @@ namespace WiiDLCSharpTestApp
                 WiiDLManagedWrapper.ManagedDisc d = new WiiDLManagedWrapper.ManagedDisc(txtSourcePath.Text);
                 d.Load(true);
                 pgBasic.SelectedObject = d;
+                pgImage.SelectedObject = d.Image;
+
 
             }
             else
