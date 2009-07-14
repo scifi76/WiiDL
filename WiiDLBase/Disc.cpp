@@ -148,16 +148,16 @@ bool Disc::Load(bool readOnly)
 				
 				// parse the image header
 				header = ParseImageHeader(buffer);
-				Image->ImageHeader = *header;
+				Image->ImageHeader = header;
 				
 				// check image magic!
-				if (!Image->ImageHeader.HasMagic) // no magic word
+				if (!Image->ImageHeader->HasMagic) // no magic word
 					throw std::ios::failure("Image has bad magic word");
 
 				// load the common key
-				if (Image->ImageHeader.IsWii)
+				if (Image->ImageHeader->IsWii)
 				{
-					LoadKey(Image->ImageHeader.IsKoreanKey);
+					LoadKey(Image->ImageHeader->IsKoreanKey);
 				}
 				else
 				{
@@ -553,7 +553,7 @@ int Disc::ParseImage()
 	u32 nfiles;
 
 
-	if (Image->ImageHeader.IsWii)
+	if (Image->ImageHeader->IsWii)
 	{
 		ParsePartitions();
 	}
@@ -598,12 +598,12 @@ int Disc::ParseImage()
 		{
 			// valid partition
 			nvp++;
-			Image->Partitions[i].Header = *ParseImageHeader(buffer);
+			Image->Partitions[i].Header = ParseImageHeader(buffer);
 			Image->Partitions[i].IsValid = true;
 
 			if (Image->Partitions[i].Type!=PART_UNKNOWN)
 			{
-				if (Image->Partitions[i].Header.IsWii)
+				if (Image->Partitions[i].Header->IsWii)
 				{
 					AddFileToPart("partition.bin", "\\", &Image->Partitions[i], 0x0, Image->Partitions[i].DataOffset);
 					MarkAsUsed(Image->Partitions[i].Offset, Image->Partitions[i].DataOffset);
@@ -626,22 +626,22 @@ int Disc::ParseImage()
 				MarkAsUsedCrypto(Image->Partitions[i].Offset + Image->Partitions[i].DataOffset,	0x2440,	Image->Partitions[i].AppldrSize, Image->Partitions[i].IsEncrypted);
 			}
 
-			if (Image->Partitions[i].Header.DolOffset > 0)
+			if (Image->Partitions[i].Header->DolOffset > 0)
 			{
-				ReadFromPartition(buffer, 0x100, i, Image->Partitions[i].Header.DolOffset);
-				Image->Partitions[i].Header.DolSize = get_dol_size (buffer);
+				ReadFromPartition(buffer, 0x100, i, Image->Partitions[i].Header->DolOffset);
+				Image->Partitions[i].Header->DolSize = get_dol_size (buffer);
 				
 				// now check for error condition with bad main.dol
-				if (Image->Partitions[i].Header.DolSize >= Image->Partitions[i].DataSize)
+				if (Image->Partitions[i].Header->DolSize >= Image->Partitions[i].DataSize)
 				{
 					// almost certainly an error as it's bigger than the partition
 					_lastErr = "main.dol read error. Size is larger than partition size";
-					Image->Partitions[i].Header.DolSize = 0;
+					Image->Partitions[i].Header->DolSize = 0;
 					
 				}
-				MarkAsUsedCrypto(Image->Partitions[i].Offset + Image->Partitions[i].DataOffset, Image->Partitions[i].Header.DolOffset, Image->Partitions[i].Header.DolSize, Image->Partitions[i].IsEncrypted);
+				MarkAsUsedCrypto(Image->Partitions[i].Offset + Image->Partitions[i].DataOffset, Image->Partitions[i].Header->DolOffset, Image->Partitions[i].Header->DolSize, Image->Partitions[i].IsEncrypted);
 				
-				AddFileToPart("main.dol", "\\", &Image->Partitions[i], Image->Partitions[i].DataOffset + Image->Partitions[i].Header.DolOffset, Image->Partitions[i].Header.DolSize);
+				AddFileToPart("main.dol", "\\", &Image->Partitions[i], Image->Partitions[i].DataOffset + Image->Partitions[i].Header->DolOffset, Image->Partitions[i].Header->DolSize);
 				
 			} 
 			else
@@ -664,13 +664,13 @@ int Disc::ParseImage()
 				MarkAsUsedCrypto(Image->Partitions[i].Offset, 0, (u64)0x2a4, false);
 			}
 			
-			if (Image->Partitions[i].Header.FstOffset > 0 && Image->Partitions[i].Header.FstSize > 0)
+			if (Image->Partitions[i].Header->FstOffset > 0 && Image->Partitions[i].Header->FstSize > 0)
 			{
-				AddFileToPart("fst.bin", "\\", &Image->Partitions[i], Image->Partitions[i].DataOffset + Image->Partitions[i].Header.FstOffset, Image->Partitions[i].Header.FstSize);
-				MarkAsUsedCrypto(Image->Partitions[i].Offset +Image->Partitions[i].DataOffset, Image->Partitions[i].Header.FstOffset, Image->Partitions[i].Header.FstSize, Image->Partitions[i].IsEncrypted);
+				AddFileToPart("fst.bin", "\\", &Image->Partitions[i], Image->Partitions[i].DataOffset + Image->Partitions[i].Header->FstOffset, Image->Partitions[i].Header->FstSize);
+				MarkAsUsedCrypto(Image->Partitions[i].Offset +Image->Partitions[i].DataOffset, Image->Partitions[i].Header->FstOffset, Image->Partitions[i].Header->FstSize, Image->Partitions[i].IsEncrypted);
 				
-				fst = (u8 *) (malloc ((u32)(Image->Partitions[i].Header.FstSize)));
-				if (ReadFromPartition(fst, (u32)(Image->Partitions[i].Header.FstSize), i, Image->Partitions[i].Header.FstOffset) != Image->Partitions[i].Header.FstSize)
+				fst = (u8 *) (malloc ((u32)(Image->Partitions[i].Header->FstSize)));
+				if (ReadFromPartition(fst, (u32)(Image->Partitions[i].Header->FstSize), i, Image->Partitions[i].Header->FstOffset) != Image->Partitions[i].Header->FstSize)
 				{
 					Image->Partitions[i].IsValid = false;
 					_lastErr = "Error reading fst.bin";
@@ -681,7 +681,7 @@ int Disc::ParseImage()
 				
 				nfiles = be32 (fst + 8);
 				
-				if (12 * nfiles > Image->Partitions[i].Header.FstSize)
+				if (12 * nfiles > Image->Partitions[i].Header->FstSize)
 				{
 					Image->Partitions[i].IsValid = false;
 					_lastErr = "fst.bin is invalid";
@@ -765,7 +765,7 @@ u32 Disc::ParseFst(u8 * fst, const char * names, const char * currentDir, u32 i,
 	{
 		//file
 		offset = be32(fst + 12 * i + 4);
-		if (Image->Partitions[partNo].Header.IsWii)
+		if (Image->Partitions[partNo].Header->IsWii)
 		{
 			offset *= 4;
 		}
@@ -911,7 +911,7 @@ int Disc::ParsePartitions()
 					// Gamecube partition
 					Image->Partitions[i].IsEncrypted = 0;
 					Image->Partitions[i].DataOffset = 0;
-					Image->Partitions[i].Header.IsGC = true;
+					Image->Partitions[i].Header->IsGC = true;
 	                Read(buffer, 8, Image->Partitions[i].Offset + 0x438);
 					Image->Partitions[i].DataSize = be32(&buffer[0]);
 					Image->Partitions[i].DataOffset = 0;

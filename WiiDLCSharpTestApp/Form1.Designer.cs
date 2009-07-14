@@ -37,17 +37,31 @@
             this.pgImage = new System.Windows.Forms.PropertyGrid();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.pgImageHeader = new System.Windows.Forms.PropertyGrid();
+            this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.splitContainer2 = new System.Windows.Forms.SplitContainer();
+            this.groupBox5 = new System.Windows.Forms.GroupBox();
+            this.groupBox6 = new System.Windows.Forms.GroupBox();
+            this.lvPartitions = new System.Windows.Forms.ListView();
+            this.lvFiles = new System.Windows.Forms.ListView();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox4.SuspendLayout();
             this.groupBox3.SuspendLayout();
+            this.splitContainer1.Panel1.SuspendLayout();
+            this.splitContainer1.Panel2.SuspendLayout();
+            this.splitContainer1.SuspendLayout();
+            this.splitContainer2.Panel1.SuspendLayout();
+            this.splitContainer2.Panel2.SuspendLayout();
+            this.splitContainer2.SuspendLayout();
+            this.groupBox5.SuspendLayout();
+            this.groupBox6.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnLoad
             // 
             this.btnLoad.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
                         | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnLoad.Location = new System.Drawing.Point(775, 14);
+            this.btnLoad.Location = new System.Drawing.Point(524, 14);
             this.btnLoad.Name = "btnLoad";
             this.btnLoad.Size = new System.Drawing.Size(75, 23);
             this.btnLoad.TabIndex = 0;
@@ -64,7 +78,7 @@
             this.txtSourcePath.Location = new System.Drawing.Point(3, 16);
             this.txtSourcePath.Name = "txtSourcePath";
             this.txtSourcePath.ReadOnly = true;
-            this.txtSourcePath.Size = new System.Drawing.Size(765, 20);
+            this.txtSourcePath.Size = new System.Drawing.Size(514, 20);
             this.txtSourcePath.TabIndex = 1;
             this.txtSourcePath.Text = "Drag image file here...";
             this.txtSourcePath.DragDrop += new System.Windows.Forms.DragEventHandler(this.txtSourcePath_DragDrop);
@@ -77,7 +91,7 @@
             this.groupBox1.Dock = System.Windows.Forms.DockStyle.Top;
             this.groupBox1.Location = new System.Drawing.Point(0, 0);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(855, 42);
+            this.groupBox1.Size = new System.Drawing.Size(604, 42);
             this.groupBox1.TabIndex = 2;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Source Image...";
@@ -88,9 +102,10 @@
             this.pgBasic.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pgBasic.HelpVisible = false;
             this.pgBasic.Location = new System.Drawing.Point(3, 16);
+            this.pgBasic.Margin = new System.Windows.Forms.Padding(1);
             this.pgBasic.Name = "pgBasic";
             this.pgBasic.PropertySort = System.Windows.Forms.PropertySort.Alphabetical;
-            this.pgBasic.Size = new System.Drawing.Size(849, 67);
+            this.pgBasic.Size = new System.Drawing.Size(598, 49);
             this.pgBasic.TabIndex = 3;
             this.pgBasic.ToolbarVisible = false;
             // 
@@ -100,7 +115,7 @@
             this.groupBox2.Dock = System.Windows.Forms.DockStyle.Top;
             this.groupBox2.Location = new System.Drawing.Point(0, 42);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(855, 86);
+            this.groupBox2.Size = new System.Drawing.Size(604, 68);
             this.groupBox2.TabIndex = 4;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Basic Properties";
@@ -108,10 +123,10 @@
             // groupBox4
             // 
             this.groupBox4.Controls.Add(this.pgImage);
-            this.groupBox4.Dock = System.Windows.Forms.DockStyle.Top;
-            this.groupBox4.Location = new System.Drawing.Point(0, 128);
+            this.groupBox4.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.groupBox4.Location = new System.Drawing.Point(0, 0);
             this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(855, 205);
+            this.groupBox4.Size = new System.Drawing.Size(326, 191);
             this.groupBox4.TabIndex = 6;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Image Properties";
@@ -121,19 +136,21 @@
             this.pgImage.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pgImage.HelpVisible = false;
             this.pgImage.Location = new System.Drawing.Point(3, 16);
+            this.pgImage.Margin = new System.Windows.Forms.Padding(1);
             this.pgImage.Name = "pgImage";
             this.pgImage.PropertySort = System.Windows.Forms.PropertySort.Alphabetical;
-            this.pgImage.Size = new System.Drawing.Size(849, 186);
+            this.pgImage.Size = new System.Drawing.Size(320, 172);
             this.pgImage.TabIndex = 0;
             this.pgImage.ToolbarVisible = false;
+            this.pgImage.Click += new System.EventHandler(this.pgImage_Click);
             // 
             // groupBox3
             // 
             this.groupBox3.Controls.Add(this.pgImageHeader);
-            this.groupBox3.Dock = System.Windows.Forms.DockStyle.Top;
-            this.groupBox3.Location = new System.Drawing.Point(0, 333);
+            this.groupBox3.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.groupBox3.Location = new System.Drawing.Point(0, 0);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(855, 115);
+            this.groupBox3.Size = new System.Drawing.Size(274, 191);
             this.groupBox3.TabIndex = 5;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Image Header";
@@ -143,19 +160,96 @@
             this.pgImageHeader.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pgImageHeader.HelpVisible = false;
             this.pgImageHeader.Location = new System.Drawing.Point(3, 16);
+            this.pgImageHeader.Margin = new System.Windows.Forms.Padding(1);
             this.pgImageHeader.Name = "pgImageHeader";
             this.pgImageHeader.PropertySort = System.Windows.Forms.PropertySort.Alphabetical;
-            this.pgImageHeader.Size = new System.Drawing.Size(849, 96);
+            this.pgImageHeader.Size = new System.Drawing.Size(268, 172);
             this.pgImageHeader.TabIndex = 1;
             this.pgImageHeader.ToolbarVisible = false;
+            // 
+            // splitContainer1
+            // 
+            this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Top;
+            this.splitContainer1.Location = new System.Drawing.Point(0, 110);
+            this.splitContainer1.Name = "splitContainer1";
+            // 
+            // splitContainer1.Panel1
+            // 
+            this.splitContainer1.Panel1.Controls.Add(this.groupBox3);
+            // 
+            // splitContainer1.Panel2
+            // 
+            this.splitContainer1.Panel2.Controls.Add(this.groupBox4);
+            this.splitContainer1.Size = new System.Drawing.Size(604, 191);
+            this.splitContainer1.SplitterDistance = 274;
+            this.splitContainer1.TabIndex = 7;
+            // 
+            // splitContainer2
+            // 
+            this.splitContainer2.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.splitContainer2.Location = new System.Drawing.Point(0, 302);
+            this.splitContainer2.Name = "splitContainer2";
+            // 
+            // splitContainer2.Panel1
+            // 
+            this.splitContainer2.Panel1.Controls.Add(this.groupBox5);
+            // 
+            // splitContainer2.Panel2
+            // 
+            this.splitContainer2.Panel2.Controls.Add(this.groupBox6);
+            this.splitContainer2.Size = new System.Drawing.Size(604, 275);
+            this.splitContainer2.SplitterDistance = 273;
+            this.splitContainer2.TabIndex = 8;
+            // 
+            // groupBox5
+            // 
+            this.groupBox5.Controls.Add(this.lvPartitions);
+            this.groupBox5.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.groupBox5.Location = new System.Drawing.Point(0, 0);
+            this.groupBox5.Name = "groupBox5";
+            this.groupBox5.Size = new System.Drawing.Size(273, 275);
+            this.groupBox5.TabIndex = 0;
+            this.groupBox5.TabStop = false;
+            this.groupBox5.Text = "Partitions";
+            // 
+            // groupBox6
+            // 
+            this.groupBox6.Controls.Add(this.lvFiles);
+            this.groupBox6.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.groupBox6.Location = new System.Drawing.Point(0, 0);
+            this.groupBox6.Name = "groupBox6";
+            this.groupBox6.Size = new System.Drawing.Size(327, 275);
+            this.groupBox6.TabIndex = 0;
+            this.groupBox6.TabStop = false;
+            this.groupBox6.Text = "Files";
+            // 
+            // lvPartitions
+            // 
+            this.lvPartitions.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lvPartitions.Location = new System.Drawing.Point(3, 16);
+            this.lvPartitions.Name = "lvPartitions";
+            this.lvPartitions.Size = new System.Drawing.Size(267, 256);
+            this.lvPartitions.TabIndex = 0;
+            this.lvPartitions.UseCompatibleStateImageBehavior = false;
+            // 
+            // lvFiles
+            // 
+            this.lvFiles.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lvFiles.Location = new System.Drawing.Point(3, 16);
+            this.lvFiles.Name = "lvFiles";
+            this.lvFiles.Size = new System.Drawing.Size(321, 256);
+            this.lvFiles.TabIndex = 0;
+            this.lvFiles.UseCompatibleStateImageBehavior = false;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(855, 448);
-            this.Controls.Add(this.groupBox3);
-            this.Controls.Add(this.groupBox4);
+            this.ClientSize = new System.Drawing.Size(604, 577);
+            this.Controls.Add(this.splitContainer2);
+            this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
             this.Name = "Form1";
@@ -165,6 +259,14 @@
             this.groupBox2.ResumeLayout(false);
             this.groupBox4.ResumeLayout(false);
             this.groupBox3.ResumeLayout(false);
+            this.splitContainer1.Panel1.ResumeLayout(false);
+            this.splitContainer1.Panel2.ResumeLayout(false);
+            this.splitContainer1.ResumeLayout(false);
+            this.splitContainer2.Panel1.ResumeLayout(false);
+            this.splitContainer2.Panel2.ResumeLayout(false);
+            this.splitContainer2.ResumeLayout(false);
+            this.groupBox5.ResumeLayout(false);
+            this.groupBox6.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -180,6 +282,12 @@
         private System.Windows.Forms.PropertyGrid pgImage;
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.PropertyGrid pgImageHeader;
+        private System.Windows.Forms.SplitContainer splitContainer1;
+        private System.Windows.Forms.SplitContainer splitContainer2;
+        private System.Windows.Forms.GroupBox groupBox5;
+        private System.Windows.Forms.ListView lvPartitions;
+        private System.Windows.Forms.GroupBox groupBox6;
+        private System.Windows.Forms.ListView lvFiles;
     }
 }
 

@@ -22,6 +22,7 @@ namespace WiiDLCSharpTestApp
                 d.Load(true);
                 pgBasic.SelectedObject = d;
                 pgImage.SelectedObject = d.Image;
+                pgImageHeader.SelectedObject = d.Image.Header;
 
 
             }
@@ -48,6 +49,11 @@ namespace WiiDLCSharpTestApp
             {
                 e.Effect = DragDropEffects.None;
             }
+        }
+
+        private void pgImage_Click(object sender, EventArgs e)
+        {
+
         }
        
     }

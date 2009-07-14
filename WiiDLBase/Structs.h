@@ -68,7 +68,7 @@ enum partition_type {
 struct partition {
         u64 Offset;
 
-        struct part_header Header;
+        struct part_header * Header;
 		FileList Files;
 
         u64 AppldrSize;
@@ -115,7 +115,7 @@ public:
 		unsigned char * FreeClusterTable;
 		bool IsReadOnly;
 
-		struct part_header ImageHeader;
+		struct part_header * ImageHeader;
 
         u32 PartitionCount;
         struct partition * Partitions;

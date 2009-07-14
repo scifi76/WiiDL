@@ -7,25 +7,25 @@ using namespace System;
  
 namespace WiiDLManagedWrapper {
  
-	public ref class ManagedPartHeader
+	public ref class MPartHeader
 	{
 	public:
-		ManagedPartHeader(part_header * header);
-		~ManagedPartHeader();
+		MPartHeader(part_header * header);
+		~MPartHeader();
 		
 		property char DiscId
 		{
 			char get();
 		};
 
-		property unsigned char IsGC
+		property bool IsGC
 		{
-			unsigned char get();
+			bool get();
 		};
 
-		property unsigned char IsWii
+		property bool IsWii
 		{
-			unsigned char get();
+			bool get();
 		};
 
 		property bool IsKoreanKey
@@ -33,9 +33,9 @@ namespace WiiDLManagedWrapper {
 			bool get();
 		};
 
-		property char Gamecode[2]
+		property String^ Gamecode
 		{
-			char[2] get();
+			String^ get();
 		};
 
 		property char Region
@@ -43,27 +43,136 @@ namespace WiiDLManagedWrapper {
 			char get();
 		};
 
-		property char Publisher[2]
+		property String^ Publisher
 		{
-			char[2] get();
+			String^ get();
+		};
+
+		property bool HasMagic
+		{
+			bool get();
+		};
+
+		property String^ GameTitle
+		{
+			String^ get();
+		};
+
+		property UInt64 DolOffset
+		{
+			UInt64 get();
+		};
+
+		property UInt64 DolSize
+		{
+			UInt64 get();
+		};
+
+		property UInt64 FstOffset
+		{
+			UInt64 get();
+		};
+
+		property UInt64 FstSize
+		{
+			UInt64 get();
 		};
 
 
-
-
-
-
-
 	private:
-		part_header * _header
+		part_header * _header;
 	};
 
-
-	public ref class ManagedImageFile
+	public ref class MPartition
 	{
 	public:
-		ManagedImageFile(image_file * image);
-		~ManagedImageFile();
+		MPartition(partition * part);
+		~MPartition();
+
+		MPartHeader^ Header;
+
+		property UInt64 Offset
+		{
+			UInt64 get();
+		};
+
+		property UInt64 AppldrSize
+		{
+			UInt64 get();
+		};
+
+		property bool IsEncrypted
+		{
+			bool get();
+		};
+
+		property bool IsValid
+		{
+			bool get();
+		};
+
+		property UInt64 TmdOffset
+		{
+			UInt64 get();
+		};
+
+		property UInt64 TmdSize
+		{
+			UInt64 get();
+		};
+
+		property UInt64 H3Offset
+		{
+			UInt64 get();
+		};
+
+		property String^ TitleIdString
+		{
+			String^ get();
+		};
+
+		property String^ Type
+		{
+			String^ get();
+		};
+
+		property String^ ChannelId
+		{
+			String^ get();
+		}
+
+		property UInt64 DataOffset
+		{
+			UInt64 get();
+		};
+
+		property UInt64 DataSize
+		{
+			UInt64 get();
+		};
+
+		property UInt64 CertOffset
+		{
+			UInt64 get();
+		};
+
+		property UInt64 CertSize
+		{
+			UInt64 get();
+		};
+
+	private:
+		partition * _partition;
+	};
+
+	
+
+
+	public ref class MImageFile
+	{
+	public:
+		MImageFile(image_file * image);
+		~MImageFile();
 
 	property UInt64 DiscOffset
     {
@@ -115,41 +224,45 @@ namespace WiiDLManagedWrapper {
 		unsigned char get();
 	}
 
-	property long long PrimaryTblOffset
+	property UInt64 PrimaryTblOffset
 	{
-		long long get();
+		UInt64 get();
 	}
 
-	property long long SecondaryTblOffset
+	property UInt64 SecondaryTblOffset
 	{
-		long long get();
+		UInt64 get();
 	}
 
-	property long long TertiaryTblOffset
+	property UInt64 TertiaryTblOffset
 	{
-		long long get();
+		UInt64 get();
 	}
 
-	property long long QuaternaryTblOffset
+	property UInt64 QuaternaryTblOffset
 	{
-		long long get();
+		UInt64 get();
 	}
+
+	MPartHeader^ Header;
+	System::Collections::Generic::List<MPartition^> Partitions;
 
 	private:
 		struct image_file * _image;
-		ManagedPartHeader^ _header;
+		
+		
 	};
 
   ///<summary>
   /// This is a managed (.NET) wrapper class around the unmanaged Disc object
   ///</summary>
-  public ref class ManagedDisc
+  public ref class MDisc
   {
   public:
  
     // constructor / destructor
-    ManagedDisc(String^ IsoFileName);
-    ~ManagedDisc();
+    MDisc(String^ IsoFileName);
+    ~MDisc();
  
     // properties (C++ properties are only supported in CLI/C++ but since this class is only to be used
     // by managed code, it doesn't matter)
@@ -184,7 +297,7 @@ namespace WiiDLManagedWrapper {
     int ParsePartitions();
     tmd * TmdLoad(UInt32 partNo);
 
-	ManagedImageFile^ Image;
+	MImageFile^ Image;
     
  
   private:
