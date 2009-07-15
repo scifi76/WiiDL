@@ -98,6 +98,15 @@ namespace WiiDLManagedWrapper
 	{
 		_image = image;
 		Header = gcnew MPartHeader(_image->ImageHeader);
+
+		// get partitions
+		Partitions = gcnew System::Collections::Generic::List<MPartition^>();
+		u32 i;
+		for (i = 0; i < _image->PartitionCount; ++i)
+		{
+
+			Partitions->Add(gcnew MPartition(&_image->Partitions[i]));
+		}
 	}
 
 	MImageFile::~MImageFile()
@@ -267,11 +276,18 @@ namespace WiiDLManagedWrapper
 	{
 		_partition = part;
 		Header = gcnew MPartHeader(part->Header);
+
+		Files = gcnew System::Collections::Generic::List<MFile^>();
+		u32 i;
+		for (i = 0; i < _partition->Files.Count(); ++i)
+		{
+			Files->Add(gcnew MFile(_partition->Files.Retrieve(i)));
+		}
 	}
 
 	MPartition::~MPartition()
 	{
-		delete _partition;
+		//delete _partition;
 		delete Header;
 	}
 
@@ -363,6 +379,41 @@ namespace WiiDLManagedWrapper
 	UInt64 MPartition::CertSize::get()
 	{
 		return _partition->CertSize;
+	}
+
+
+
+
+
+	// MFILE
+	MFile::MFile(partition_file * file)
+	{
+		_file = file;
+	}
+
+	MFile::~MFile()
+	{
+		delete _file;
+	}
+
+	UInt64 MFile::Offset::get()
+	{
+		return _file->Offset;
+	}
+
+	UInt64 MFile::Size::get()
+	{
+		return _file->Size;
+	}
+
+	String^ MFile::FileName::get()
+	{
+		return gcnew String(_file->FileName);
+	}
+
+	String^ MFile::Path::get()
+	{
+		return gcnew String(_file->DirectoryName);
 	}
 
 }

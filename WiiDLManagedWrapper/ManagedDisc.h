@@ -7,6 +7,38 @@ using namespace System;
  
 namespace WiiDLManagedWrapper {
  
+	public ref class MFile
+	{
+	public:
+		MFile(partition_file * file);
+		~MFile();
+		
+		property UInt64 Offset
+		{
+			UInt64 get();
+		};
+
+		property UInt64 Size
+		{
+			UInt64 get();
+		};
+
+		property String^ FileName
+		{
+			String^ get();
+		};
+
+		property String^ Path
+		{
+			String^ get();
+		};
+
+		
+
+	private:
+		partition_file * _file;
+	};
+
 	public ref class MPartHeader
 	{
 	public:
@@ -161,6 +193,8 @@ namespace WiiDLManagedWrapper {
 			UInt64 get();
 		};
 
+		System::Collections::Generic::List<MFile^>^ Files;
+
 	private:
 		partition * _partition;
 	};
@@ -245,7 +279,7 @@ namespace WiiDLManagedWrapper {
 	}
 
 	MPartHeader^ Header;
-	System::Collections::Generic::List<MPartition^> Partitions;
+	System::Collections::Generic::List<MPartition^>^ Partitions;
 
 	private:
 		struct image_file * _image;

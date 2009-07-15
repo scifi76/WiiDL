@@ -2,7 +2,7 @@
 using System.IO;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
-
+using WiiDLManagedWrapper;
 namespace WiiDLCSharpTestApp
 {
     public partial class Form1 : Form
@@ -18,13 +18,16 @@ namespace WiiDLCSharpTestApp
         {
             if (File.Exists(txtSourcePath.Text))
             {
-                WiiDLManagedWrapper.ManagedDisc d = new WiiDLManagedWrapper.ManagedDisc(txtSourcePath.Text);
+                MDisc d = new MDisc(txtSourcePath.Text);
                 d.Load(true);
                 pgBasic.SelectedObject = d;
                 pgImage.SelectedObject = d.Image;
                 pgImageHeader.SelectedObject = d.Image.Header;
 
-
+                foreach (MPartition part in d.Image.Partitions)
+                {
+                    lvPartitions.Items.Add(part.Type);
+                }
             }
             else
             {
@@ -49,11 +52,6 @@ namespace WiiDLCSharpTestApp
             {
                 e.Effect = DragDropEffects.None;
             }
-        }
-
-        private void pgImage_Click(object sender, EventArgs e)
-        {
-
         }
        
     }

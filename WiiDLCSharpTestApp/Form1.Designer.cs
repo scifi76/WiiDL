@@ -40,9 +40,10 @@
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
-            this.groupBox6 = new System.Windows.Forms.GroupBox();
             this.lvPartitions = new System.Windows.Forms.ListView();
+            this.groupBox6 = new System.Windows.Forms.GroupBox();
             this.lvFiles = new System.Windows.Forms.ListView();
+            this.columnHeader1 = new System.Windows.Forms.ColumnHeader();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox4.SuspendLayout();
@@ -142,7 +143,6 @@
             this.pgImage.Size = new System.Drawing.Size(320, 172);
             this.pgImage.TabIndex = 0;
             this.pgImage.ToolbarVisible = false;
-            this.pgImage.Click += new System.EventHandler(this.pgImage_Click);
             // 
             // groupBox3
             // 
@@ -214,6 +214,20 @@
             this.groupBox5.TabStop = false;
             this.groupBox5.Text = "Partitions";
             // 
+            // lvPartitions
+            // 
+            this.lvPartitions.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.columnHeader1});
+            this.lvPartitions.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lvPartitions.FullRowSelect = true;
+            this.lvPartitions.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
+            this.lvPartitions.Location = new System.Drawing.Point(3, 16);
+            this.lvPartitions.Name = "lvPartitions";
+            this.lvPartitions.Size = new System.Drawing.Size(267, 256);
+            this.lvPartitions.TabIndex = 0;
+            this.lvPartitions.UseCompatibleStateImageBehavior = false;
+            this.lvPartitions.View = System.Windows.Forms.View.Details;
+            // 
             // groupBox6
             // 
             this.groupBox6.Controls.Add(this.lvFiles);
@@ -225,15 +239,6 @@
             this.groupBox6.TabStop = false;
             this.groupBox6.Text = "Files";
             // 
-            // lvPartitions
-            // 
-            this.lvPartitions.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lvPartitions.Location = new System.Drawing.Point(3, 16);
-            this.lvPartitions.Name = "lvPartitions";
-            this.lvPartitions.Size = new System.Drawing.Size(267, 256);
-            this.lvPartitions.TabIndex = 0;
-            this.lvPartitions.UseCompatibleStateImageBehavior = false;
-            // 
             // lvFiles
             // 
             this.lvFiles.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -242,6 +247,11 @@
             this.lvFiles.Size = new System.Drawing.Size(321, 256);
             this.lvFiles.TabIndex = 0;
             this.lvFiles.UseCompatibleStateImageBehavior = false;
+            // 
+            // columnHeader1
+            // 
+            this.columnHeader1.Text = "Partition";
+            this.columnHeader1.Width = 250;
             // 
             // Form1
             // 
@@ -288,6 +298,7 @@
         private System.Windows.Forms.ListView lvPartitions;
         private System.Windows.Forms.GroupBox groupBox6;
         private System.Windows.Forms.ListView lvFiles;
+        private System.Windows.Forms.ColumnHeader columnHeader1;
     }
 }
 
