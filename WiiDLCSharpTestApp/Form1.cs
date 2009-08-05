@@ -7,7 +7,8 @@ namespace WiiDLCSharpTestApp
 {
     public partial class Form1 : Form
     {
-        
+
+        MDisc d;
 
         public Form1()
         {
@@ -18,15 +19,21 @@ namespace WiiDLCSharpTestApp
         {
             if (File.Exists(txtSourcePath.Text))
             {
-                MDisc d = new MDisc(txtSourcePath.Text);
+                d = new MDisc(txtSourcePath.Text);
                 d.Load(true);
                 pgBasic.SelectedObject = d;
                 pgImage.SelectedObject = d.Image;
                 pgImageHeader.SelectedObject = d.Image.Header;
 
+                int i = 0;
                 foreach (MPartition part in d.Image.Partitions)
                 {
-                    lvPartitions.Items.Add(part.Type);
+                    ListViewItem item = new ListViewItem();
+                    item.SubItems[0].Text = i.ToString();
+                    item.SubItems.Add(part.Type);
+                    lvPartitions.Items.Add(item);
+
+                    i++;
                 }
             }
             else
@@ -52,6 +59,35 @@ namespace WiiDLCSharpTestApp
             {
                 e.Effect = DragDropEffects.None;
             }
+        }
+
+        private void lvPartitions_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (lvPartitions.SelectedItems.Count > 0)
+            {
+
+                pgPartInfo.SelectedObject = d.Image.Partitions[int.Parse(lvPartitions.SelectedItems[0].SubItems[0].Text)];
+
+                lvFiles.Items.Clear();
+                int i = 0;
+                foreach (MFile f in d.Image.Partitions[int.Parse(lvPartitions.SelectedItems[0].SubItems[0].Text)].Files)
+                {
+                    ListViewItem item = new ListViewItem();
+                    item.SubItems[0].Text = i.ToString();
+                    item.SubItems.Add(f.FileName);
+                    lvFiles.Items.Add(item);
+                    i++;
+                }
+            }
+        }
+
+        private void lvFiles_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (lvFiles.SelectedItems.Count > 0)
+            {
+                pgFileInfo.SelectedObject = d.Image.Partitions[int.Parse(lvPartitions.SelectedItems[0].SubItems[0].Text)].Files[int.Parse(lvFiles.SelectedItems[0].SubItems[0].Text)];
+            }
+
         }
        
     }

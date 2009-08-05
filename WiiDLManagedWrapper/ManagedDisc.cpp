@@ -279,6 +279,7 @@ namespace WiiDLManagedWrapper
 
 		Files = gcnew System::Collections::Generic::List<MFile^>();
 		u32 i;
+
 		for (i = 0; i < _partition->Files.Count(); ++i)
 		{
 			Files->Add(gcnew MFile(_partition->Files.Retrieve(i)));

@@ -79,3 +79,4 @@ class DISC_API Disc
 		void AddFileToPart(const char * fileName, const char * directoryName, partition * part, u64 offset, u64 size);
 		u32 ParseFst(u8 * fst, const char * names, const char * currentDir, u32 i, struct tree * tree, u32 partNo);
 };
+

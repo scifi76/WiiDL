@@ -1,6 +1,7 @@
 
 #include "FileList.h"
 
+
 FileList::FileList(void):size(0), head(NULL)
 {
 }
@@ -8,6 +9,7 @@ FileList::FileList(void):size(0), head(NULL)
 FileList::~FileList(void)
 {
 }
+
 
 u64 FileList::Count()
 {
@@ -90,3 +92,4 @@ u64 FileList::Find(const char * FileName, const char * DirectoryName)
 	return false;
 
 }
+

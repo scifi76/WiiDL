@@ -11,8 +11,25 @@ struct partition_file
 	partition_file * NextFile;
 };
 
+#define DISC_EXPORTS 
 
-class FileList
+#if defined (__GNUC__) && defined(__unix__)
+	#define DISC_API __attribute__ ((__visibility__("default")))
+#elif defined (_MSC_VER)
+	#include <io.h>
+	#define fseeko64(fm, pos, type) _lseeki64(_fileno(fm), (pos), (type))
+	
+	#ifdef DISC_EXPORTS
+		#define DISC_API __declspec(dllexport)
+		
+	#else
+		#define DISC_API __declspec(dllimport)
+		#pragma message("Linking to WiiBaseDL.lib...")
+		#pragma comment(lib, "WiiDLBase.lib") 
+	#endif
+#endif
+
+class DISC_API FileList
 {
 public:
 	FileList(void);
@@ -30,5 +47,7 @@ private:
 	partition_file * head;
 
 };
+
+
 
 
