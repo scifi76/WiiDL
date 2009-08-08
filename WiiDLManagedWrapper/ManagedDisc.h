@@ -28,15 +28,26 @@ namespace WiiDLManagedWrapper {
 			String^ get();
 		};
 
-		property String^ Path
+		
+	private:
+		partition_file * _file;
+	};
+
+	public ref class MFolder
+	{
+	public:
+		MFolder(partition_folder * folder);
+		~MFolder();
+		
+		property String^ FolderName
 		{
 			String^ get();
 		};
 
-		
+		System::Collections::Generic::List<MFile^>^ Files;
 
 	private:
-		partition_file * _file;
+		partition_folder * _folder;
 	};
 
 	public ref class MPartHeader
@@ -193,7 +204,7 @@ namespace WiiDLManagedWrapper {
 			UInt64 get();
 		};
 
-		System::Collections::Generic::List<MFile^>^ Files;
+		System::Collections::Generic::List<MFolder^>^ Folders;
 
 	private:
 		partition * _partition;

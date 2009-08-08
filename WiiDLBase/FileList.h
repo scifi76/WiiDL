@@ -6,7 +6,6 @@ struct partition_file
 	u64 Offset;
 	u64 Size;
 	const char * FileName;
-	const char * DirectoryName;
 
 	partition_file * NextFile;
 };
@@ -39,7 +38,7 @@ public:
 	partition_file * Retrieve(u64 pos);
 	bool Delete();
 	bool Delete(u64 pos);
-	u64 Find(const char * FileName, const char * DirectoryName);
+	u64 Find(const char * FileName);
 
 
 private:

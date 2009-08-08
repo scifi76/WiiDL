@@ -1,7 +1,8 @@
 #include "Global.h"
 #include "aes.h"
 #include <sys/stat.h>
-#include "FileList.h"
+#include "FolderList.h"
+
 
 enum tmd_sig {
         SIG_UNKNOWN = 0,
@@ -69,7 +70,7 @@ struct partition {
         u64 Offset;
 
         struct part_header * Header;
-		FileList Files;
+		FolderList Folders;
 
         u64 AppldrSize;
 

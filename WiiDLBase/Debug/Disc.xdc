@@ -123,8 +123,9 @@ Parses a partition's fst.bin file as passed into fst and adds all of it's files 
 <returns>The number of directories or files parsed</returns>
 </summary>
 </member>
-<member name="M:Disc.AddFileToPart(System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,partition*,System.UInt64,System.UInt64)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="783">
+<member name="M:Disc.ParsePartitions" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="783">
 <summary>
+Deprecated - Files are not children of the Folders collection
 Creates a partition_file struct and adds it to the Files collection of the partition pointed to by part
 Note that this method does NOT add a new file into the image
 <param name="fileName">The name of the file</param>
@@ -133,13 +134,19 @@ Note that this method does NOT add a new file into the image
 <param name="size">The size of the file</param>
 <returns>Pointer to a part_header structure</returns>
 </summary>
-</member>
-<member name="M:Disc.ParsePartitions" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="809">
+<summary>
+Creates a partition_folder struct and adds it to the Folders collection of the partition pointed to by part
+Note that this method does NOT add a new folder into the image
+<param name="folderName">The name of the file</param>
+<param name="part">The partition to add the folder to</param>
+<param name="size">The size of the file</param>
+<returns>Pointer to a part_header structure</returns>
+</summary>
 <summary>
 <returns>The number of partitions loaded</returns>
 </summary>
 </member>
-<member name="M:Disc.TmdLoad(System.UInt32)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="959">
+<member name="M:Disc.TmdLoad(System.UInt32)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="979">
 <summary>
 <param name="partNo">The partition number to load the TMD from</param>
 </summary>

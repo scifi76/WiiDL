@@ -17,6 +17,7 @@ namespace WiiDLCSharpTestApp
 
         private void btnLoad_Click(object sender, EventArgs e)
         {
+            lvPartitions.Items.Clear();
             if (File.Exists(txtSourcePath.Text))
             {
                 d = new MDisc(txtSourcePath.Text);
@@ -68,27 +69,18 @@ namespace WiiDLCSharpTestApp
 
                 pgPartInfo.SelectedObject = d.Image.Partitions[int.Parse(lvPartitions.SelectedItems[0].SubItems[0].Text)];
 
-                lvFiles.Items.Clear();
-                int i = 0;
-                foreach (MFile f in d.Image.Partitions[int.Parse(lvPartitions.SelectedItems[0].SubItems[0].Text)].Files)
+
+                tvFiles.Nodes.Clear();
+                foreach (MFolder folder in d.Image.Partitions[int.Parse(lvPartitions.SelectedItems[0].SubItems[0].Text)].Folders)
                 {
-                    ListViewItem item = new ListViewItem();
-                    item.SubItems[0].Text = i.ToString();
-                    item.SubItems.Add(f.FileName);
-                    lvFiles.Items.Add(item);
-                    i++;
+                    TreeNode folderNode = new TreeNode(folder.FolderName);
+                    foreach (MFile file in folder.Files)
+                    {
+                        tvFiles.Nodes.Add(file.FileName);
+                    }
+                    tvFiles.Nodes.Add(folderNode);
                 }
             }
         }
-
-        private void lvFiles_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (lvFiles.SelectedItems.Count > 0)
-            {
-                pgFileInfo.SelectedObject = d.Image.Partitions[int.Parse(lvPartitions.SelectedItems[0].SubItems[0].Text)].Files[int.Parse(lvFiles.SelectedItems[0].SubItems[0].Text)];
-            }
-
-        }
-       
     }
 }

@@ -277,12 +277,12 @@ namespace WiiDLManagedWrapper
 		_partition = part;
 		Header = gcnew MPartHeader(part->Header);
 
-		Files = gcnew System::Collections::Generic::List<MFile^>();
+		Folders = gcnew System::Collections::Generic::List<MFolder^>();
 		u32 i;
 
-		for (i = 0; i < _partition->Files.Count(); ++i)
+		for (i = 0; i < _partition->Folders.Count(); ++i)
 		{
-			Files->Add(gcnew MFile(_partition->Files.Retrieve(i)));
+			Folders->Add(gcnew MFolder(_partition->Folders.Retrieve(i)));
 		}
 	}
 
@@ -412,9 +412,30 @@ namespace WiiDLManagedWrapper
 		return gcnew String(_file->FileName);
 	}
 
-	String^ MFile::Path::get()
+
+
+	// MFOLDER
+	MFolder::MFolder(partition_folder * folder)
 	{
-		return gcnew String(_file->DirectoryName);
+		_folder = folder;
+		
+		Files = gcnew System::Collections::Generic::List<MFile^>();
+		u32 i;
+
+		for (i = 0; i < folder->Files.Count(); ++i)
+		{
+			Files->Add(gcnew MFile(folder->Files.Retrieve(i)));
+		}
+	}
+
+	MFolder::~MFolder()
+	{
+		delete _folder;
+	}
+
+	String^ MFolder::FolderName::get()
+	{
+		return gcnew String(_folder->FolderName);
 	}
 
 }

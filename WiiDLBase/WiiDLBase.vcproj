@@ -184,6 +184,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\FolderList.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Global.cpp"
 				>
 			</File>
@@ -203,6 +207,10 @@
 			</File>
 			<File
 				RelativePath=".\FileList.h"
+				>
+			</File>
+			<File
+				RelativePath=".\FolderList.h"
 				>
 			</File>
 			<File

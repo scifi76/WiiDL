@@ -72,13 +72,13 @@ bool FileList::Delete(u64 pos)
 
 }
 
-u64 FileList::Find(const char * FileName, const char * DirectoryName)
+u64 FileList::Find(const char * FileName)
 {
 	partition_file * curFile;
 	u64 i = 0;
 	for(curFile = head; curFile != NULL; curFile = curFile->NextFile)
 	{
-		if((strcmp(curFile->FileName, FileName) == 0) && (strcmp(curFile->DirectoryName, DirectoryName) == 0))
+		if((strcmp(curFile->FileName, FileName) == 0))
 		{
 			return i;
 		}
@@ -89,7 +89,7 @@ u64 FileList::Find(const char * FileName, const char * DirectoryName)
 		}
 	}
 
-	return false;
+	return NULL;
 
 }
 
