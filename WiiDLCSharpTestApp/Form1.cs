@@ -74,13 +74,35 @@ namespace WiiDLCSharpTestApp
                 foreach (MFolder folder in d.Image.Partitions[int.Parse(lvPartitions.SelectedItems[0].SubItems[0].Text)].Folders)
                 {
                     TreeNode folderNode = new TreeNode(folder.FolderName);
-                    foreach (MFile file in folder.Files)
-                    {
-                        tvFiles.Nodes.Add(file.FileName);
-                    }
+                    folderNode.Tag = folder;
+                    AddFolder(folder, folderNode);
                     tvFiles.Nodes.Add(folderNode);
                 }
             }
+        }
+
+        private void AddFolder(MFolder folder, TreeNode folderNode)
+        {
+            foreach (MFile file in folder.Files)
+            {
+                TreeNode curFileNode = new TreeNode(file.FileName);
+                curFileNode.Tag = file;
+                folderNode.Nodes.Add(curFileNode);
+                
+            }
+
+            foreach (MFolder curFolder in folder.SubFolders)
+            {
+                TreeNode curFolderNode = new TreeNode(curFolder.FolderName);
+                AddFolder(curFolder, curFolderNode);
+                folderNode.Nodes.Add(curFolderNode);
+            }
+           
+        }
+
+        private void tvFiles_AfterSelect(object sender, TreeViewEventArgs e)
+        {
+            pgFileInfo.SelectedObject = e.Node.Tag;
         }
     }
 }

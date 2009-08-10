@@ -45,8 +45,8 @@
             this.columnHeader1 = new System.Windows.Forms.ColumnHeader();
             this.columnHeader2 = new System.Windows.Forms.ColumnHeader();
             this.groupBox6 = new System.Windows.Forms.GroupBox();
-            this.pgFileInfo = new System.Windows.Forms.PropertyGrid();
             this.tvFiles = new System.Windows.Forms.TreeView();
+            this.pgFileInfo = new System.Windows.Forms.PropertyGrid();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox4.SuspendLayout();
@@ -223,11 +223,11 @@
             this.pgPartInfo.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.pgPartInfo.HelpVisible = false;
-            this.pgPartInfo.Location = new System.Drawing.Point(3, 210);
+            this.pgPartInfo.Location = new System.Drawing.Point(3, 121);
             this.pgPartInfo.Margin = new System.Windows.Forms.Padding(1);
             this.pgPartInfo.Name = "pgPartInfo";
             this.pgPartInfo.PropertySort = System.Windows.Forms.PropertySort.Alphabetical;
-            this.pgPartInfo.Size = new System.Drawing.Size(393, 73);
+            this.pgPartInfo.Size = new System.Drawing.Size(393, 162);
             this.pgPartInfo.TabIndex = 2;
             this.pgPartInfo.ToolbarVisible = false;
             // 
@@ -243,7 +243,7 @@
             this.lvPartitions.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
             this.lvPartitions.Location = new System.Drawing.Point(3, 16);
             this.lvPartitions.Name = "lvPartitions";
-            this.lvPartitions.Size = new System.Drawing.Size(393, 195);
+            this.lvPartitions.Size = new System.Drawing.Size(393, 106);
             this.lvPartitions.TabIndex = 0;
             this.lvPartitions.UseCompatibleStateImageBehavior = false;
             this.lvPartitions.View = System.Windows.Forms.View.Details;
@@ -266,28 +266,30 @@
             this.groupBox6.TabStop = false;
             this.groupBox6.Text = "Files";
             // 
-            // pgFileInfo
-            // 
-            this.pgFileInfo.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
-            this.pgFileInfo.HelpVisible = false;
-            this.pgFileInfo.Location = new System.Drawing.Point(3, 210);
-            this.pgFileInfo.Margin = new System.Windows.Forms.Padding(1);
-            this.pgFileInfo.Name = "pgFileInfo";
-            this.pgFileInfo.PropertySort = System.Windows.Forms.PropertySort.Alphabetical;
-            this.pgFileInfo.Size = new System.Drawing.Size(416, 73);
-            this.pgFileInfo.TabIndex = 3;
-            this.pgFileInfo.ToolbarVisible = false;
-            // 
             // tvFiles
             // 
             this.tvFiles.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
                         | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
+            this.tvFiles.FullRowSelect = true;
             this.tvFiles.Location = new System.Drawing.Point(3, 16);
             this.tvFiles.Name = "tvFiles";
-            this.tvFiles.Size = new System.Drawing.Size(416, 195);
+            this.tvFiles.Size = new System.Drawing.Size(416, 217);
             this.tvFiles.TabIndex = 4;
+            this.tvFiles.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.tvFiles_AfterSelect);
+            // 
+            // pgFileInfo
+            // 
+            this.pgFileInfo.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.pgFileInfo.HelpVisible = false;
+            this.pgFileInfo.Location = new System.Drawing.Point(3, 232);
+            this.pgFileInfo.Margin = new System.Windows.Forms.Padding(1);
+            this.pgFileInfo.Name = "pgFileInfo";
+            this.pgFileInfo.PropertySort = System.Windows.Forms.PropertySort.Alphabetical;
+            this.pgFileInfo.Size = new System.Drawing.Size(416, 51);
+            this.pgFileInfo.TabIndex = 3;
+            this.pgFileInfo.ToolbarVisible = false;
             // 
             // Form1
             // 

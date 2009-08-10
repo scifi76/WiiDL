@@ -110,7 +110,7 @@ Parses the image file data into the image structure
 <returns>0 = Success, -1 = Failure</returns>
 </summary>
 </member>
-<member name="M:Disc.ParseFst(System.Byte*,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,System.UInt32,tree*,System.UInt32)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="717">
+<member name="M:Disc.ParseFst(System.Byte*,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,partition_folder*,System.UInt32,tree*,System.UInt32)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="722">
 <summary>
 Parses a partition's fst.bin file as passed into fst and adds all of it's files into the partitions Files collection
 <param name="fst">Pointer to the fst.bin data</param>
@@ -123,9 +123,9 @@ Parses a partition's fst.bin file as passed into fst and adds all of it's files 
 <returns>The number of directories or files parsed</returns>
 </summary>
 </member>
-<member name="M:Disc.ParsePartitions" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="783">
+<member name="M:Disc.ParsePartitions" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="790">
 <summary>
-Deprecated - Files are not children of the Folders collection
+Deprecated - Files are now children of the Folders collection
 Creates a partition_file struct and adds it to the Files collection of the partition pointed to by part
 Note that this method does NOT add a new file into the image
 <param name="fileName">The name of the file</param>
@@ -146,7 +146,7 @@ Note that this method does NOT add a new folder into the image
 <returns>The number of partitions loaded</returns>
 </summary>
 </member>
-<member name="M:Disc.TmdLoad(System.UInt32)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="979">
+<member name="M:Disc.TmdLoad(System.UInt32)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="986">
 <summary>
 <param name="partNo">The partition number to load the TMD from</param>
 </summary>

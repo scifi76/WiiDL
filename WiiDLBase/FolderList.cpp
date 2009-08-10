@@ -1,5 +1,7 @@
 
 #include "FolderList.h"
+#include <algorithm>
+
 
 FolderList::FolderList(void):size(0), head(NULL)
 {
@@ -85,21 +87,45 @@ u64 FolderList::Find(const char * FolderName)
 	return NULL;
 }
 
-u64 FolderList::AddFileToFolder(const char * fileName, const char * folderName, u64 offset, u64 size)
-{
-	struct partition_folder * f;
-	u64 index = Find(folderName);
-	f = Retrieve(index);
-	if (f == NULL)
-	{
-		// folder doesn't exist. add it
-		f = (struct partition_folder *) (malloc (sizeof (struct partition_folder)));
-		memset(f, 0, sizeof (struct partition_folder));
+//u64 FolderList::AddFileToFolder(const char * fileName, const char * folderName, u64 offset, u64 size)
+//{
+//	struct partition_folder * f;
+//	u64 index = Find(folderName);
+//	f = Retrieve(index);
+//	if (f == NULL)
+//	{
+//		// folder doesn't exist. add it
+//		f = CreateFolder(folderName);
+//		Add(f);
+//	}
+//	
+//	struct partition_file * file;
+//	file = (struct partition_file *) (malloc (sizeof (struct partition_file)));
+//	memset(file, 0, sizeof (struct partition_file));
+//
+//	file->FileName = fileName;
+//	file->Offset = offset;
+//	file->Size = size;
+//	return f->Files.Add(file);
+//
+//}
 
-		f->FolderName = folderName;
-		Add(f);
-	}
-	
+//partition_folder * FoldersList::CreateFolder(const char * folderName)
+//{
+//	partition_folder * f;
+//	f = (partition_folder *) (malloc (sizeof (partition_folder)));
+//	memset(f, 0, sizeof (partition_folder));
+//	f->FolderName = folderName;
+//
+//	return f;
+//}
+
+
+
+
+
+bool partition_folder::AddFile(const char * fileName, u64 offset, u64 size)
+{
 	struct partition_file * file;
 	file = (struct partition_file *) (malloc (sizeof (struct partition_file)));
 	memset(file, 0, sizeof (struct partition_file));
@@ -107,6 +133,7 @@ u64 FolderList::AddFileToFolder(const char * fileName, const char * folderName, 
 	file->FileName = fileName;
 	file->Offset = offset;
 	file->Size = size;
-	return f->Files.Add(file);
-
+	return Files.Add(file);
 }
+
+

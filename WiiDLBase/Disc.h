@@ -77,7 +77,7 @@ class DISC_API Disc
 		//private methods
 		int DecryptPartitionBlock(u32 partNo, u32 block);
 		//void AddFileToPart(const char * fileName, const char * directoryName, partition * part, u64 offset, u64 size);
-		void Disc::AddFolderToPart(const char * folderName);
-		u32 ParseFst(u8 * fst, const char * names, const char * currentDir, u32 i, struct tree * tree, u32 partNo);
+		void AddFolderToPart(const char * folderName);
+		u32 ParseFst(u8 * fst, const char * names, partition_folder * currentFolder, u32 i, struct tree * tree, u32 partNo);
 };
 

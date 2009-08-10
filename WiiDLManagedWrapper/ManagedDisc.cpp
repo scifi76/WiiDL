@@ -420,11 +420,21 @@ namespace WiiDLManagedWrapper
 		_folder = folder;
 		
 		Files = gcnew System::Collections::Generic::List<MFile^>();
+		
 		u32 i;
 
 		for (i = 0; i < folder->Files.Count(); ++i)
 		{
 			Files->Add(gcnew MFile(folder->Files.Retrieve(i)));
+		}
+		
+		SubFolders = gcnew System::Collections::Generic::List<MFolder^>();
+
+		for (i = 0; i < folder->SubFolders.Count(); ++i)
+		{
+			u32 x;
+			MFolder^ curFolder = gcnew MFolder(folder->SubFolders.Retrieve(i));	
+			SubFolders->Add(curFolder);
 		}
 	}
 

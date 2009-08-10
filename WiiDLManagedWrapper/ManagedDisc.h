@@ -45,6 +45,7 @@ namespace WiiDLManagedWrapper {
 		};
 
 		System::Collections::Generic::List<MFile^>^ Files;
+		System::Collections::Generic::List<MFolder^>^ SubFolders;
 
 	private:
 		partition_folder * _folder;
