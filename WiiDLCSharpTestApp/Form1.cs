@@ -9,10 +9,12 @@ namespace WiiDLCSharpTestApp
     {
 
         MDisc d;
+        uint _curPartition;
 
         public Form1()
         {
             InitializeComponent();
+            _curPartition = 0;
         }
 
         private void btnLoad_Click(object sender, EventArgs e)
@@ -66,17 +68,17 @@ namespace WiiDLCSharpTestApp
         {
             if (lvPartitions.SelectedItems.Count > 0)
             {
+                _curPartition = uint.Parse(lvPartitions.SelectedItems[0].SubItems[0].Text);
+                pgPartInfo.SelectedObject = d.Image.Partitions[(int)_curPartition];
 
-                pgPartInfo.SelectedObject = d.Image.Partitions[int.Parse(lvPartitions.SelectedItems[0].SubItems[0].Text)];
 
-
-                tvFiles.Nodes.Clear();
-                foreach (MFolder folder in d.Image.Partitions[int.Parse(lvPartitions.SelectedItems[0].SubItems[0].Text)].Folders)
+                lvFiles.Nodes.Clear();
+                foreach (MFolder folder in d.Image.Partitions[(int)_curPartition].Folders)
                 {
                     TreeNode folderNode = new TreeNode(folder.FolderName);
                     folderNode.Tag = folder;
                     AddFolder(folder, folderNode);
-                    tvFiles.Nodes.Add(folderNode);
+                    lvFiles.Nodes.Add(folderNode);
                 }
             }
         }
@@ -103,6 +105,28 @@ namespace WiiDLCSharpTestApp
         private void tvFiles_AfterSelect(object sender, TreeViewEventArgs e)
         {
             pgFileInfo.SelectedObject = e.Node.Tag;
+        }
+
+        private void extractFileToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+        
+            if (lvFiles.SelectedNode != null)
+            {
+                SaveFileDialog sfd = new SaveFileDialog();
+                sfd.FileName = lvFiles.SelectedNode.Text;
+                if (sfd.ShowDialog() == DialogResult.OK)
+                {
+                    MFile file = (MFile)lvFiles.SelectedNode.Tag;
+                    if (d.ExtractFile(sfd.FileName, _curPartition, file, true))
+                    {
+                        MessageBox.Show(string.Format("Successfully extracted {0} to {1}", file.FileName, sfd.FileName), "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    else
+                    {
+                        MessageBox.Show(string.Format("Failed to extract {0}", file.FileName), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+            }
         }
     }
 }

@@ -4,6 +4,13 @@
         "WiiDLBase"
     </assembly>
     <members>
+        <member name="M:Disc.ExtractFile(System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,System.UInt32,PartitionFile*,System.Boolean)">
+            <summary>
+                <param name="destFilename">The filename and path to extract to</param>
+                <param name="file">A reference to the file object to extract</param>
+                <param name="decrypt">Whether or not the file should be decrypted when extracted</param>
+            </summary>
+        </member>
         <member name="M:Disc.TmdLoad(System.UInt32)">
             <summary>
                 <param name="partNo">The partition number to load the TMD from</param>

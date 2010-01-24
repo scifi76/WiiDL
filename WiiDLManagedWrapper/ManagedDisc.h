@@ -7,10 +7,11 @@ using namespace System;
  
 namespace WiiDLManagedWrapper {
  
+	// TODO: Split all these Managed classes into seperate files (MFile, MFolder, etc)
 	public ref class MFile
 	{
 	public:
-		MFile(partition_file * file);
+		MFile(PartitionFile * file);
 		~MFile();
 		
 		property UInt64 Offset
@@ -28,9 +29,13 @@ namespace WiiDLManagedWrapper {
 			String^ get();
 		};
 
+	internal:
+		//TODO: Should really find a way to make this private.
+		PartitionFile * _file;
+
 		
 	private:
-		partition_file * _file;
+		
 	};
 
 	public ref class MFolder
@@ -342,6 +347,7 @@ namespace WiiDLManagedWrapper {
     int ParseImage();
     int ParsePartitions();
     tmd * TmdLoad(UInt32 partNo);
+	bool ExtractFile(System::String^ destFilename, u32 partNo, MFile^ file, bool decrypt);
 
 	MImageFile^ Image;
     

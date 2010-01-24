@@ -192,6 +192,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\WiiDLCSharpTestApp\Properties\Settings.Designer.cs"
+				>
+			</File>
+			<File
+				RelativePath="..\WiiDLCSharpTestApp\Properties\Settings.settings"
+				>
+			</File>
+			<File
 				RelativePath=".\Utils.cpp"
 				>
 			</File>

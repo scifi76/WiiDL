@@ -609,15 +609,16 @@ int Disc::ParseImage()
 			{
 				if (Image->Partitions[i].Header->IsWii)
 				{
-					rootFolder->AddFile("partition.bin", 0x0, Image->Partitions[i].DataOffset);
+					rootFolder->AddFile("partition.bin", Image->Partitions[i].Offset, Image->Partitions[i].DataOffset);
 					MarkAsUsed(Image->Partitions[i].Offset, Image->Partitions[i].DataOffset);
 				}
 				// add on the boot.bin
-				rootFolder->AddFile("boot.bin", Image->Partitions[i].DataOffset, (u64)0x440);
+				rootFolder->AddFile("boot.bin", 0x0, (u64)0x440);
 				MarkAsUsedCrypto(Image->Partitions[i].Offset + Image->Partitions[i].DataOffset, 0, (u64)0x440, Image->Partitions[i].IsEncrypted);
 				
 				// add on the bi2.bin
-				rootFolder->AddFile("bi2.bin", Image->Partitions[i].DataOffset + 0x440, (u64)0x2000);
+				rootFolder->AddFile("bi2.bin", 0x440, (u64)0x2000);
+								MarkAsUsedCrypto(Image->Partitions[i].Offset + Image->Partitions[i].DataOffset, 0x440, (u64)0x2000, Image->Partitions[i].IsEncrypted);
 			}
 
 			ReadFromPartition(buffer, 9, i, 0x2440 + 0x14);
@@ -626,7 +627,7 @@ int Disc::ParseImage()
 			if (Image->Partitions[i].AppldrSize > 0)
 			{
 				Image->Partitions[i].AppldrSize += 32;
-				rootFolder->AddFile("apploader.img", Image->Partitions[i].DataOffset + 0x2440, Image->Partitions[i].AppldrSize);
+				rootFolder->AddFile("apploader.img", 0x2440, Image->Partitions[i].AppldrSize);
 				MarkAsUsedCrypto(Image->Partitions[i].Offset + Image->Partitions[i].DataOffset,	0x2440,	Image->Partitions[i].AppldrSize, Image->Partitions[i].IsEncrypted);
 			}
 
@@ -645,7 +646,7 @@ int Disc::ParseImage()
 				}
 				MarkAsUsedCrypto(Image->Partitions[i].Offset + Image->Partitions[i].DataOffset, Image->Partitions[i].Header->DolOffset, Image->Partitions[i].Header->DolSize, Image->Partitions[i].IsEncrypted);
 				
-				rootFolder->AddFile("main.dol", Image->Partitions[i].DataOffset + Image->Partitions[i].Header->DolOffset, Image->Partitions[i].Header->DolSize);
+				rootFolder->AddFile("main.dol", Image->Partitions[i].Header->DolOffset, Image->Partitions[i].Header->DolSize);
 				
 			} 
 			else
@@ -670,7 +671,7 @@ int Disc::ParseImage()
 			
 			if (Image->Partitions[i].Header->FstOffset > 0 && Image->Partitions[i].Header->FstSize > 0)
 			{
-				rootFolder->AddFile("fst.bin", Image->Partitions[i].DataOffset + Image->Partitions[i].Header->FstOffset, Image->Partitions[i].Header->FstSize);
+				rootFolder->AddFile("fst.bin", Image->Partitions[i].Header->FstOffset, Image->Partitions[i].Header->FstSize);
 				MarkAsUsedCrypto(Image->Partitions[i].Offset +Image->Partitions[i].DataOffset, Image->Partitions[i].Header->FstOffset, Image->Partitions[i].Header->FstSize, Image->Partitions[i].IsEncrypted);
 				
 				fst = (u8 *) (malloc ((u32)(Image->Partitions[i].Header->FstSize)));
@@ -1101,5 +1102,88 @@ tmd * Disc::TmdLoad(u32 partNo)
 	}
 
 	return tmd;
+}
+
+///<summary>
+// Extracts a file to disk
+///<param name="destFilename">The filename and path to extract to</param>
+///<param name="file">A reference to the file object to extract</param>
+///<param name="decrypt">Whether or not the file should be decrypted when extracted</param>
+///</summary>
+bool Disc::ExtractFile(const char * destFilename, u32 partNo, PartitionFile * file, bool decrypt)
+{
+	FILE * fOut;
+	FILE * fIn;
+	try
+	{
+		if (IsLoaded)
+		{
+			
+			u64 nFileOffset = file->Offset;
+			u32 block = (u32)(nFileOffset / (u64)(0x7c00));
+			u32 cache_offset = (u32)(nFileOffset % (u64)(0x7c00));
+			u64 cache_size;
+			u64 nFileSize = file->Size;
+			u64 imageSize;
+
+			fOut = fopen(destFilename, "wb");
+			fIn = fopen(ImageFileName.c_str(), "rb");
+			if (Image->Partitions[partNo].IsEncrypted && decrypt)
+			{
+				//decrypt and save
+				//u64 nFileOffset = Image->Partitions[partNo].Offset + Image->DiscOffset;
+				if (fseeko64(fIn, nFileOffset, SEEK_SET) != -1)
+				{
+					while (nFileSize) 
+					{
+						if (DecryptPartitionBlock(partNo, block))
+						{
+							fclose(fOut);
+							return false;
+						}
+
+						cache_size = nFileSize;
+						if (cache_size + cache_offset > 0x7c00)
+								cache_size = 0x7c00 - cache_offset;
+
+						if (cache_size!=fwrite(Image->Partitions[partNo].Cache + cache_offset, 1, (u32)(cache_size), fOut))
+						{
+							//throw std::ios::failure("Error writing to output file");
+							//return false;
+						}
+	 
+						// TODO: Raise some sort of event so consumers of the library can track progress
+						nFileSize -= cache_size;
+						cache_offset = 0;
+
+						block++;
+					}
+					fclose(fOut);
+					return true;
+				}
+				else
+				{
+					throw std::ios::failure("Error seeking to correct file offset");
+				}
+			}
+			else
+			{
+				// TODO: Implement this
+				throw std::ios::failure("Not implemented yet");
+			}
+		}
+		else
+		{
+			throw std::ios::failure("Unable to extract file. ISO must be loaded first");
+		}
+	}
+	catch (std::ios::failure ex)
+	{
+		fclose(fOut);
+		_lastErr = ex.what();
+		return false;
+	}
+	
+
 }
 

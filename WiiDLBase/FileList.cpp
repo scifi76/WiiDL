@@ -17,9 +17,9 @@ u64 FileList::Count()
 	return size;
 }
 
-u64 FileList::Add(partition_file * Item)
+u64 FileList::Add(PartitionFile * Item)
 {
-	partition_file * curFile = new partition_file;
+	PartitionFile * curFile = new PartitionFile;
 
 	curFile = Item;
 	curFile->NextFile = head;
@@ -28,9 +28,9 @@ u64 FileList::Add(partition_file * Item)
 
 }
 
-partition_file * FileList::Retrieve(u64 pos)
+PartitionFile * FileList::Retrieve(u64 pos)
 {
-	partition_file * curFile = head;
+	PartitionFile * curFile = head;
 	
 	for(int i = Count() - 1; i > pos && curFile != NULL; i--)
 	{
@@ -50,7 +50,7 @@ bool FileList::Delete()
 	}
 	else
 	{
-		partition_file * curFile;
+		PartitionFile * curFile;
 
 		curFile = head->NextFile;
 		head->NextFile = curFile->NextFile;
@@ -75,7 +75,7 @@ bool FileList::Delete(u64 pos)
 
 u64 FileList::Find(const char * FileName)
 {
-	partition_file * curFile;
+	PartitionFile * curFile;
 	u64 i = 0;
 	for(curFile = head; curFile != NULL; curFile = curFile->NextFile)
 	{

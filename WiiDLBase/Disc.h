@@ -64,6 +64,8 @@ class DISC_API Disc
 		int ParseImage();
 		int ParsePartitions();
 		tmd * TmdLoad(u32 partNo);
+		bool ExtractFile(const char * destFilename, u32 partNo, PartitionFile * file, bool decrypt = true)
+;
 		string ImageFileName; // the name of the isofile
 		
 	private:

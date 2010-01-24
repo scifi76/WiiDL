@@ -1,14 +1,6 @@
 #pragma once
 #include "Global.h"
 
-struct partition_file 
-{
-	u64 Offset;
-	u64 Size;
-	const char * FileName;
-
-	partition_file * NextFile;
-};
 
 #define DISC_EXPORTS 
 
@@ -28,22 +20,37 @@ struct partition_file
 	#endif
 #endif
 
+struct PartitionFile
+{
+public:
+	
+	u64 Offset;
+	u64 Size;
+	const char * FileName;
+
+	PartitionFile * NextFile;
+
+
+};
+
+
 class DISC_API FileList
 {
 public:
 	FileList(void);
 	~FileList(void);
 	u64 Count();
-	u64 Add(partition_file * Item);
-	partition_file * Retrieve(u64 pos);
+	u64 Add(PartitionFile * Item);
+	PartitionFile * Retrieve(u64 pos);
 	bool Delete();
 	bool Delete(u64 pos);
 	u64 Find(const char * FileName);
+	
 
 
 private:
 	u64 size;
-	partition_file * head;
+	PartitionFile * head;
 
 };
 

@@ -90,6 +90,12 @@ namespace WiiDLManagedWrapper
 		return _disc->TmdLoad(partNo);
 	}
 
+	bool MDisc::ExtractFile(System::String^ destFilename, u32 partNo, MFile^ file, bool decrypt)
+	{
+		// Marshal the managed string to unmanaged memory.
+		char* dest = (char*) Marshal::StringToHGlobalAnsi(destFilename).ToPointer();
+		return _disc->ExtractFile(dest, partNo, file->_file, decrypt);
+	}
 
 	
 
@@ -387,7 +393,7 @@ namespace WiiDLManagedWrapper
 
 
 	// MFILE
-	MFile::MFile(partition_file * file)
+	MFile::MFile(PartitionFile * file)
 	{
 		_file = file;
 	}

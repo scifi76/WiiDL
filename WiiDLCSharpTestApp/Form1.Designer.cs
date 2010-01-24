@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.btnLoad = new System.Windows.Forms.Button();
             this.txtSourcePath = new System.Windows.Forms.TextBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
@@ -45,8 +46,10 @@
             this.columnHeader1 = new System.Windows.Forms.ColumnHeader();
             this.columnHeader2 = new System.Windows.Forms.ColumnHeader();
             this.groupBox6 = new System.Windows.Forms.GroupBox();
-            this.tvFiles = new System.Windows.Forms.TreeView();
+            this.lvFiles = new System.Windows.Forms.TreeView();
             this.pgFileInfo = new System.Windows.Forms.PropertyGrid();
+            this.mnuFiles = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.extractFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox4.SuspendLayout();
@@ -59,6 +62,7 @@
             this.splitContainer2.SuspendLayout();
             this.groupBox5.SuspendLayout();
             this.groupBox6.SuspendLayout();
+            this.mnuFiles.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnLoad
@@ -256,7 +260,7 @@
             // 
             // groupBox6
             // 
-            this.groupBox6.Controls.Add(this.tvFiles);
+            this.groupBox6.Controls.Add(this.lvFiles);
             this.groupBox6.Controls.Add(this.pgFileInfo);
             this.groupBox6.Dock = System.Windows.Forms.DockStyle.Fill;
             this.groupBox6.Location = new System.Drawing.Point(0, 0);
@@ -266,17 +270,18 @@
             this.groupBox6.TabStop = false;
             this.groupBox6.Text = "Files";
             // 
-            // tvFiles
+            // lvFiles
             // 
-            this.tvFiles.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            this.lvFiles.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
                         | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
-            this.tvFiles.FullRowSelect = true;
-            this.tvFiles.Location = new System.Drawing.Point(3, 16);
-            this.tvFiles.Name = "tvFiles";
-            this.tvFiles.Size = new System.Drawing.Size(416, 217);
-            this.tvFiles.TabIndex = 4;
-            this.tvFiles.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.tvFiles_AfterSelect);
+            this.lvFiles.ContextMenuStrip = this.mnuFiles;
+            this.lvFiles.FullRowSelect = true;
+            this.lvFiles.Location = new System.Drawing.Point(3, 16);
+            this.lvFiles.Name = "lvFiles";
+            this.lvFiles.Size = new System.Drawing.Size(416, 217);
+            this.lvFiles.TabIndex = 4;
+            this.lvFiles.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.tvFiles_AfterSelect);
             // 
             // pgFileInfo
             // 
@@ -290,6 +295,20 @@
             this.pgFileInfo.Size = new System.Drawing.Size(416, 51);
             this.pgFileInfo.TabIndex = 3;
             this.pgFileInfo.ToolbarVisible = false;
+            // 
+            // mnuFiles
+            // 
+            this.mnuFiles.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.extractFileToolStripMenuItem});
+            this.mnuFiles.Name = "mnuFiles";
+            this.mnuFiles.Size = new System.Drawing.Size(140, 26);
+            // 
+            // extractFileToolStripMenuItem
+            // 
+            this.extractFileToolStripMenuItem.Name = "extractFileToolStripMenuItem";
+            this.extractFileToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
+            this.extractFileToolStripMenuItem.Text = "Extract File";
+            this.extractFileToolStripMenuItem.Click += new System.EventHandler(this.extractFileToolStripMenuItem_Click);
             // 
             // Form1
             // 
@@ -315,6 +334,7 @@
             this.splitContainer2.ResumeLayout(false);
             this.groupBox5.ResumeLayout(false);
             this.groupBox6.ResumeLayout(false);
+            this.mnuFiles.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -339,7 +359,9 @@
         private System.Windows.Forms.ColumnHeader columnHeader2;
         private System.Windows.Forms.PropertyGrid pgPartInfo;
         private System.Windows.Forms.PropertyGrid pgFileInfo;
-        private System.Windows.Forms.TreeView tvFiles;
+        private System.Windows.Forms.TreeView lvFiles;
+        private System.Windows.Forms.ContextMenuStrip mnuFiles;
+        private System.Windows.Forms.ToolStripMenuItem extractFileToolStripMenuItem;
     }
 }
 
