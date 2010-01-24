@@ -26,6 +26,8 @@ public:
 	
 	u64 Offset;
 	u64 Size;
+	u32 PartNo;
+	int FstRef;
 	const char * FileName;
 
 	PartitionFile * NextFile;

@@ -413,6 +413,16 @@ namespace WiiDLManagedWrapper
 		return _file->Size;
 	}
 
+	UInt32 MFile::PartNo::get()
+	{
+		return _file->PartNo;
+	}
+
+	int MFile::FstRef::get()
+	{
+		return _file->FstRef;
+	}
+
 	String^ MFile::FileName::get()
 	{
 		return gcnew String(_file->FileName);

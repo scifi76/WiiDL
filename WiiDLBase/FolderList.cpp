@@ -124,7 +124,7 @@ u64 FolderList::Find(const char * FolderName)
 
 
 
-bool partition_folder::AddFile(const char * fileName, u64 offset, u64 size)
+bool partition_folder::AddFile(const char * fileName, u64 offset, u64 size, u32 partNo, int fstRef)
 {
 	struct PartitionFile * file;
 	file = (struct PartitionFile *) (malloc (sizeof (struct PartitionFile)));
@@ -133,6 +133,8 @@ bool partition_folder::AddFile(const char * fileName, u64 offset, u64 size)
 	file->FileName = fileName;
 	file->Offset = offset;
 	file->Size = size;
+	file->PartNo = partNo;
+	file->FstRef = fstRef;
 	return Files.Add(file);
 }
 

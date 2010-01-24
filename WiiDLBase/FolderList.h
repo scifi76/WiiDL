@@ -47,7 +47,7 @@ public:
 	const char * FolderName;
 	FileList Files;
 	FolderList SubFolders;
-	bool AddFile(const char * fileName, u64 offset, u64 size);
+	bool AddFile(const char * fileName, u64 offset, u64 size, u32 partNo, int fstRef);
 
 	partition_folder * NextFolder;
 };

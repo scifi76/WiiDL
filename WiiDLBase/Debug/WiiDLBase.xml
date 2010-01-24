@@ -4,6 +4,13 @@
         "WiiDLBase"
     </assembly>
     <members>
+        <member name="M:Disc.ReplaceFile(System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,PartitionFile,System.Boolean)">
+            <summary>
+                <param name="inputFilename">The path and filename of the file to write to the image</param>
+                <param name="PartitionFile">The file to replace</param>
+                <param name="encrypt">Whether or not the file should be encrypted when written to the image</param>
+            </summary>
+        </member>
         <member name="M:Disc.ExtractFile(System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,System.UInt32,PartitionFile*,System.Boolean)">
             <summary>
                 <param name="destFilename">The filename and path to extract to</param>

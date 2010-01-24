@@ -24,6 +24,16 @@ namespace WiiDLManagedWrapper {
 			UInt64 get();
 		};
 
+		property UInt32 PartNo
+		{
+			UInt32 get();
+		};
+
+		property int FstRef
+		{
+			int get();
+		};
+
 		property String^ FileName
 		{
 			String^ get();

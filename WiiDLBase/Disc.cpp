@@ -609,15 +609,15 @@ int Disc::ParseImage()
 			{
 				if (Image->Partitions[i].Header->IsWii)
 				{
-					rootFolder->AddFile("partition.bin", Image->Partitions[i].Offset, Image->Partitions[i].DataOffset);
+					rootFolder->AddFile("partition.bin", Image->Partitions[i].Offset, Image->Partitions[i].DataOffset, i, -4);
 					MarkAsUsed(Image->Partitions[i].Offset, Image->Partitions[i].DataOffset);
 				}
 				// add on the boot.bin
-				rootFolder->AddFile("boot.bin", 0x0, (u64)0x440);
+				rootFolder->AddFile("boot.bin", 0x0, (u64)0x440, i, 0);
 				MarkAsUsedCrypto(Image->Partitions[i].Offset + Image->Partitions[i].DataOffset, 0, (u64)0x440, Image->Partitions[i].IsEncrypted);
 				
 				// add on the bi2.bin
-				rootFolder->AddFile("bi2.bin", 0x440, (u64)0x2000);
+				rootFolder->AddFile("bi2.bin", 0x440, (u64)0x2000, i, 0);
 								MarkAsUsedCrypto(Image->Partitions[i].Offset + Image->Partitions[i].DataOffset, 0x440, (u64)0x2000, Image->Partitions[i].IsEncrypted);
 			}
 
@@ -627,7 +627,7 @@ int Disc::ParseImage()
 			if (Image->Partitions[i].AppldrSize > 0)
 			{
 				Image->Partitions[i].AppldrSize += 32;
-				rootFolder->AddFile("apploader.img", 0x2440, Image->Partitions[i].AppldrSize);
+				rootFolder->AddFile("apploader.img", 0x2440, Image->Partitions[i].AppldrSize, i, -3);
 				MarkAsUsedCrypto(Image->Partitions[i].Offset + Image->Partitions[i].DataOffset,	0x2440,	Image->Partitions[i].AppldrSize, Image->Partitions[i].IsEncrypted);
 			}
 
@@ -646,7 +646,7 @@ int Disc::ParseImage()
 				}
 				MarkAsUsedCrypto(Image->Partitions[i].Offset + Image->Partitions[i].DataOffset, Image->Partitions[i].Header->DolOffset, Image->Partitions[i].Header->DolSize, Image->Partitions[i].IsEncrypted);
 				
-				rootFolder->AddFile("main.dol", Image->Partitions[i].Header->DolOffset, Image->Partitions[i].Header->DolSize);
+				rootFolder->AddFile("main.dol", Image->Partitions[i].Header->DolOffset, Image->Partitions[i].Header->DolSize, i, -2);
 				
 			} 
 			else
@@ -658,20 +658,20 @@ int Disc::ParseImage()
 			{
 				// Now add the TMD.BIN and cert.bin files - as these are part of partition.bin
 				// we don't need to mark them as used
-				rootFolder->AddFile("tmd.bin", Image->Partitions[i].TmdOffset, Image->Partitions[i].TmdSize);
+				rootFolder->AddFile("tmd.bin", Image->Partitions[i].TmdOffset, Image->Partitions[i].TmdSize, i, -5);
 				
-				rootFolder->AddFile("cert.bin", Image->Partitions[i].CertOffset, Image->Partitions[i].CertSize);
+				rootFolder->AddFile("cert.bin", Image->Partitions[i].CertOffset, Image->Partitions[i].CertSize, i, -6);
 				
-				rootFolder->AddFile("h3.bin", Image->Partitions[i].H3Offset, (u64)0x18000);
+				rootFolder->AddFile("h3.bin", Image->Partitions[i].H3Offset, (u64)0x18000, i, -7);
 				MarkAsUsedCrypto(Image->Partitions[i].Offset, Image->Partitions[i].H3Offset, (u64)0x18000, false);
 				
-				rootFolder->AddFile("ticket.bin", Image->Partitions[i].Offset, (u64)0x2a4);
+				rootFolder->AddFile("ticket.bin", Image->Partitions[i].Offset, (u64)0x2a4, i, -8);
 				MarkAsUsedCrypto(Image->Partitions[i].Offset, 0, (u64)0x2a4, false);
 			}
 			
 			if (Image->Partitions[i].Header->FstOffset > 0 && Image->Partitions[i].Header->FstSize > 0)
 			{
-				rootFolder->AddFile("fst.bin", Image->Partitions[i].Header->FstOffset, Image->Partitions[i].Header->FstSize);
+				rootFolder->AddFile("fst.bin", Image->Partitions[i].Header->FstOffset, Image->Partitions[i].Header->FstSize, i, -1);
 				MarkAsUsedCrypto(Image->Partitions[i].Offset +Image->Partitions[i].DataOffset, Image->Partitions[i].Header->FstOffset, Image->Partitions[i].Header->FstSize, Image->Partitions[i].IsEncrypted);
 				
 				fst = (u8 *) (malloc ((u32)(Image->Partitions[i].Header->FstSize)));
@@ -778,7 +778,7 @@ u32 Disc::ParseFst(u8 * fst, const char * names, partition_folder * currentFolde
 			offset *= 4;
 		}
 		
-		currentFolder->AddFile(name, offset, size);
+		currentFolder->AddFile(name, offset, size, partNo, i);
 		MarkAsUsedCrypto(Image->Partitions[partNo].Offset + Image->Partitions[partNo].DataOffset, offset, size, Image->Partitions[partNo].IsEncrypted);
 
 		Image->FileCount ++;
@@ -1185,5 +1185,18 @@ bool Disc::ExtractFile(const char * destFilename, u32 partNo, PartitionFile * fi
 	}
 	
 
+}
+
+
+///<summary>
+// Replaces a file on the disc with the file given in inputFilename
+///<param name="inputFilename">The path and filename of the file to write to the image</param>
+///<param name="PartitionFile">The file to replace</param>
+///<param name="encrypt">Whether or not the file should be encrypted when written to the image</param>
+///</summary>
+bool Disc::ReplaceFile(const char * inputFilename, PartitionFile file, bool encrypt)
+{
+	// TODO: Implement this
+	return false;
 }
 

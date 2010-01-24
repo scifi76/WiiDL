@@ -158,5 +158,12 @@ Note that this method does NOT add a new folder into the image
 <param name="decrypt">Whether or not the file should be decrypted when extracted</param>
 </summary>
 </member>
+<member name="M:Disc.ReplaceFile(System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,PartitionFile,System.Boolean)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="1191">
+<summary>
+<param name="inputFilename">The path and filename of the file to write to the image</param>
+<param name="PartitionFile">The file to replace</param>
+<param name="encrypt">Whether or not the file should be encrypted when written to the image</param>
+</summary>
+</member>
 </members>
 </doc>
