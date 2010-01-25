@@ -143,26 +143,43 @@ Note that this method does NOT add a new folder into the image
 <returns>Pointer to a part_header structure</returns>
 </summary>
 <summary>
+Parses the partition information into the Partitions structure
 <returns>The number of partitions loaded</returns>
 </summary>
 </member>
 <member name="M:Disc.TmdLoad(System.UInt32)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="987">
 <summary>
+Loads the TMD (Title Metadata) info for the give partition number
 <param name="partNo">The partition number to load the TMD from</param>
 </summary>
 </member>
-<member name="M:Disc.ExtractFile(System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,System.UInt32,PartitionFile*,System.Boolean)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="1107">
+<member name="M:Disc.ExtractFile(System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,PartitionFile*,System.Boolean)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="1107">
 <summary>
+Extracts a file to disk
 <param name="destFilename">The filename and path to extract to</param>
 <param name="file">A reference to the file object to extract</param>
 <param name="decrypt">Whether or not the file should be decrypted when extracted</param>
 </summary>
 </member>
-<member name="M:Disc.ReplaceFile(System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,PartitionFile,System.Boolean)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="1191">
+<member name="M:Disc.ReplaceFile(System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,PartitionFile*,System.Boolean)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="1191">
 <summary>
+Replaces a file on the disc with the file given in inputFilename
 <param name="inputFilename">The path and filename of the file to write to the image</param>
 <param name="PartitionFile">The file to replace</param>
 <param name="encrypt">Whether or not the file should be encrypted when written to the image</param>
+</summary>
+</member>
+<member name="M:Disc.WriteData(System.Int32,System.UInt64,System.UInt64,System.Byte*,_iobuf*)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="1301">
+<summary>
+Heavily optimised file write routine so that the minimum number of
+SHA calculations have to be performed                             
+We do this by writing in 1 clustergroup per write and calculate the
+Offset to write the data in the minimum number of chunks           
+A bit like lumpy chunk packer from the Atari days...
+<param name="partNo">The The partition number the file should be written to</param>
+<param name="offset">The offset at which to write the file</param>
+<param name="in">The data to write</param>
+<param name="fIn">The file from which to read data that will be written (optional)</param>
 </summary>
 </member>
 </members>

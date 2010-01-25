@@ -47,9 +47,10 @@
             this.columnHeader2 = new System.Windows.Forms.ColumnHeader();
             this.groupBox6 = new System.Windows.Forms.GroupBox();
             this.lvFiles = new System.Windows.Forms.TreeView();
-            this.pgFileInfo = new System.Windows.Forms.PropertyGrid();
             this.mnuFiles = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.extractFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.pgFileInfo = new System.Windows.Forms.PropertyGrid();
+            this.replaceFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox4.SuspendLayout();
@@ -283,6 +284,21 @@
             this.lvFiles.TabIndex = 4;
             this.lvFiles.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.tvFiles_AfterSelect);
             // 
+            // mnuFiles
+            // 
+            this.mnuFiles.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.extractFileToolStripMenuItem,
+            this.replaceFileToolStripMenuItem});
+            this.mnuFiles.Name = "mnuFiles";
+            this.mnuFiles.Size = new System.Drawing.Size(153, 70);
+            // 
+            // extractFileToolStripMenuItem
+            // 
+            this.extractFileToolStripMenuItem.Name = "extractFileToolStripMenuItem";
+            this.extractFileToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.extractFileToolStripMenuItem.Text = "Extract File";
+            this.extractFileToolStripMenuItem.Click += new System.EventHandler(this.extractFileToolStripMenuItem_Click);
+            // 
             // pgFileInfo
             // 
             this.pgFileInfo.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
@@ -296,19 +312,12 @@
             this.pgFileInfo.TabIndex = 3;
             this.pgFileInfo.ToolbarVisible = false;
             // 
-            // mnuFiles
+            // replaceFileToolStripMenuItem
             // 
-            this.mnuFiles.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.extractFileToolStripMenuItem});
-            this.mnuFiles.Name = "mnuFiles";
-            this.mnuFiles.Size = new System.Drawing.Size(140, 26);
-            // 
-            // extractFileToolStripMenuItem
-            // 
-            this.extractFileToolStripMenuItem.Name = "extractFileToolStripMenuItem";
-            this.extractFileToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
-            this.extractFileToolStripMenuItem.Text = "Extract File";
-            this.extractFileToolStripMenuItem.Click += new System.EventHandler(this.extractFileToolStripMenuItem_Click);
+            this.replaceFileToolStripMenuItem.Name = "replaceFileToolStripMenuItem";
+            this.replaceFileToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.replaceFileToolStripMenuItem.Text = "Replace File";
+            this.replaceFileToolStripMenuItem.Click += new System.EventHandler(this.replaceFileToolStripMenuItem_Click);
             // 
             // Form1
             // 
@@ -362,6 +371,7 @@
         private System.Windows.Forms.TreeView lvFiles;
         private System.Windows.Forms.ContextMenuStrip mnuFiles;
         private System.Windows.Forms.ToolStripMenuItem extractFileToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem replaceFileToolStripMenuItem;
     }
 }
 

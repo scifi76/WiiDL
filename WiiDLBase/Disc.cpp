@@ -835,7 +835,7 @@ u32 Disc::ParseFst(u8 * fst, const char * names, partition_folder * currentFolde
 //}
 
 ///<summary>
-// Parses the partition information into the Partitions structure
+/// Parses the partition information into the Partitions structure
 ///<returns>The number of partitions loaded</returns>
 ///</summary>
 int Disc::ParsePartitions()
@@ -985,7 +985,7 @@ int Disc::ParsePartitions()
 }
 
 ///<summary>
-// Loads the TMD (Title Metadata) info for the give partition number
+/// Loads the TMD (Title Metadata) info for the give partition number
 ///<param name="partNo">The partition number to load the TMD from</param>
 ///</summary>
 tmd * Disc::TmdLoad(u32 partNo)
@@ -1105,12 +1105,12 @@ tmd * Disc::TmdLoad(u32 partNo)
 }
 
 ///<summary>
-// Extracts a file to disk
+/// Extracts a file to disk
 ///<param name="destFilename">The filename and path to extract to</param>
 ///<param name="file">A reference to the file object to extract</param>
 ///<param name="decrypt">Whether or not the file should be decrypted when extracted</param>
 ///</summary>
-bool Disc::ExtractFile(const char * destFilename, u32 partNo, PartitionFile * file, bool decrypt)
+bool Disc::ExtractFile(const char * destFilename, PartitionFile * file, bool decrypt)
 {
 	FILE * fOut;
 	FILE * fIn;
@@ -1128,7 +1128,7 @@ bool Disc::ExtractFile(const char * destFilename, u32 partNo, PartitionFile * fi
 
 			fOut = fopen(destFilename, "wb");
 			fIn = fopen(ImageFileName.c_str(), "rb");
-			if (Image->Partitions[partNo].IsEncrypted && decrypt)
+			if (Image->Partitions[file->PartNo].IsEncrypted && decrypt)
 			{
 				//decrypt and save
 				//u64 nFileOffset = Image->Partitions[partNo].Offset + Image->DiscOffset;
@@ -1136,7 +1136,7 @@ bool Disc::ExtractFile(const char * destFilename, u32 partNo, PartitionFile * fi
 				{
 					while (nFileSize) 
 					{
-						if (DecryptPartitionBlock(partNo, block))
+						if (DecryptPartitionBlock(file->PartNo, block))
 						{
 							fclose(fOut);
 							return false;
@@ -1146,7 +1146,7 @@ bool Disc::ExtractFile(const char * destFilename, u32 partNo, PartitionFile * fi
 						if (cache_size + cache_offset > 0x7c00)
 								cache_size = 0x7c00 - cache_offset;
 
-						if (cache_size!=fwrite(Image->Partitions[partNo].Cache + cache_offset, 1, (u32)(cache_size), fOut))
+						if (cache_size!=fwrite(Image->Partitions[file->PartNo].Cache + cache_offset, 1, (u32)(cache_size), fOut))
 						{
 							//throw std::ios::failure("Error writing to output file");
 							//return false;
@@ -1189,14 +1189,157 @@ bool Disc::ExtractFile(const char * destFilename, u32 partNo, PartitionFile * fi
 
 
 ///<summary>
-// Replaces a file on the disc with the file given in inputFilename
+/// Replaces a file on the disc with the file given in inputFilename
 ///<param name="inputFilename">The path and filename of the file to write to the image</param>
 ///<param name="PartitionFile">The file to replace</param>
 ///<param name="encrypt">Whether or not the file should be encrypted when written to the image</param>
 ///</summary>
-bool Disc::ReplaceFile(const char * inputFilename, PartitionFile file, bool encrypt)
+bool Disc::ReplaceFile(const char * inputFilename, PartitionFile * file, bool encrypt)
 {
-	// TODO: Implement this
-	return false;
+	FILE * fIn;
+	try	
+	{
+		if (IsLoaded)
+		{
+			u8		cTempBuffer[8];
+			u8 *	pTMDData = NULL;
+			u8 *	pCERTData  = NULL;
+			
+			u32		nImageSize;	
+			u64		nfImageSize;
+			u8 *	pBootBin = (unsigned char *) calloc(0x440,1);
+			u8 *	pPartData ;
+			u64		nFreeSpaceStart;
+			u32		nExtraData;
+			u32		nExtraDataBlocks;
+			int		nFSTReference;
+
+			// create a 64 cluster buffer for the file
+			fIn = fopen(inputFilename, "rb");
+			
+			if (fIn != NULL)
+			{
+				// get the size of the file we are trying to load
+				nfImageSize = fseeko64(fIn, 0L, SEEK_END);
+				nImageSize = (u32) nfImageSize;
+
+				// seek back to the start
+				fseeko64(fIn, 0L, SEEK_SET);
+
+				// check the file is smaller or the same size as the file we're trying to replace
+				if (file->Size >= nImageSize)
+				{
+					// straightforward file replace
+
+					// are the files the same size?
+					if (file->Size != nfImageSize)
+					{
+						// we have a smaller sized file being put in. Is it a special file?
+						if (file->FstRef > 0)
+						{
+							// normal file. need to modify the FST.BIN for the smaller file
+							// allocate memory for the FST.bin
+							u8 * pFSTBin = (unsigned char *) calloc((u32)(Image->Partitions[file->PartNo].Header->FstSize), 1);
+							
+							// read in the FST.bin from the image into pFSTBin
+							this->ReadFromPartition(pFSTBin, Image->Partitions[file->PartNo].Header->FstSize, file->PartNo, Image->Partitions[file->PartNo].Header->FstOffset);
+
+							// get the offset of this file within the fst.bin based on the fstRef
+							// each file entry in the FST.bin uses 12bytes, so to get to the correct
+							// position in fst.bin for file number x, we do x * 12 (0x0c)
+							nFSTReference = file->FstRef * 0x0c;
+							
+							// modify the file size stored in the fst.bin
+							Write32(pFSTBin + nFSTReference + 0x08L , nImageSize);
+
+							// write the fst.bin back to the image
+							// write out the FST.BIN
+							// TODO: Finish this off
+							//wii_write_data_file(image, part, image->parts[part].header.fst_offset, (u32)(image->parts[part].header.fst_size), pFSTBin);
+
+						}
+						else
+						{
+							// special file
+						}
+					}
+					else
+					{
+						// equal sized file. Check if it's a special file, otherwise just straight replace
+					}
+
+				}
+				else
+				{
+					// more complicated file replace. we have to update the FST or boot.bin
+					// this will depend on whether the passed index is
+					// -ve = Partition data,
+					// 0 = given by boot.bin,
+					// +ve = normal file
+				}
+
+			}
+			else
+			{
+				throw std::ios::failure("Failed to open input file");
+			}
+		}
+		else
+		{
+			throw std::ios::failure("Unable to replace file. ISO must be loaded first");
+		}
+	}
+	catch (std::ios::failure ex)
+	{
+		fclose(fIn);
+		_lastErr = ex.what();
+		return false;
+	}
 }
 
+
+///<summary>
+/// Heavily optimised file write routine so that the minimum number of
+/// SHA calculations have to be performed                             
+/// We do this by writing in 1 clustergroup per write and calculate the
+/// Offset to write the data in the minimum number of chunks           
+/// A bit like lumpy chunk packer from the Atari days...
+///<param name="partNo">The The partition number the file should be written to</param>
+///<param name="offset">The offset at which to write the file</param>
+///<param name="in">The data to write</param>
+///<param name="fIn">The file from which to read data that will be written (optional)</param>
+///</summary>
+bool Disc::WriteData(int partNo, u64 offset, u64 size, u8 *in, FILE * fIn)
+{
+	u32 cluster_start;
+	u32 clusters;
+	u32 offset_start;
+
+	u64 i;
+
+	u32 nClusterCount;
+	u32 nWritten = 0;
+
+	/* Calculate some needed information */
+	cluster_start = (u32)(offset / (u64)(SIZE_CLUSTER_DATA));
+	clusters = (u32)(((offset + size) / (u64)(SIZE_CLUSTER_DATA)) - (cluster_start - 1));
+	offset_start = (u32)(offset - (cluster_start * (u64)(SIZE_CLUSTER_DATA)));
+
+	// read the H3 and H4
+	//TODO: Finish this
+	//io_read(h3, SIZE_H3, iso, iso->parts[partition].offset + iso->parts[partition].h3_offset);
+	
+}
+
+////////////////////////////////////////////////////////////
+// Inverse of the be32 function - writes a 32 bit value   //
+// high to low                                            //
+////////////////////////////////////////////////////////////
+void Disc::Write32( u8 *p, u32 nVal)
+{
+	p[0] = (nVal >> 24) & 0xFF;
+	p[1] = (nVal >> 16) & 0xFF;
+	p[2] = (nVal >>  8) & 0xFF;
+	p[3] = (nVal      ) & 0xFF;
+
+}

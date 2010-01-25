@@ -14,8 +14,8 @@ int _tmain(int argc, _TCHAR* argv[])
 	{
 		printf("true");
 		partition_folder * folder = d->Image->Partitions[0].Folders.Retrieve(0)->SubFolders.Retrieve(0);
-		
-		d->ExtractFile("c:\\extractedFile.bin", 0, folder->Files.Retrieve(21), true);
+		PartitionFile * file = folder->Files.Retrieve(5);
+		d->ReplaceFile("c:\\vis.ini", file, true);
 
 	}
 	else

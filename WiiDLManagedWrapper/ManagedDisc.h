@@ -357,7 +357,8 @@ namespace WiiDLManagedWrapper {
     int ParseImage();
     int ParsePartitions();
     tmd * TmdLoad(UInt32 partNo);
-	bool ExtractFile(System::String^ destFilename, u32 partNo, MFile^ file, bool decrypt);
+	bool ExtractFile(System::String^ destFilename, MFile^ file, bool decrypt);
+	bool ReplaceFile(System::String^ inputFilename, MFile^ file, bool encrypt);
 
 	MImageFile^ Image;
     

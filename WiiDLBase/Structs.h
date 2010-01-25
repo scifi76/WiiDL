@@ -3,6 +3,16 @@
 #include <sys/stat.h>
 #include "FolderList.h"
 
+#define SIZE_H0						0x0026CUL
+#define SIZE_H1						0x000A0UL
+#define SIZE_H2						0x000A0UL
+#define SIZE_H3						0x18000UL
+#define SIZE_H4						0x00014UL
+#define SIZE_PARTITION_HEADER		0x20000UL
+#define SIZE_CLUSTER				0x08000UL
+#define SIZE_CLUSTER_HEADER			0x00400UL
+#define SIZE_CLUSTER_DATA			(SIZE_CLUSTER - SIZE_CLUSTER_HEADER)
+
 
 enum tmd_sig {
         SIG_UNKNOWN = 0,
@@ -138,4 +148,7 @@ public:
 		u64	QuaternaryTblOffset;
 
         AES_KEY CommonKey;
+
+		u8 h3[SIZE_H3];
+		u8 h4[SIZE_H4];
 };

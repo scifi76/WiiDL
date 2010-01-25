@@ -117,7 +117,7 @@ namespace WiiDLCSharpTestApp
                 if (sfd.ShowDialog() == DialogResult.OK)
                 {
                     MFile file = (MFile)lvFiles.SelectedNode.Tag;
-                    if (d.ExtractFile(sfd.FileName, _curPartition, file, true))
+                    if (d.ExtractFile(sfd.FileName, file, true))
                     {
                         MessageBox.Show(string.Format("Successfully extracted {0} to {1}", file.FileName, sfd.FileName), "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
@@ -125,6 +125,20 @@ namespace WiiDLCSharpTestApp
                     {
                         MessageBox.Show(string.Format("Failed to extract {0}", file.FileName), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
+                }
+            }
+        }
+
+        private void replaceFileToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (lvFiles.SelectedNode != null)
+            {
+                OpenFileDialog ofd = new OpenFileDialog();
+                ofd.FileName = lvFiles.SelectedNode.Text;
+                if (ofd.ShowDialog() == DialogResult.OK)
+                {
+                    MFile file = (MFile)lvFiles.SelectedNode.Tag;
+                    d.ReplaceFile(ofd.FileName, file, true);
                 }
             }
         }

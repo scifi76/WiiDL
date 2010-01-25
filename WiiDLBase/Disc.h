@@ -64,8 +64,8 @@ class DISC_API Disc
 		int ParseImage();
 		int ParsePartitions();
 		tmd * TmdLoad(u32 partNo);
-		bool ExtractFile(const char * destFilename, u32 partNo, PartitionFile * file, bool decrypt = true);
-		bool Disc::ReplaceFile(const char * inputFilename, PartitionFile file, bool encrypt);
+		bool ExtractFile(const char * destFilename, PartitionFile * file, bool decrypt = true);
+		bool Disc::ReplaceFile(const char * inputFilename, PartitionFile * file, bool encrypt);
 		string ImageFileName; // the name of the isofile
 		
 	private:
@@ -81,5 +81,8 @@ class DISC_API Disc
 		//void AddFileToPart(const char * fileName, const char * directoryName, partition * part, u64 offset, u64 size);
 		void AddFolderToPart(const char * folderName);
 		u32 ParseFst(u8 * fst, const char * names, partition_folder * currentFolder, u32 i, struct tree * tree, u32 partNo);
+		bool WriteData(int partition, u64 offset, u64 size, u8 *in, FILE * fIn);
+		void Write32( u8 *p, u32 nVal);
+
 };
 
