@@ -1254,17 +1254,35 @@ bool Disc::ReplaceFile(const char * inputFilename, PartitionFile * file, bool en
 
 							// write the fst.bin back to the image
 							// write out the FST.BIN
-							// TODO: Finish this off
-							//wii_write_data_file(image, part, image->parts[part].header.fst_offset, (u32)(image->parts[part].header.fst_size), pFSTBin);
+							if (WriteData(file->PartNo, Image->Partitions[file->PartNo].Header->FstOffset, Image->Partitions[file->PartNo].Header->FstSize, pFSTBin))
+							{
+								wii_write_data_file(image, part, nFileOffset, nImageSize, NULL, fIn);
+								if (WriteData(file->PartNo, file->Offset, nImageSize, NULL, fIn))
+								{
+									// success
+								}
+								else
+								{
+									// the methods that caused WriteData to return False will have set _lastErr
+									throw std::ios::failure("Failed to write file: " + _lastErr);
+								}
 
+							}
+							else
+							{
+								// the methods that caused WriteData to return False will have set _lastErr
+								throw std::ios::failure("Failed to write FST.BIN: " + _lastErr);
+							}
 						}
 						else
 						{
+							// TODO: Finish this
 							// special file
 						}
 					}
 					else
 					{
+						// TODO: Finish this
 						// equal sized file. Check if it's a special file, otherwise just straight replace
 					}
 
@@ -1276,6 +1294,8 @@ bool Disc::ReplaceFile(const char * inputFilename, PartitionFile * file, bool en
 					// -ve = Partition data,
 					// 0 = given by boot.bin,
 					// +ve = normal file
+
+					// TODO: Finish this
 				}
 
 			}
@@ -1321,14 +1341,88 @@ bool Disc::WriteData(int partNo, u64 offset, u64 size, u8 *in, FILE * fIn)
 	u32 nWritten = 0;
 
 	/* Calculate some needed information */
+	// the starting cluster for this file offset
 	cluster_start = (u32)(offset / (u64)(SIZE_CLUSTER_DATA));
+	// the number of clusters needed to store this file size
 	clusters = (u32)(((offset + size) / (u64)(SIZE_CLUSTER_DATA)) - (cluster_start - 1));
+	// the start offset of the file... not sure why this is different to the original file offset
 	offset_start = (u32)(offset - (cluster_start * (u64)(SIZE_CLUSTER_DATA)));
 
 	// read the H3 and H4
-	//TODO: Finish this
-	//io_read(h3, SIZE_H3, iso, iso->parts[partition].offset + iso->parts[partition].h3_offset);
+	this->Read(Image->h3, SIZE_H3, Image->Partitions[partNo].Offset + Image->Partitions[partNo].H3Offset);
 	
+	
+	i = 0;
+	nClusterCount = 0;
+	
+	/* Write clusters */
+	while(i < size)
+	{
+		// now the fun bit as we need to cater for the start position changing as well as the 
+		// wrap over 
+		if ((0!=((cluster_start+nClusterCount)%64))|| (0!=offset_start))
+		{
+			// not at the start so our max size is different
+			// and also our cluster offset
+			nWritten = (NB_CLUSTER_GROUP - (cluster_start%64))* SIZE_CLUSTER_DATA;
+			nWritten = nWritten - offset_start;
+
+			// max check
+			if (nWritten > size)
+			{
+				nWritten = (u32)size;
+			}
+
+			if (false==wii_write_clusters(iso, partition, cluster_start, in, offset_start, nWritten, fIn))
+			{
+				return false;
+			}
+			// round up the cluster count
+			nClusterCount = NB_CLUSTER_GROUP - (cluster_start % NB_CLUSTER_GROUP);
+		}
+		else
+		{
+			// potentially full block
+			nWritten = NB_CLUSTER_GROUP * SIZE_CLUSTER_DATA;
+
+			// max check
+			if (nWritten > (size-i))
+			{
+				nWritten = (u32)(size-i);
+			}
+
+			if (false==wii_write_clusters(iso, partition, cluster_start + nClusterCount, in, offset_start, nWritten, fIn))
+			{
+				return false;
+			}
+			// we simply add a full cluster block
+			nClusterCount = nClusterCount + NB_CLUSTER_GROUP;
+
+		}
+		offset_start = 0;
+		i += nWritten;
+	}
+	
+
+	// write out H3 and H4
+	if (false==DiscWriteDirect(iso, iso->parts[partition].h3_offset + iso->parts[partition].offset, h3, SIZE_H3))
+	{
+		return false;
+	}
+	
+	/* Calculate H4 */
+	sha1(h3, SIZE_H3, h4);
+
+	/* Write H4 */
+	if (false==DiscWriteDirect(iso, iso->parts[partition].tmd_offset + OFFSET_TMD_HASH + iso->parts[partition].offset, h4, SIZE_H4))
+	{
+		return false;
+	}
+
+	// sign it
+	wii_trucha_signing(iso, partition);
+
+	return true;
 }
 
 ////////////////////////////////////////////////////////////
