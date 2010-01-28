@@ -82,6 +82,13 @@ class DISC_API Disc
 		void AddFolderToPart(const char * folderName);
 		u32 ParseFst(u8 * fst, const char * names, partition_folder * currentFolder, u32 i, struct tree * tree, u32 partNo);
 		bool WriteData(int partition, u64 offset, u64 size, u8 *in, FILE * fIn);
+		bool WriteClusters(int partNo, u32 cluster, u8 * in, u32 clusterOffset, u32 bytesToWrite, FILE * fIn);
+		int GetPartitionClusterCount(int partNo);
+		int ReadCluster(int partNo, int clusterNo, u8 * data, u8 * header);
+		void Disc::aes_cbc_enc(u8 *in, u8 *out, u32 len, u8 *key, u8 *iv);
+		void Disc::aes_cbc_dec(u8 *in, u8 *out, u32 len, u8 *key, u8 *iv);
+		void Disc::sha1(u8 *data, u32 len, u8 *hash);
+		bool Disc::DiscWriteDirect(u64 nOffset, u8 *pData, unsigned int nSize);
 		void Write32( u8 *p, u32 nVal);
 
 };

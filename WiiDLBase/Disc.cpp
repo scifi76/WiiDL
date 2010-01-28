@@ -1254,9 +1254,8 @@ bool Disc::ReplaceFile(const char * inputFilename, PartitionFile * file, bool en
 
 							// write the fst.bin back to the image
 							// write out the FST.BIN
-							if (WriteData(file->PartNo, Image->Partitions[file->PartNo].Header->FstOffset, Image->Partitions[file->PartNo].Header->FstSize, pFSTBin))
+							if (WriteData(file->PartNo, Image->Partitions[file->PartNo].Header->FstOffset, Image->Partitions[file->PartNo].Header->FstSize, pFSTBin, NULL))
 							{
-								wii_write_data_file(image, part, nFileOffset, nImageSize, NULL, fIn);
 								if (WriteData(file->PartNo, file->Offset, nImageSize, NULL, fIn))
 								{
 									// success
@@ -1264,14 +1263,14 @@ bool Disc::ReplaceFile(const char * inputFilename, PartitionFile * file, bool en
 								else
 								{
 									// the methods that caused WriteData to return False will have set _lastErr
-									throw std::ios::failure("Failed to write file: " + _lastErr);
+									throw std::ios::failure(_lastErr);
 								}
 
 							}
 							else
 							{
 								// the methods that caused WriteData to return False will have set _lastErr
-								throw std::ios::failure("Failed to write FST.BIN: " + _lastErr);
+								throw std::ios::failure(_lastErr);
 							}
 						}
 						else
@@ -1345,7 +1344,7 @@ bool Disc::WriteData(int partNo, u64 offset, u64 size, u8 *in, FILE * fIn)
 	cluster_start = (u32)(offset / (u64)(SIZE_CLUSTER_DATA));
 	// the number of clusters needed to store this file size
 	clusters = (u32)(((offset + size) / (u64)(SIZE_CLUSTER_DATA)) - (cluster_start - 1));
-	// the start offset of the file... not sure why this is different to the original file offset
+	// the start offset of the cluster... not sure why this is different to the original file offset
 	offset_start = (u32)(offset - (cluster_start * (u64)(SIZE_CLUSTER_DATA)));
 
 	// read the H3 and H4
@@ -1373,7 +1372,7 @@ bool Disc::WriteData(int partNo, u64 offset, u64 size, u8 *in, FILE * fIn)
 				nWritten = (u32)size;
 			}
 
-			if (false==wii_write_clusters(iso, partition, cluster_start, in, offset_start, nWritten, fIn))
+			if (WriteClusters(partNo, cluster_start, in, offset_start, nWritten, fIn) == false)
 			{
 				return false;
 			}
@@ -1391,7 +1390,7 @@ bool Disc::WriteData(int partNo, u64 offset, u64 size, u8 *in, FILE * fIn)
 				nWritten = (u32)(size-i);
 			}
 
-			if (false==wii_write_clusters(iso, partition, cluster_start + nClusterCount, in, offset_start, nWritten, fIn))
+			if (WriteClusters(partNo, cluster_start + nClusterCount, in, offset_start, nWritten, fIn) == false)
 			{
 				return false;
 			}
@@ -1405,22 +1404,22 @@ bool Disc::WriteData(int partNo, u64 offset, u64 size, u8 *in, FILE * fIn)
 	
 
 	// write out H3 and H4
-	if (false==DiscWriteDirect(iso, iso->parts[partition].h3_offset + iso->parts[partition].offset, h3, SIZE_H3))
+	if (false==DiscWriteDirect(Image->Partitions[partNo].H3Offset + Image->Partitions[partNo].Offset, Image->h3, SIZE_H3))
 	{
 		return false;
 	}
 	
 	/* Calculate H4 */
-	sha1(h3, SIZE_H3, h4);
+	sha1(Image->h3, SIZE_H3, Image->h4);
 
 	/* Write H4 */
-	if (false==DiscWriteDirect(iso, iso->parts[partition].tmd_offset + OFFSET_TMD_HASH + iso->parts[partition].offset, h4, SIZE_H4))
+	if (false==DiscWriteDirect(Image->Partitions[partNo].TmdOffset + OFFSET_TMD_HASH + Image->Partitions[partNo].Offset, Image->h4, SIZE_H4))
 	{
 		return false;
 	}
 
 	// sign it
-	wii_trucha_signing(iso, partition);
+	wii_trucha_signing(partNo);
 
 	return true;
 }
@@ -1436,4 +1435,341 @@ void Disc::Write32( u8 *p, u32 nVal)
 	p[2] = (nVal >>  8) & 0xFF;
 	p[3] = (nVal      ) & 0xFF;
 
+}
+
+bool Disc::WriteClusters(int partNo, u32 cluster, u8 * in, u32 clusterOffset, u32 bytesToWrite, FILE * fIn)
+{
+u8 h0[SIZE_H0];
+	u8 h1[SIZE_H1];
+	u8 h2[SIZE_H2];
+
+	u8 *data;
+	u8 *header;
+	u8 *title_key;
+
+	u8 iv[16];
+	
+	u32 group,
+		subgroup,
+		f_cluster,
+		nb_cluster,
+		pos_cluster,
+		pos_header;
+	
+	u64 offset;
+
+	u32 i;
+	int j;
+
+	int ret = 0;
+
+	int nClusters = 0;
+
+	/* Calculate cluster group and subgroup */
+	group = cluster / NB_CLUSTER_GROUP;
+	subgroup = (cluster % NB_CLUSTER_GROUP) / NB_CLUSTER_SUBGROUP;
+
+	/* First cluster in the group */
+	f_cluster = group * NB_CLUSTER_GROUP;
+
+	/* Get number of clusters in this group */
+	nb_cluster = GetPartitionClusterCount(partNo) - f_cluster;
+	if (nb_cluster > NB_CLUSTER_GROUP)
+		nb_cluster = NB_CLUSTER_GROUP;
+
+	/* Allocate memory */
+	data   = (u8 *)calloc(SIZE_CLUSTER_DATA * NB_CLUSTER_GROUP, 1);
+	header = (u8 *)calloc(SIZE_CLUSTER_HEADER * NB_CLUSTER_GROUP, 1);
+	if (!data || !header)
+		return false;
+
+	// if we are replacing a full set of clusters then we don't
+	// need to do any reading as we just need to overwrite the
+	// blanked data
+
+
+	// calculate number of clusters of data to write
+	nClusters = ((nBytesToWrite -1)/ SIZE_CLUSTER_DATA)+1;
+
+	if (nBytesToWrite!=(NB_CLUSTER_GROUP*SIZE_CLUSTER_DATA))
+	{
+		/* Read group clusters and headers */
+		for (i = 0; i < nb_cluster; i++)
+		{
+			u8 *d_ptr = &data[SIZE_CLUSTER_DATA * i];
+			u8 *h_ptr = &header[SIZE_CLUSTER_HEADER * i];
+			
+			/* Read cluster */
+			if (ReadCluster(partNo, f_cluster + i, d_ptr, h_ptr))
+			{
+				free(data);
+				free(header);
+				return false;
+			}
+		}
+	}
+	else
+	{
+		// memory already cleared
+	}
+
+	// now overwrite the data in the correct location
+	// be it from file data or from the memory location
+	/* Write new cluster and H0 table */
+	pos_header  = ((cluster - f_cluster) * SIZE_CLUSTER_HEADER);
+	pos_cluster = ((cluster - f_cluster) * SIZE_CLUSTER_DATA);
+
+
+	// we read from either memory or a file
+	if (NULL!=fIn)
+	{
+		fread(&data[pos_cluster + nClusterOffset],1, nBytesToWrite, fIn); 
+	}
+	else
+	{
+		// data
+		memcpy(&data[pos_cluster + nClusterOffset], in, nBytesToWrite);
+	}
+
+	// now for each cluster we need to...
+	for(j = 0; j < nClusters; j++)
+	{
+		// clear the data for the table
+		memset(h0, 0, SIZE_H0);
+
+		/* Calculate new clusters H0 table */
+		for (i = 0; i < SIZE_CLUSTER_DATA; i += 0x400)
+		{
+			u32 idx = (i / 0x400) * 20;
+			
+			/* Calculate SHA-1 hash */
+			sha1(&data[pos_cluster + (j * SIZE_CLUSTER_DATA) + i], 0x400, &h0[idx]);
+		}
+		
+		// save the H0 data
+		memcpy(&header[pos_header + (j * SIZE_CLUSTER_HEADER)], h0, SIZE_H0);
+
+		// now do the H1 data for the subgroup
+		/* Calculate H1's */
+		sha1(&header[pos_header + (j * SIZE_CLUSTER_HEADER)], SIZE_H0, h1);
+
+		// now copy to all the sub cluster locations
+		for (int k=0; k < NB_CLUSTER_SUBGROUP; k++)
+		{
+			// need to get the position of the first block we are changing
+			// which is the start of the subgroup for the current cluster 
+			u32 nSubGroup = ((cluster + j) % NB_CLUSTER_GROUP) / NB_CLUSTER_SUBGROUP;
+
+			u32 pos = (SIZE_CLUSTER_HEADER * nSubGroup * NB_CLUSTER_SUBGROUP) + (0x14 * ((cluster +j)%NB_CLUSTER_SUBGROUP));
+
+			memcpy(&header[pos + (k * SIZE_CLUSTER_HEADER) + OFFSET_H1], h1, 20);
+		}
+
+	}
+
+
+	// now we need to calculate the H2's for all subgroups
+	/* Calculate H2 */
+	for (i = 0; i < NB_CLUSTER_SUBGROUP; i++)
+	{
+		u32 pos = (NB_CLUSTER_SUBGROUP * i) * SIZE_CLUSTER_HEADER;
+		
+		/* Cluster exists? */
+		if ((pos / SIZE_CLUSTER_HEADER) > nb_cluster)
+			break;
+		
+		/* Calculate SHA-1 hash */
+		sha1(&header[pos + OFFSET_H1], SIZE_H1, &h2[20 * i]);
+	}
+	
+	/* Write H2 table */
+	for (i = 0; i < nb_cluster; i++)
+	{
+		/* Write H2 table */
+		memcpy(&header[(SIZE_CLUSTER_HEADER * i) + OFFSET_H2], h2, SIZE_H2);
+	}
+
+	// update the H3 key table here
+	/* Calculate SHA-1 hash */
+	sha1(h2, SIZE_H2, &h3[group * 0x14]);
+
+
+	// now encrypt and write
+	
+	/* Set title key */
+	title_key = &(Image->Partitions[PartNo].TitleKey[0]);
+	/* Encrypt headers */
+	for (i = 0; i < nb_cluster; i++)
+	{
+		u8 *ptr = &header[SIZE_CLUSTER_HEADER * i];
+
+		u8 phData[SIZE_CLUSTER_HEADER];
+
+		/* Set IV key */
+		memset(iv, 0, 16);
+
+		/* Encrypt */
+		aes_cbc_enc(ptr, (u8*) phData, SIZE_CLUSTER_HEADER, title_key, iv);
+		memcpy(ptr, (u8*)phData, SIZE_CLUSTER_HEADER);
+	}
+
+	/* Encrypt clusters */
+	for (i = 0; i < nb_cluster; i++)
+	{
+		u8 *d_ptr = &data[SIZE_CLUSTER_DATA * i];
+		u8 *h_ptr = &header[SIZE_CLUSTER_HEADER * i];
+
+		u8 phData[SIZE_CLUSTER_DATA];
+
+
+		/* Set IV key */
+		memcpy(iv, &h_ptr[OFFSET_CLUSTER_IV], 16);
+
+		/* Encrypt */
+		aes_cbc_enc(d_ptr, (u8*) phData, SIZE_CLUSTER_DATA, title_key, iv);
+		memcpy(d_ptr, (u8*)phData, SIZE_CLUSTER_DATA);
+	}
+
+	/* Jump to first cluster in the group */
+	offset = Image->Partitions[partNo].Offset + Image->Partitions[partNo].DataOffset + (u64)((u64)f_cluster * (u64)SIZE_CLUSTER);
+
+	for (i = 0; i < nb_cluster; i++)
+	{
+		u8 *d_ptr = &data[SIZE_CLUSTER_DATA * i];
+		u8 *h_ptr = &header[SIZE_CLUSTER_HEADER * i];
+
+		if (true==DiscWriteDirect(offset, h_ptr, SIZE_CLUSTER_HEADER))
+		{
+			// written ok, add value to offset
+			offset = offset + SIZE_CLUSTER_HEADER;
+
+			if (true==DiscWriteDirect(offset, d_ptr, SIZE_CLUSTER_DATA))
+			{
+				offset = offset + SIZE_CLUSTER_DATA;
+			}
+			else
+			{
+				free(data);
+				free(header);
+				return false;
+
+			}
+		}
+		else
+		{
+			// free memory and return error
+			free(data);
+			free(header);
+			return false;
+		}
+	}
+
+
+	// already calculated the H3 and H4 hashes - rely on surrounding code to
+	// read and write those out
+
+	/* Free memory */
+	free(data);
+	free(header);
+
+	return true;
+}
+
+
+int Disc::GetPartitionClusterCount(int partNo)
+{
+	int nRetVal = 0;
+	nRetVal = (int)(Image->Partitions[partNo].data_size / SIZE_CLUSTER);
+	return nRetVal;
+}
+
+int Disc::ReadCluster(int partNo, int clusterNo, u8 * data, u8 * header)
+{
+	u8 buf[SIZE_CLUSTER];
+	u8  iv[16];
+	u8 * title_key;
+	u64 offset;
+
+
+	/* Jump to the specified cluster and copy it to memory */
+	offset = Image->Partitions[partNo].Offset + Image->Partitions[partNo].DataOffset + (u64)((u64)clusterNo * (u64)SIZE_CLUSTER);
+	
+	// read the correct location block in
+	Read(buf, SIZE_CLUSTER, offset);
+
+	/* Set title key */
+	title_key =  &(Image->Partitions[partNo].TitleKey[0]);
+
+	/* Copy header if required*/
+	if (header)
+	{
+		/* Set IV key to all 0's*/
+		memset(iv, 0, sizeof(iv));
+
+		/* Decrypt cluster header */
+		aes_cbc_dec(buf, header, SIZE_CLUSTER_HEADER, title_key, iv);
+	}
+
+	/* Copy data if required */
+	if (data)
+	{
+		/* Set IV key to correct location*/
+		memcpy(iv, &buf[OFFSET_CLUSTER_IV], 16);
+
+		/* Decrypt cluster data */
+		aes_cbc_dec(&buf[0x400], data, SIZE_CLUSTER_DATA, title_key,  &iv[0]);
+
+	}
+
+	return 0;
+}
+
+void Disc::aes_cbc_enc(u8 *in, u8 *out, u32 len, u8 *key, u8 *iv)
+{
+	AES_KEY aes_key;
+
+	/* Set encryption key */
+	AES_set_encrypt_key(key, 128, &aes_key);
+
+	/* Decrypt data */
+	AES_cbc_encrypt(in, out, len, &aes_key, iv, AES_ENCRYPT);
+}
+
+void Disc::aes_cbc_dec(u8 *in, u8 *out, u32 len, u8 *key, u8 *iv)
+{
+	AES_KEY aes_key;
+
+	/* Set decryption key */
+	AES_set_decrypt_key(key, 128, &aes_key);
+
+	/* Decrypt data */
+	AES_cbc_encrypt(in, out, len, &aes_key, iv, AES_DECRYPT);
+}
+
+void Disc::sha1(u8 *data, u32 len, u8 *hash)
+{
+	SHA1(data, len, hash);
+}
+
+bool Disc::DiscWriteDirect(u64 nOffset, u8 *pData, unsigned int nSize)
+{
+
+	_int64 nSeek;
+
+	// Simply seek to the right place
+	nSeek = fseeko64(Image->File, nOffset + m_nDiscOffset, SEEK_SET);
+
+    if (-1==nSeek)
+	{
+		_lastErr = "Unable to write to image. Seek error";
+        return false;
+    }
+
+	//if (nSize!= _write(image->fp, pData, nSize))
+	if (nSize!= fwrite(pData, 1, nSize, Image->File))
+	{
+		_lastErr = "Unable to write to image. Write error";
+        return false;
+	}
+	return true;
 }
