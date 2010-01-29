@@ -20,7 +20,7 @@ u64 FileList::Count()
 u64 FileList::Add(PartitionFile * Item)
 {
 	PartitionFile * curFile = new PartitionFile;
-
+	
 	curFile = Item;
 	curFile->NextFile = head;
 	head = curFile;
@@ -81,7 +81,7 @@ u64 FileList::Find(const char * FileName)
 	{
 		if((strcmp(curFile->FileName, FileName) == 0))
 		{
-			return i;
+			return size - (i +1) ;
 		}
 		else
 		{

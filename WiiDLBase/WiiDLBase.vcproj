@@ -200,6 +200,26 @@
 				>
 			</File>
 			<File
+				RelativePath=".\sha\sha1.c"
+				>
+			</File>
+			<File
+				RelativePath=".\sha\sha1_one.c"
+				>
+			</File>
+			<File
+				RelativePath=".\sha\sha1dgst.c"
+				>
+			</File>
+			<File
+				RelativePath=".\sha\sha_dgst.c"
+				>
+			</File>
+			<File
+				RelativePath=".\sha\sha_one.c"
+				>
+			</File>
+			<File
 				RelativePath=".\Utils.cpp"
 				>
 			</File>
@@ -223,6 +243,14 @@
 			</File>
 			<File
 				RelativePath=".\Global.h"
+				>
+			</File>
+			<File
+				RelativePath=".\sha\sha.h"
+				>
+			</File>
+			<File
+				RelativePath=".\sha_locl.h"
 				>
 			</File>
 			<File

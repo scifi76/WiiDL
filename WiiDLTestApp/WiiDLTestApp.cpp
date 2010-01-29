@@ -13,9 +13,10 @@ int _tmain(int argc, _TCHAR* argv[])
 	if (d->IsLoaded)
 	{
 		printf("true");
-		partition_folder * folder = d->Image->Partitions[0].Folders.Retrieve(0)->SubFolders.Retrieve(0);
-		PartitionFile * file = folder->Files.Retrieve(5);
-		d->ReplaceFile("c:\\vis.ini", file, true);
+		partition_folder * folder = d->Image->Partitions[1].Folders.Retrieve(0)->SubFolders.Retrieve(10);
+		u64 id = folder->Files.Find("slowride.pak.ngc");
+		PartitionFile * file = folder->Files.Retrieve(id);
+		d->ReplaceFile("c:\\slowride.pak.ngc", file, true);
 
 	}
 	else

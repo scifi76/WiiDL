@@ -3,7 +3,7 @@
 #include "Utils.h"
 #include <string.h>
 #include "Global.h"
-
+#include "ssl.h"
 
 
 
@@ -81,6 +81,7 @@ bool Disc::Load(bool readOnly)
 				
 			}
 			// try to open the iso
+			// TODO: put this in a function so it can be re-used from the disc write methods
 			fIsoFile = fopen(ImageFileName.c_str(), mode.c_str());
 
 			//check the file opened ok
@@ -1197,6 +1198,8 @@ bool Disc::ExtractFile(const char * destFilename, PartitionFile * file, bool dec
 bool Disc::ReplaceFile(const char * inputFilename, PartitionFile * file, bool encrypt)
 {
 	FILE * fIn;
+	u8 *	pBootBin = (unsigned char *) calloc(0x440,1);
+	u8 *	pPartData ;
 	try	
 	{
 		if (IsLoaded)
@@ -1207,8 +1210,8 @@ bool Disc::ReplaceFile(const char * inputFilename, PartitionFile * file, bool en
 			
 			u32		nImageSize;	
 			u64		nfImageSize;
-			u8 *	pBootBin = (unsigned char *) calloc(0x440,1);
-			u8 *	pPartData ;
+			
+			
 			u64		nFreeSpaceStart;
 			u32		nExtraData;
 			u32		nExtraDataBlocks;
@@ -1275,14 +1278,160 @@ bool Disc::ReplaceFile(const char * inputFilename, PartitionFile * file, bool en
 						}
 						else
 						{
-							// TODO: Finish this
 							// special file
+							switch(nFSTReference)
+							{
+							case 0:
+								// - one of the files that should ALWAYS be the correct size
+								_lastErr = "Error as file sizes do not match and they MUST for boot.bin and bi2.bin";
+								throw std::ios::failure(_lastErr);
+								fclose(fIn);
+								free(pBootBin);
+								return false;
+								break;
+							case -1:
+								// FST
+								ReadFromPartition(pBootBin, 0x440, file->PartNo, 0);
+								
+								// update the settings for the FST.BIN entry
+								// this has to be rounded to the nearest 4 so.....
+								if (0!=(nImageSize%4))
+								{
+									nImageSize = nImageSize + (4 - nImageSize%4);
+								}
+								Write32(pBootBin + 0x428L, (u32)(nImageSize >>2));
+								Write32(pBootBin + 0x42CL, (u32)(nImageSize >>2));
+								// now write it out
+								//wii_write_data_file(image, part, 0, 0x440, pBootBin);
+								WriteData(file->PartNo, 0, 0x440, pBootBin, NULL);
+				
+								break;
+							case -2:
+								// main.dol - don't have to do anything
+								break;
+							case -3:
+								// apploader - don't have to do anything
+								break;
+							case -4:
+								// partition.bin
+								_lastErr = "Error as partition.bin MUST be 0x20000 bytes in size";
+								throw std::ios::failure(_lastErr);
+								fclose(fIn);
+								free(pBootBin);
+								return FALSE;
+
+								break;
+							case -5:
+								// tmd.bin
+								// need to update the correct field with the size
+								Write32(cTempBuffer, nImageSize);
+								DiscWriteDirect(Image->Partitions[file->PartNo].Offset+0x2a4, cTempBuffer, 4);
+								// Now read the file in and discwrite direct it.
+								pTMDData = (u8 *) malloc(nImageSize);
+
+								fread(pTMDData,1,nImageSize, fIn);
+								DiscWriteDirect(Image->Partitions[file->PartNo].Offset + Image->Partitions[file->PartNo].TmdOffset, pTMDData, nImageSize);
+
+								fclose(fIn);
+								free(pBootBin);
+								free(true);
+								return TRUE;
+								break;
+							case -6:
+								// cert.bin
+								Write32(cTempBuffer, nImageSize);
+								DiscWriteDirect(Image->Partitions[file->PartNo].Offset+0x2ac, cTempBuffer, 4);
+								// Now read the file in and discwrite direct it.
+								pCERTData = (u8 *) malloc(nImageSize);
+
+								fread(pCERTData,1,nImageSize, fIn);
+								DiscWriteDirect(Image->Partitions[file->PartNo].Offset + Image->Partitions[file->PartNo].CertOffset, pCERTData, nImageSize);
+
+								fclose(fIn);
+								free(pBootBin);
+								free(pCERTData);
+								return true;
+								break;
+							case -7:
+								_lastErr = "Error as h3.bin MUST be 0x18000 bytes in size";
+								throw std::ios::failure(_lastErr);
+								fclose(fIn);
+								free(pBootBin);
+								return false;
+								break;
+							case -8:
+								// Ticket.bin
+								_lastErr = "Error as ticket.bin MUST be 0x2a4 bytes in size";
+								throw std::ios::failure(_lastErr);
+								fclose(fIn);
+								free(pBootBin);
+								return false;
+								break;
+							default:
+								_lastErr = "Unknown file reference passed";
+								throw std::ios::failure(_lastErr);
+								fclose(fIn);
+
+								free(pBootBin);
+								return false;
+								break;
+							}
+							// now write it out
+							wii_write_data_file(image, part, nFileOffset, nImageSize, NULL, fIn);
+							WriteData(file->PartNo, nFileOffset, nImageSize, NULL, fIn);
 						}
 					}
 					else
 					{
-						// TODO: Finish this
 						// equal sized file. Check if it's a special file, otherwise just straight replace
+						// Equal sized file so need to check for the special cases
+						if (0>file->FstRef)
+						{
+							switch(file->FstRef)
+							{
+							case -1:
+							case -2:
+							case -3:
+								// simple write as files are the same size
+								WriteData(file->PartNo, file->Offset, nImageSize, null, fIn);
+								break;
+							case -4:
+								// Partition.bin
+								// it's a direct write
+								pPartData = (u8 *)calloc(1,(unsigned int)nFileSize);
+								
+								fread(pPartData,1,(unsigned int)nFileSize, fIn);
+								DiscWriteDirect(Image->Partitions[file->PartNo].Offset, pPartData, (unsigned int)nFileSize);
+								free(pPartData);
+								break;
+							case -5:
+								// tmd.bin;
+							case -6:
+								// cert.bin
+							case -7:
+								// h3.bin
+							case -8:
+								// ticket.bin
+								// same for all 4
+								pPartData = (u8 *)calloc(1,(unsigned int)nFileSize);
+								
+								fread(pPartData,1,(unsigned int)nFileSize, fIn);
+								DiscWriteDirect(Image->Partitions[partNo].Offset + nFileOffset, pPartData, (unsigned int)nFileSize);
+								free(pPartData);
+
+								break;
+							default:
+								_lastError = "Unknown file reference passed";
+								throw std::ios::failure(_lastErr);
+								break;
+							}
+						}
+						else
+						{
+							// simple write as files are the same size
+							//wii_write_data_file(image, part, nFileOffset, nImageSize, NULL, fIn);
+							WriteData(file->PartNo, nFileOffset, nImageSize, NULL, fIn);
+						}
 					}
 
 				}
@@ -1294,7 +1443,224 @@ bool Disc::ReplaceFile(const char * inputFilename, PartitionFile * file, bool en
 					// 0 = given by boot.bin,
 					// +ve = normal file
 
-					// TODO: Finish this
+					// need to find some free space in the partition first
+					nFreeSpaceStart = FindRequiredFreeSpaceInPartition(image, part, nImageSize);
+					
+					if (0==nFreeSpaceStart)
+					{
+						// no free space - so cant do it
+						_lastErr = "Unable to find free space to add the file";
+						throw std::ios::failure(_lastErr);
+					}
+					
+					// depending on the passed offset we then need to modify either the
+					// fst.bin or the boot.bin
+					if (0<nFSTReference)
+					{
+						// normal one - so read out the fst and change the values for the relevant pointer
+						// before writing it out
+						u8 * pFSTBin = (unsigned char *) calloc((u32)(Image->Partitions[file->PartNo].Header->FstSize),1);
+						
+						ReadFromPartition(pFSTBin,(u32)(Image->Partitions[file->PartNo].Header->FstSize), file->PartNo, Image->Partitions[file->PartNo].Header->FstOffset);
+						
+						// alter the entry for the passed FST Reference
+						nFSTReference = nFSTReference * 0x0c;
+						
+						// update the offset for this file
+						Write32(pFSTBin + nFSTReference + 0x04L, u32 (nFreeSpaceStart >> 2));
+						// update the length for the file
+						Write32(pFSTBin + nFSTReference + 0x08L , nImageSize);
+						
+						// write out the FST.BIN
+						WriteData(file->PartNo, Image->Partitions[file->PartNo].Header->FstOffset, (u32)(Image->Partitions[file->PartNo].Header->FstSize), pFSTBin);
+						
+						// now write data file out
+						WriteData(file->PartNo, nFreeSpaceStart, nImageSize, NULL, fIn);
+						
+					}
+					else
+					{
+						
+						switch(nFSTReference)
+						{
+						case -1: // FST.BIN
+							// change the boot.bin file too and write that out
+							ReadFromPartition(pBootBin, 0x440, file->PartNo, 0);
+
+							// update the settings for the FST.BIN entry
+							// this has to be rounded to the nearest 4 so.....
+							if (0!=(nImageSize%4))
+							{
+								nImageSize = nImageSize + (4 - nImageSize%4);
+							}
+							
+							// update the settings for the FST.BIN entry
+							Write32(pBootBin + 0x424L, u32 (nFreeSpaceStart >> 2)); 
+							Write32(pBootBin + 0x428L, (u32)(nImageSize >> 2));
+							Write32(pBootBin + 0x42CL, (u32)(nImageSize >> 2));
+							
+							// now write it out
+							WriteData(file->PartNo, 0, 0x440, pBootBin, NULL);
+							
+							// now write it out
+							WriteData(file->PartNo, nFreeSpaceStart, nImageSize, NULL, fIn);
+							
+							
+							break;
+						case -2: // Main.DOL
+							// change the boot.bin file too and write that out
+							ReadFromPartition(pBootBin, 0x440, file->PartNo, 0);
+							
+							// update the settings for the main.dol entry
+							Write32(pBootBin + 0x420L, u32 (nFreeSpaceStart >> 2)); 
+							
+							// now write it out
+							WriteData(file->PartNo, 0, 0x440, pBootBin, NULL);
+
+							// now write main.dol out
+							WriteData(file->PartNo, nFreeSpaceStart, nImageSize, NULL, fIn);
+							
+							break;
+						case -3: // Apploader.img - now this is fun! as we have to
+							// move the main.dol and potentially fst.bin too  too otherwise they would be overwritten
+							// also what happens if the data for those two has already been moved
+							// aaaargh
+							
+							// check to see what we have to move
+							// by calculating the amount of extra data we are trying to stuff in
+							nExtraData = (u32)(nImageSize - Image->Partitions[file->PartNo].AppldrSize);
+							
+							nExtraDataBlocks = 1 + ((nImageSize - (u32)(Image->Partitions[file->PartNo].AppldrSize)) / 0x7c00);
+							
+							// check to see if we have that much free at the end of the area
+							// or do we need to try and overwrite
+							if (true==CheckForFreeSpace(file->PartNo, Image->Partitions[file->PartNo].AppldrSize + 0x2440 ,nExtraDataBlocks))
+							{
+								// we have enough space after the current apploader - already moved the main.dol?
+								// so just need to write it out.
+								WriteData(file->PartNo, 0x2440, nImageSize, NULL, fIn);
+								
+							}
+							else
+							{
+								// check if we can get by with moving the main.dol
+								if (nExtraData > Image->Partitions[file->PartNo].Header->DolSize)
+								{
+									// don't really want to be playing around here as we potentially can get
+									// overwrites of all sorts of data
+									_lastError = "Cannot guarantee writing data correctly\nI blame nargels";
+									throw std::ios::failure(_lastErr);
+								}
+								else
+								{
+									// "just" need to move main.dol
+									u8 * pMainDol = (u8 *) calloc((u32)(image->parts[part].header.dol_size),1);
+									
+									io_read_part(pMainDol, (u32)(image->parts[part].header.dol_size), image, part, image->parts[part].header.dol_offset);
+									
+									// try and get some free space for it
+									nFreeSpaceStart = FindRequiredFreeSpaceInPartition(image, part, (u32)(image->parts[part].header.dol_size));
+									
+									// now unmark the original dol area
+									MarkAsUnused(image->parts[part].offset+image->parts[part].data_offset+(((image->parts[part].header.dol_offset)/0x7c00)*0x8000),
+										image->parts[part].header.dol_size);
+									
+									if ((0!=nFreeSpaceStart)&&
+										(TRUE==CheckForFreeSpace(image, part,image->parts[part].appldr_size + 0x2440 ,nExtraDataBlocks)))
+									{
+										// got space so write it out
+										wii_write_data_file(image, part, nFreeSpaceStart, (u32)(image->parts[part].header.dol_size), pMainDol);
+										
+										// now do the boot.bin file too
+										io_read_part(pBootBin, 0x440, image, part, 0);
+										
+										// update the settings for the boot.BIN entry
+										Write32(pBootBin + 0x420L, u32 (nFreeSpaceStart >> 2)); 
+										
+										// now write it out
+										wii_write_data_file(image, part, 0, 0x440, pBootBin);
+										
+										// now write out the apploader - we don't need to change any other data
+										// as the size is inside the apploader
+										wii_write_data_file(image, part, 0x2440, nImageSize, NULL, fIn);
+										
+									}
+									else
+									{
+										// cannot do it :(
+										AfxMessageBox("Unable to move the main.dol and find enough space for the apploader.");
+										AddToLog("Unable to add larger apploader");
+										free(pMainDol);
+										free(pBootBin);
+										fclose(fIn);
+
+										return FALSE;
+									}
+									
+									
+								}
+							}
+							break;
+						case -5:
+							// TMD.BIN - Larger file
+							// so read in the certs.bin file, update the positions and then write it out
+							pCERTData = (u8 *) malloc((unsigned int)(image->parts[part].cert_size));
+
+							io_read(pCERTData,(unsigned int)(image->parts[part].cert_size), image, image->parts[part].offset + image->parts[part].cert_offset);
+
+							Write32(cTempBuffer, nImageSize);
+							DiscWriteDirect(image, image->parts[part].offset+0x2a4, cTempBuffer, 4);
+							// Now read the file in and discwrite direct it.
+							pTMDData = (u8 *) malloc(nImageSize);
+
+							fread(pTMDData,1,nImageSize, fIn);
+							DiscWriteDirect(image, image->parts[part].offset + image->parts[part].tmd_offset, pTMDData, nImageSize);
+
+							// now calculate the new offset for the certs
+							image->parts[part].cert_offset = image->parts[part].tmd_offset + nImageSize;
+							// roundup to next 64 block
+							image->parts[part].cert_offset = image->parts[part].cert_offset + 64 - (image->parts[part].cert_offset % 64);
+							DiscWriteDirect(image, image->parts[part].offset + image->parts[part].cert_offset, pCERTData,(unsigned int)(image->parts[part].cert_size));
+							
+							// now update the certs offset
+							Write32(cTempBuffer, (u32)(image->parts[part].cert_offset >> 2));
+							DiscWriteDirect(image, image->parts[part].offset+0x2b0, cTempBuffer, 4);
+							
+							// cleanup and return
+							free(pTMDData);
+							free(pCERTData);
+							free(pBootBin);
+							fclose(fIn);
+							return TRUE;
+							break;
+						case -6:
+							// cert.bin
+							Write32(cTempBuffer, nImageSize);
+							DiscWriteDirect(image, image->parts[part].offset+0x2ac, cTempBuffer, 4);
+							// Now read the file in and discwrite direct it.
+							pCERTData = (u8 *) malloc(nImageSize);
+
+							fread(pCERTData,1,nImageSize, fIn);
+							DiscWriteDirect(image, image->parts[part].offset + image->parts[part].cert_offset, pCERTData, nImageSize);
+							// cleanup and return
+							free(pCERTData);
+							free(pBootBin);
+							fclose(fIn);
+							return TRUE;
+							break;
+						default:
+							// Unable to do these as they are set sizes and lengths
+							// boot.bin and bi2.bin
+							// partition.bin, ticket.bin, h3.bin
+							AfxMessageBox("Unable to change that file as it is a set size\nin the disc image");
+							AddToLog("Unable to change set size file");
+							free(pBootBin);
+							fclose(fIn);
+							return FALSE;
+							break;
+						}
+						
+					}
 				}
 
 			}
@@ -1311,6 +1677,8 @@ bool Disc::ReplaceFile(const char * inputFilename, PartitionFile * file, bool en
 	catch (std::ios::failure ex)
 	{
 		fclose(fIn);
+		free(pBootBin);
+		free(pPartData);
 		_lastErr = ex.what();
 		return false;
 	}
@@ -1419,7 +1787,7 @@ bool Disc::WriteData(int partNo, u64 offset, u64 size, u8 *in, FILE * fIn)
 	}
 
 	// sign it
-	wii_trucha_signing(partNo);
+	TruchaSignPartition(partNo);
 
 	return true;
 }
@@ -1489,9 +1857,9 @@ u8 h0[SIZE_H0];
 
 
 	// calculate number of clusters of data to write
-	nClusters = ((nBytesToWrite -1)/ SIZE_CLUSTER_DATA)+1;
+	nClusters = ((bytesToWrite -1)/ SIZE_CLUSTER_DATA)+1;
 
-	if (nBytesToWrite!=(NB_CLUSTER_GROUP*SIZE_CLUSTER_DATA))
+	if (bytesToWrite!=(NB_CLUSTER_GROUP*SIZE_CLUSTER_DATA))
 	{
 		/* Read group clusters and headers */
 		for (i = 0; i < nb_cluster; i++)
@@ -1523,12 +1891,12 @@ u8 h0[SIZE_H0];
 	// we read from either memory or a file
 	if (NULL!=fIn)
 	{
-		fread(&data[pos_cluster + nClusterOffset],1, nBytesToWrite, fIn); 
+		fread(&data[pos_cluster + clusterOffset],1, bytesToWrite, fIn); 
 	}
 	else
 	{
 		// data
-		memcpy(&data[pos_cluster + nClusterOffset], in, nBytesToWrite);
+		memcpy(&data[pos_cluster + clusterOffset], in, bytesToWrite);
 	}
 
 	// now for each cluster we need to...
@@ -1591,13 +1959,13 @@ u8 h0[SIZE_H0];
 
 	// update the H3 key table here
 	/* Calculate SHA-1 hash */
-	sha1(h2, SIZE_H2, &h3[group * 0x14]);
+	sha1(h2, SIZE_H2, &Image->h3[group * 0x14]);
 
 
 	// now encrypt and write
 	
 	/* Set title key */
-	title_key = &(Image->Partitions[PartNo].TitleKey[0]);
+	title_key = &(Image->Partitions[partNo].TitleKey[0]);
 	/* Encrypt headers */
 	for (i = 0; i < nb_cluster; i++)
 	{
@@ -1679,7 +2047,7 @@ u8 h0[SIZE_H0];
 int Disc::GetPartitionClusterCount(int partNo)
 {
 	int nRetVal = 0;
-	nRetVal = (int)(Image->Partitions[partNo].data_size / SIZE_CLUSTER);
+	nRetVal = (int)(Image->Partitions[partNo].DataSize / SIZE_CLUSTER);
 	return nRetVal;
 }
 
@@ -1757,7 +2125,8 @@ bool Disc::DiscWriteDirect(u64 nOffset, u8 *pData, unsigned int nSize)
 	_int64 nSeek;
 
 	// Simply seek to the right place
-	nSeek = fseeko64(Image->File, nOffset + m_nDiscOffset, SEEK_SET);
+	fopen(ImageFileName.c_str(), "r+b");
+	nSeek = fseeko64(Image->File, nOffset + Image->DiscOffset, SEEK_SET);
 
     if (-1==nSeek)
 	{
@@ -1770,6 +2139,179 @@ bool Disc::DiscWriteDirect(u64 nOffset, u8 *pData, unsigned int nSize)
 	{
 		_lastErr = "Unable to write to image. Write error";
         return false;
+	}
+	CloseFile();
+	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////
+// The infamous TRUCHA signing bug                                      //
+// where we change the reserved bytes in the ticket until the SHA has a //
+// 0 in the first location                                              //
+//////////////////////////////////////////////////////////////////////////
+
+bool Disc::TruchaSignPartition(int partNo)
+{
+	u8 *buf, hash[20];
+	u32 size, val;
+
+	/* Store TMD size */
+	size = (u32)(Image->Partitions[partNo].TmdSize);
+
+	/* Allocate memory */
+	buf = (u8 *)calloc(size,1);
+
+	if (!buf)
+	{
+		return false;
+	}
+
+	/* Jump to the partition TMD and read it*/
+	//_lseeki64(Image->File, image->parts[partition].offset + image->parts[partition].tmd_offset + m_nDiscOffset, SEEK_SET);
+    fopen(ImageFileName.c_str(), "rb");
+	fseeko64(Image->File, Image->Partitions[partNo].Offset + Image->Partitions[partNo].TmdOffset + Image->DiscOffset, SEEK_END);
+	//if (size!=_read(Image->File, buf, size))
+	if (size!=fread(buf, 1, size, Image->File));
+	{
+		return false;
+	}
+
+	/* Overwrite signature with trucha signature */
+	memset(buf + 0x04, 0, 256);
+
+	/* SHA-1 brute force */
+	hash[0] = 1;
+	for (val = 0; ((val <= ULONG_MAX)&&(hash[0]!=0x00)); val++)
+	{
+		/* Modify TMD "reserved" field */
+		memcpy(buf + 0x19A, &val, sizeof(val));
+
+		/* Calculate SHA-1 hash */
+		SHA1(buf + 0x140, size - 0x140, hash);
+
+
+		// check for the bug where the first byte of the hash is 0
+		if (0x00==hash[0])
+		{
+			/* Write modified TMD data */
+			//_lseeki64(image->fp, image->parts[partition].offset + image->parts[partition].tmd_offset + m_nDiscOffset, SEEK_SET);
+			fseeko64(Image->File, Image->Partitions[partNo].Offset + Image->Partitions[partNo].TmdOffset + Image->DiscOffset, SEEK_SET);
+
+			// write it out
+			//if (size!= _write(image->fp, buf, size))
+			if (size!= fwrite(buf, 1, size, Image->File))
+			{
+				// error writing
+				CloseFile();
+				return  false;
+			}
+			else
+			{
+				CloseFile();
+				return true;
+			}
+		}
+	}
+	CloseFile();
+	return false;
+}
+
+
+u64 Disc::FindRequiredFreeSpaceInPartition(int partNo, u32 nRequiredSize)
+{
+	// search through the free space to find a free area that is at least
+	// the required size. We can then return the position of the free space
+	// relative to the data area of the partition
+	char cLastBlock = 1; // assume (!) that we have data at the partition start
+
+	u32 nRequiredBlocks = (nRequiredSize / 0x7c00);
+
+	if (0!=(nRequiredSize%0x7c00))
+	{
+		// we require an extra block
+		nRequiredBlocks++;
+	}
+
+	u64 nReturnOffset = 0;
+
+	u64	nStartOffset = Image->Partitions[partNo].Offset + Image->Partitions[partNo].DataOffset;
+
+	u64 nEndOffset = nStartOffset + Image->Partitions[partNo].DataSize;
+	u64 nCurrentOffset = nStartOffset;
+
+	u64	nMarkedStart = 0;
+	u32 nFreeBlocks = 0;
+	u32 nBlock = 0;
+
+	// now go through the marked list to find the free area of the required size
+	while (nCurrentOffset < nEndOffset)
+	{
+		nBlock = (u32)(nCurrentOffset / (u64)(0x8000));
+		if (cLastBlock!=pFreeTable[nBlock])
+		{
+			// change 
+			if (1==cLastBlock)
+			{
+				// we have the first empty space
+				nMarkedStart = nCurrentOffset;
+				nFreeBlocks = 1;
+			}
+			// else we just store the value and wait for one of the other fallouts
+		}
+		else
+		{
+			// same so if we have a potential run
+			if (0==cLastBlock)
+			{
+				// add the block to the size
+				nFreeBlocks ++;
+				// now check to see if we have enough
+				if (nFreeBlocks >= nRequiredBlocks)
+				{
+					// BINGO! - convert into relative offset from data start
+					// and in encrypted format
+					nReturnOffset = ((nMarkedStart - nStartOffset) / (u64) 0x8000) * (u64)(0x7c00);
+					return nReturnOffset;
+				}
+			}
+		}
+		cLastBlock = pFreeTable[nBlock];
+
+		nCurrentOffset = nCurrentOffset + (u64)(0x8000);
+	}
+
+	// if we get here then we didn't find some space :(
+
+	return 0;
+}
+
+/////////////////////////////////////////////////////////////
+// Check to see if we have free space for so many blocks   //
+/////////////////////////////////////////////////////////////
+
+bool Disc::CheckForFreeSpace(u32 partNo, u64 nOffset, u32 nBlocks)
+{
+
+	// convert offset to block representation
+	u32 nBlockOffsetStart = 0;
+
+	nBlockOffsetStart = (u32)((Image->Partitions[partNo].DataOffset + Image->Partitions[partNo].Offset) / (u64)0x8000);
+	nBlockOffsetStart = nBlockOffsetStart + (u32)(nOffset / (u64) 0x7c00);
+	if (0!=nOffset%0x7c00)
+	{
+		// starts part way into a block so need to check the number of blocks plus one
+		nBlocks++;
+		// and the start is up by one as we know that there must be data in the current
+		// block
+		nBlockOffsetStart++;
+	}
+
+	for (u32 x = 0; x < nBlocks; x++)
+	{
+		if (1==Image->FreeClusterTable[nBlockOffsetStart+x])
+		{
+			return false;
+		}
 	}
 	return true;
 }

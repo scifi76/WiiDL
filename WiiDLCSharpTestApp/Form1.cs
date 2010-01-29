@@ -138,7 +138,10 @@ namespace WiiDLCSharpTestApp
                 if (ofd.ShowDialog() == DialogResult.OK)
                 {
                     MFile file = (MFile)lvFiles.SelectedNode.Tag;
-                    d.ReplaceFile(ofd.FileName, file, true);
+                    if (d.ReplaceFile(ofd.FileName, file, true))
+                        MessageBox.Show("File successfully replaced!");
+                    else
+                        MessageBox.Show("File replace failed: " + d.LastError);
                 }
             }
         }

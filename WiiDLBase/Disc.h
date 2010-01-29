@@ -65,7 +65,7 @@ class DISC_API Disc
 		int ParsePartitions();
 		tmd * TmdLoad(u32 partNo);
 		bool ExtractFile(const char * destFilename, PartitionFile * file, bool decrypt = true);
-		bool Disc::ReplaceFile(const char * inputFilename, PartitionFile * file, bool encrypt);
+		bool ReplaceFile(const char * inputFilename, PartitionFile * file, bool encrypt);
 		string ImageFileName; // the name of the isofile
 		
 	private:
@@ -85,10 +85,13 @@ class DISC_API Disc
 		bool WriteClusters(int partNo, u32 cluster, u8 * in, u32 clusterOffset, u32 bytesToWrite, FILE * fIn);
 		int GetPartitionClusterCount(int partNo);
 		int ReadCluster(int partNo, int clusterNo, u8 * data, u8 * header);
-		void Disc::aes_cbc_enc(u8 *in, u8 *out, u32 len, u8 *key, u8 *iv);
-		void Disc::aes_cbc_dec(u8 *in, u8 *out, u32 len, u8 *key, u8 *iv);
-		void Disc::sha1(u8 *data, u32 len, u8 *hash);
-		bool Disc::DiscWriteDirect(u64 nOffset, u8 *pData, unsigned int nSize);
+		void aes_cbc_enc(u8 *in, u8 *out, u32 len, u8 *key, u8 *iv);
+		void aes_cbc_dec(u8 *in, u8 *out, u32 len, u8 *key, u8 *iv);
+		void sha1(u8 *data, u32 len, u8 *hash);
+		bool DiscWriteDirect(u64 nOffset, u8 *pData, unsigned int nSize);
+		bool TruchaSignPartition(int partNo);
+		u64 FindRequiredFreeSpaceInPartition(int partNo, u32 nRequiredSize);
+		bool CheckForFreeSpace(u32 partNo, u64 nOffset, u32 nBlocks)
 		void Write32( u8 *p, u32 nVal);
 
 };
