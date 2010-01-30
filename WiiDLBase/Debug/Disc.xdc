@@ -86,14 +86,14 @@ Marks the clusters within a partition between nOffset and nOffset + nSize as use
 <returns>The number of clusters marked as used. 1 Cluster = 32768 bytes (32k)</returns>
 </summary>
 </member>
-<member name="T:part_header" decl="true" source="z:\development\wiidl\wiidlbase\disc.cpp" line="425">
+<member name="T:part_header" decl="true" source="z:\development\wiidl\wiidlbase\disc.cpp" line="444">
 <summary>
 Parses the raw header data in inputData in a part_header structure pointed to by header
 <param name="inputData">Pointer to the data to be parsed</param>
 <returns>Pointer to a part_header structure</returns>
 </summary>
 </member>
-<member name="M:Disc.LoadKey(System.Boolean)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="465">
+<member name="M:Disc.LoadKey(System.Boolean)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="484">
 <summary>
 Loads the the correct common key for the image. The old WiiScrubber
 used to load the key from a key.bin file, however since there is no
@@ -104,13 +104,13 @@ side, the actual key is not embeded, instead XORd values are stored
 <returns>Pointer to a part_header structure</returns>
 </summary>
 </member>
-<member name="M:Disc.ParseImage" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="544">
+<member name="M:Disc.ParseImage" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="563">
 <summary>
 Parses the image file data into the image structure
 <returns>0 = Success, -1 = Failure</returns>
 </summary>
 </member>
-<member name="M:Disc.ParseFst(System.Byte*,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,partition_folder*,System.UInt32,tree*,System.UInt32)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="724">
+<member name="M:Disc.ParseFst(System.Byte*,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,partition_folder*,System.UInt32,tree*,System.UInt32)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="743">
 <summary>
 Parses a partition's fst.bin file as passed into fst and adds all of it's files into the partitions Files collection
 <param name="fst">Pointer to the fst.bin data</param>
@@ -123,7 +123,7 @@ Parses a partition's fst.bin file as passed into fst and adds all of it's files 
 <returns>The number of directories or files parsed</returns>
 </summary>
 </member>
-<member name="M:Disc.ParsePartitions" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="792">
+<member name="M:Disc.ParsePartitions" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="811">
 <summary>
 Deprecated - Files are now children of the Folders collection
 Creates a partition_file struct and adds it to the Files collection of the partition pointed to by part
@@ -147,13 +147,13 @@ Parses the partition information into the Partitions structure
 <returns>The number of partitions loaded</returns>
 </summary>
 </member>
-<member name="M:Disc.TmdLoad(System.UInt32)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="988">
+<member name="M:Disc.TmdLoad(System.UInt32)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="1007">
 <summary>
 Loads the TMD (Title Metadata) info for the give partition number
 <param name="partNo">The partition number to load the TMD from</param>
 </summary>
 </member>
-<member name="M:Disc.ExtractFile(System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,PartitionFile*,System.Boolean)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="1108">
+<member name="M:Disc.ExtractFile(System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,PartitionFile*,System.Boolean)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="1127">
 <summary>
 Extracts a file to disk
 <param name="destFilename">The filename and path to extract to</param>
@@ -161,7 +161,7 @@ Extracts a file to disk
 <param name="decrypt">Whether or not the file should be decrypted when extracted</param>
 </summary>
 </member>
-<member name="M:Disc.ReplaceFile(System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,PartitionFile*,System.Boolean)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="1192">
+<member name="M:Disc.ReplaceFile(System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,PartitionFile*,System.Boolean)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="1211">
 <summary>
 Replaces a file on the disc with the file given in inputFilename
 <param name="inputFilename">The path and filename of the file to write to the image</param>
@@ -169,7 +169,7 @@ Replaces a file on the disc with the file given in inputFilename
 <param name="encrypt">Whether or not the file should be encrypted when written to the image</param>
 </summary>
 </member>
-<member name="M:Disc.WriteData(System.Int32,System.UInt64,System.UInt64,System.Byte*,_iobuf*)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="1321">
+<member name="M:Disc.WriteData(System.Int32,System.UInt64,System.UInt64,System.Byte*,_iobuf*)" decl="false" source="z:\development\wiidl\wiidlbase\disc.cpp" line="1679">
 <summary>
 Heavily optimised file write routine so that the minimum number of
 SHA calculations have to be performed                             

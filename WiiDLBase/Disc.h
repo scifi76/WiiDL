@@ -61,6 +61,7 @@ class DISC_API Disc
 		void LoadKey(bool korean);
 		int MarkAsUsed(u64 nOffset, u64 nSize);
 		int MarkAsUsedCrypto(u64 partOffset, u64 offset, u64 size, bool isEncrypted);
+		void MarkAsUnused(u64 nOffset, u64 nSize);
 		int ParseImage();
 		int ParsePartitions();
 		tmd * TmdLoad(u32 partNo);
@@ -91,7 +92,7 @@ class DISC_API Disc
 		bool DiscWriteDirect(u64 nOffset, u8 *pData, unsigned int nSize);
 		bool TruchaSignPartition(int partNo);
 		u64 FindRequiredFreeSpaceInPartition(int partNo, u32 nRequiredSize);
-		bool CheckForFreeSpace(u32 partNo, u64 nOffset, u32 nBlocks)
+		bool CheckForFreeSpace(u32 partNo, u64 nOffset, u32 nBlocks);
 		void Write32( u8 *p, u32 nVal);
 
 };
